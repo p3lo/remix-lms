@@ -3,7 +3,6 @@ import type { ActionFunction } from '@remix-run/node';
 import { redirect } from '@remix-run/node';
 import { Form } from '@remix-run/react';
 import { RiAtLine, RiLockPasswordLine, RiPencilLine, RiText } from 'react-icons/ri';
-import { sessionStorage } from '~/utils/auth.server';
 import { supabaseAdmin } from '~/utils/supabase.server';
 
 export const action: ActionFunction = async ({ request }) => {
@@ -16,7 +15,6 @@ export const action: ActionFunction = async ({ request }) => {
     throw new Error(`Form not submitted correctly.`);
   }
 
-  // remember to do the "Email Confirmation" toggle of "supabaseSession" will be null
   const { error } = await supabaseAdmin.auth.signUp(
     {
       email,
@@ -32,18 +30,6 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   return redirect('/confirm-email');
-
-  // const session = await sessionStorage.getSession(request.headers.get('Cookie'));
-  // session.set('sb:session', {
-  //   access_token: supabaseSession!.access_token,
-  //   refresh_token: supabaseSession!.refresh_token,
-  // });
-
-  // return redirect('/', {
-  //   headers: {
-  //     'Set-Cookie': await sessionStorage.commitSession(session), // in my case every new signup lead to "/"
-  //   },
-  // });
 };
 
 function Register() {
