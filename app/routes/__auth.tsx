@@ -1,9 +1,9 @@
 import { Tabs } from '@mantine/core';
 import type { LoaderFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
-import { Outlet, useLoaderData, useNavigate } from '@remix-run/react';
+import { Link, Outlet, useLoaderData, useNavigate } from '@remix-run/react';
 import { useState } from 'react';
-import { RiKey2Line, RiPencilLine } from 'react-icons/ri';
+import { RiKey2Line, RiPencilLine, RiArrowGoBackLine } from 'react-icons/ri';
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
@@ -27,15 +27,20 @@ function AuthLayout() {
     }
   }
   return (
-    <div className="flex justify-center pt-[20vh] ">
-      <div className="w-[450px] flex flex-col space-y-3 border p-5 shadow">
-        <Tabs active={activeTab} onTabChange={tabChange} grow>
-          <Tabs.Tab label="Login" icon={<RiKey2Line size={16} />} />
-          <Tabs.Tab label="Register" icon={<RiPencilLine size={16} />} />
-        </Tabs>
-        <Outlet />
+    <>
+      <Link to="/">
+        <RiArrowGoBackLine className="w-5 h-5 mx-3 mt-3 opacity-50" />
+      </Link>
+      <div className="flex justify-center pt-[20vh] ">
+        <div className="w-[450px] flex flex-col space-y-3 border p-5 shadow">
+          <Tabs active={activeTab} onTabChange={tabChange} grow>
+            <Tabs.Tab label="Login" icon={<RiKey2Line size={16} />} />
+            <Tabs.Tab label="Register" icon={<RiPencilLine size={16} />} />
+          </Tabs>
+          <Outlet />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
