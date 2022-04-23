@@ -17,7 +17,7 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   // remember to do the "Email Confirmation" toggle of "supabaseSession" will be null
-  const { error, session: supabaseSession } = await supabaseAdmin.auth.signUp(
+  const { error } = await supabaseAdmin.auth.signUp(
     {
       email,
       password,
@@ -31,17 +31,19 @@ export const action: ActionFunction = async ({ request }) => {
     return { error: true, ...error };
   }
 
-  const session = await sessionStorage.getSession(request.headers.get('Cookie'));
-  session.set('sb:session', {
-    access_token: supabaseSession!.access_token,
-    refresh_token: supabaseSession!.refresh_token,
-  });
+  return redirect('/confirm-email');
 
-  return redirect('/', {
-    headers: {
-      'Set-Cookie': await sessionStorage.commitSession(session), // in my case every new signup lead to "/"
-    },
-  });
+  // const session = await sessionStorage.getSession(request.headers.get('Cookie'));
+  // session.set('sb:session', {
+  //   access_token: supabaseSession!.access_token,
+  //   refresh_token: supabaseSession!.refresh_token,
+  // });
+
+  // return redirect('/', {
+  //   headers: {
+  //     'Set-Cookie': await sessionStorage.commitSession(session), // in my case every new signup lead to "/"
+  //   },
+  // });
 };
 
 function Register() {
