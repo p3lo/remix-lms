@@ -6,6 +6,7 @@ import { MantineProvider, ColorSchemeProvider } from '@mantine/core';
 import { useState } from 'react';
 import styles from './tailwind.css';
 import { supabaseStrategy } from './utils/auth.server';
+import { useLocalStorage } from '@mantine/hooks';
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
 
@@ -54,7 +55,10 @@ export default function App() {
 }
 
 function MantineTheme({ children }: { children: React.ReactNode }) {
-  const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
+  const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
+    key: 'mantine-color-scheme',
+    defaultValue: 'dark',
+  });
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
 

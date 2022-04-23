@@ -1,4 +1,4 @@
-import { Tabs } from '@mantine/core';
+import { Tabs, useMantineColorScheme } from '@mantine/core';
 import type { LoaderFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { Link, Outlet, useLoaderData, useNavigate } from '@remix-run/react';
@@ -17,6 +17,8 @@ export const loader: LoaderFunction = async ({ request }) => {
 function AuthLayout() {
   const { tab } = useLoaderData() as { tab: number };
   const [activeTab, setActiveTab] = useState<number>(tab);
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const dark = colorScheme === 'dark';
   let navigate = useNavigate();
   function tabChange(tabindex: number) {
     setActiveTab(tabindex);
@@ -32,7 +34,7 @@ function AuthLayout() {
         <RiArrowGoBackLine className="w-5 h-5 mx-3 mt-3 opacity-50" />
       </Link>
       <div className="flex justify-center pt-[20vh] ">
-        <div className="w-[450px] flex flex-col space-y-3 border p-5 shadow">
+        <div className={`w-[450px] flex flex-col space-y-3 border p-5 shadow ${dark && 'shadow-white'}`}>
           <Tabs active={activeTab} onTabChange={tabChange} grow>
             <Tabs.Tab label="Login" icon={<RiKey2Line size={16} />} />
             <Tabs.Tab label="Register" icon={<RiPencilLine size={16} />} />
