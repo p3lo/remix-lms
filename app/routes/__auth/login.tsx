@@ -3,7 +3,10 @@ import { json } from '@remix-run/node';
 import { Form, useLoaderData } from '@remix-run/react';
 
 import { authenticator, sessionStorage, supabaseStrategy } from '~/utils/auth.server';
-import { signInWithGithub } from '~/utils/supabase.client';
+import { signInWithGithub, signInWithGoogle } from '~/utils/supabase.client';
+import { AiFillGithub, AiFillGoogleCircle, AiOutlineLogin } from 'react-icons/ai';
+import { RiAtLine, RiLockPasswordLine } from 'react-icons/ri';
+import { Button, TextInput } from '@mantine/core';
 
 type LoaderData = {
   error: { message: string } | null;
@@ -33,23 +36,49 @@ export default function Screen() {
 
   return (
     <>
-      <Form method="post">
-        {error && <div>{error.message}</div>}
-        <div>
-          <label htmlFor="email">Email</label>
-          <input type="email" name="email" id="email" />
-        </div>
+      <Form method="post" className="flex flex-col space-y-3 pb-5">
+        {error && <p className="text-red-500 text-xs mx-auto">{error.message}</p>}
+        <TextInput
+          placeholder="Your e-mail"
+          label="E-mail"
+          type="email"
+          name="email"
+          id="email"
+          required
+          icon={<RiAtLine size={14} />}
+        />
+        <TextInput
+          placeholder="Your password"
+          label="Password"
+          type="password"
+          name="password"
+          id="password"
+          required
+          icon={<RiLockPasswordLine size={14} />}
+        />
 
-        <div>
-          <label htmlFor="password">Password</label>
-          <input type="password" name="password" id="password" />
-        </div>
-
-        <button>Log In</button>
+        <Button leftIcon={<AiOutlineLogin size={17} />} variant="outline" className="w-1/2 mx-auto" type="submit">
+          Login
+        </Button>
       </Form>
-      <p>
-        <button onClick={() => signInWithGithub()}>Sign in with Github</button>
-      </p>
+      <div className="flex flex-col space-y-2 justify-center">
+        <Button
+          leftIcon={<AiFillGithub size={17} />}
+          variant="outline"
+          onClick={() => signInWithGithub()}
+          className="w-1/2 mx-auto"
+        >
+          Sign in with Github
+        </Button>
+        <Button
+          leftIcon={<AiFillGoogleCircle size={17} />}
+          variant="outline"
+          onClick={() => signInWithGoogle()}
+          className="w-1/2 mx-auto"
+        >
+          Sign in with Google
+        </Button>
+      </div>
     </>
   );
 }

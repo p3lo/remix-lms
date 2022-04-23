@@ -17,6 +17,7 @@ export const meta: MetaFunction = () => ({
 
 export const loader: LoaderFunction = async ({ request }) => {
   const session = await supabaseStrategy.checkSession(request);
+  console.log(session);
   return json({
     env: {
       SUPABASE_URL: process.env.SUPABASE_URL,
