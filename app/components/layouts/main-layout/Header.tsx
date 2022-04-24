@@ -1,14 +1,17 @@
-import { ActionIcon, Button, Text, useMantineColorScheme } from '@mantine/core';
+import { ActionIcon, Avatar, Button, Divider, Menu, Text, useMantineColorScheme } from '@mantine/core';
 import { useFetcher, useMatches } from '@remix-run/react';
 import { Link } from '@remix-run/react';
 import { BsSun, BsMoon } from 'react-icons/bs';
 import { AiOutlineLogout } from 'react-icons/ai';
+import { CgProfile } from 'react-icons/cg';
+import type { User } from '~/utils/types';
 
 function Header() {
-  const session = useMatches()[0].data.session;
+  const profile = useMatches()[0].data.profile as User;
   const logout = useFetcher();
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const dark = colorScheme === 'dark';
+  console.log(profile);
   return (
     <div className="flex items-center h-[50px] justify-between">
       <div>
@@ -27,15 +30,21 @@ function Header() {
       </div>
       <div></div>
       <div className="flex items-center space-x-3 pr-3">
-        {session ? (
-          <Button
-            leftIcon={<AiOutlineLogout size={17} />}
-            variant="outline"
-            className="w-[100px] mx-auto"
-            onClick={() => logout.submit(null, { method: 'post', action: '/logout' })}
-          >
-            Logout
-          </Button>
+        {profile ? (
+          <Menu control={<Avatar className="cursor-pointer" src={profile.picture} alt={profile.name} />}>
+            <Menu.Label>{profile.name}</Menu.Label>
+            <Menu.Item component={Link} to="/profile" icon={<CgProfile size={14} />}>
+              Profile
+            </Menu.Item>
+            <Divider />
+            <Menu.Item
+              icon={<AiOutlineLogout size={14} />}
+              color="red"
+              onClick={() => logout.submit(null, { method: 'post', action: '/logout' })}
+            >
+              Logout
+            </Menu.Item>
+          </Menu>
         ) : (
           <>
             <Button component={Link} to="/login" variant="outline" className="w-[100px] mx-auto">

@@ -7,6 +7,7 @@ import { useState } from 'react';
 import styles from './tailwind.css';
 import { supabaseStrategy } from './utils/auth.server';
 import { useLocalStorage } from '@mantine/hooks';
+import { prisma } from './utils/db.server';
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
 
@@ -18,13 +19,16 @@ export const meta: MetaFunction = () => ({
 
 export const loader: LoaderFunction = async ({ request }) => {
   const session = await supabaseStrategy.checkSession(request);
-  console.log(session);
+  let profile;
+  if (session) {
+    profile = await prisma.user.findUnique({ where: { email: session.user?.email } });
+  }
   return json({
     env: {
       SUPABASE_URL: process.env.SUPABASE_URL,
       PUBLIC_SUPABASE_ANON_KEY: process.env.PUBLIC_SUPABASE_ANON_KEY,
     },
-    session,
+    profile,
   });
 };
 

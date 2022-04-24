@@ -4,6 +4,7 @@ import { SupabaseStrategy } from 'remix-auth-supabase';
 
 import { supabaseAdmin } from '~/utils/supabase.server';
 import type { Session } from '~/utils/supabase.server';
+import { prisma } from './db.server';
 
 export const sessionStorage = createCookieSessionStorage({
   cookie: {
@@ -58,8 +59,19 @@ export const oAuthStrategy = new SupabaseStrategy(
     const session = form?.get('session');
 
     if (typeof session !== 'string') throw new AuthorizationError('session not found');
-    console.log(session);
-    return JSON.parse(session);
+    const session_parsed = JSON.parse(session);
+
+    await prisma.user.createMany({
+      data: [
+        {
+          name: session_parsed.user.user_metadata.preferred_username,
+          email: session_parsed.user.user_metadata.email,
+          picture: session_parsed.user.user_metadata.avatar_url,
+        },
+      ],
+      skipDuplicates: true,
+    });
+    return session_parsed;
   }
 );
 
