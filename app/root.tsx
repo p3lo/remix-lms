@@ -58,6 +58,7 @@ function MantineTheme({ children }: { children: React.ReactNode }) {
   const [colorScheme, setColorScheme] = useLocalStorage<ColorScheme>({
     key: 'mantine-color-scheme',
     defaultValue: 'dark',
+    getInitialValueInEffect: true,
   });
   const toggleColorScheme = (value?: ColorScheme) =>
     setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));

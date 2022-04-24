@@ -31,10 +31,12 @@ function AuthLayout() {
   return (
     <>
       <Link to="/">
-        <RiArrowGoBackLine className="w-5 h-5 mx-3 mt-3 opacity-50" />
+        <RiArrowGoBackLine className="w-5 h-5 mx-3 mt-3 text-gray-500" />
       </Link>
       <div className="flex justify-center pt-[20vh] ">
-        <div className={`w-[450px] flex flex-col space-y-3 border p-5 shadow ${dark && 'shadow-white'}`}>
+        <div
+          className={`w-[450px] flex flex-col space-y-3 border p-5 shadow ${dark && 'shadow-gray-400 border-gray-500'}`}
+        >
           <Tabs active={activeTab} onTabChange={tabChange} grow>
             <Tabs.Tab label="Login" icon={<RiKey2Line size={16} />} />
             <Tabs.Tab label="Register" icon={<RiPencilLine size={16} />} />

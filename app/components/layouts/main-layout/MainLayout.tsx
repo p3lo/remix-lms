@@ -3,11 +3,11 @@ import Header from './Header';
 
 function MainLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div>
-      <header className="border-b">
+    <div className="flex flex-col justify-between h-screen">
+      <header className="shadow-xl">
         <Header />
       </header>
-      <main className="">{children}</main>
+      <main className="flex-grow">{children}</main>
       <Footer />
     </div>
   );
