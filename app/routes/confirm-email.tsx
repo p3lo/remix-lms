@@ -11,7 +11,7 @@ export const action: ActionFunction = async ({ request }) => {
 function ConfirmEmail() {
   return (
     <div className="flex flex-col space-y-5 justify-center pt-[20vh]">
-      <h2 className="text-md text-center">Your registration has been completed. Please confirm email for login.</h2>
+      <p className="text-md text-center">Your registration has been completed. Please confirm email for login.</p>
       <Form method="post" className="mx-auto">
         <Button leftIcon={<AiOutlineLogin size={17} />} variant="outline" className="w-[200px] " type="submit">
           To login page

@@ -1,4 +1,4 @@
-import { Tabs, useMantineColorScheme } from '@mantine/core';
+import { ActionIcon, Tabs, useMantineColorScheme } from '@mantine/core';
 import type { LoaderFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { Link, Outlet, useLoaderData, useNavigate } from '@remix-run/react';
@@ -30,9 +30,10 @@ function AuthLayout() {
   }
   return (
     <>
-      <Link to="/">
-        <RiArrowGoBackLine className="w-5 h-5 mx-3 mt-3 text-gray-500" />
-      </Link>
+      <ActionIcon className="w-5 h-5 mx-3 mt-3 " component={Link} to="/">
+        <RiArrowGoBackLine />
+      </ActionIcon>
+
       <div className="flex justify-center pt-[20vh] ">
         <div
           className={`w-[450px] flex flex-col space-y-3 border p-5 shadow ${dark && 'shadow-gray-400 border-gray-500'}`}
