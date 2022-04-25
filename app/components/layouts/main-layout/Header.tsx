@@ -12,7 +12,7 @@ function Header() {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const dark = colorScheme === 'dark';
   return (
-    <div className="flex items-center h-[50px] justify-between">
+    <div className="flex items-center h-[80px] justify-between">
       <div>
         <Text
           className="px-3"

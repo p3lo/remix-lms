@@ -51,7 +51,7 @@ function ProfileLayout() {
             </div>
           </Navbar.Section>
         </Navbar>
-        <div className="p-3">
+        <div className="p-3 grow">
           <Outlet />
         </div>
       </div>
