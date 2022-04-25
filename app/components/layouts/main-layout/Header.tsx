@@ -11,7 +11,6 @@ function Header() {
   const logout = useFetcher();
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const dark = colorScheme === 'dark';
-  console.log(profile);
   return (
     <div className="flex items-center h-[50px] justify-between">
       <div>
@@ -33,7 +32,7 @@ function Header() {
         {profile ? (
           <Menu control={<Avatar className="cursor-pointer" src={profile.picture} alt={profile.name} />}>
             <Menu.Label>{profile.name}</Menu.Label>
-            <Menu.Item component={Link} to="/profile" icon={<CgProfile size={14} />}>
+            <Menu.Item component={Link} to="/user/profile-edit" icon={<CgProfile size={14} />}>
               Profile
             </Menu.Item>
             <Divider />
