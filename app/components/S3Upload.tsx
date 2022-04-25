@@ -12,24 +12,9 @@ function S3Upload({ presigned }: { presigned: string }): JSX.Element {
   console.log(presigned);
   const submit = useSubmit();
 
-  useEffect(() => {
-    if (presigned) {
-      uppy.upload().then((result) => {
-        console.info('Successful uploads:', result.successful);
-
-        if (result.failed.length > 0) {
-          console.error('Errors:');
-          result.failed.forEach((file) => {
-            console.error(file.error);
-          });
-        }
-      });
-    }
-  }, [presigned]);
-
   const uppy = new Uppy({
     id: 'uppy',
-    autoProceed: false,
+    autoProceed: true,
     restrictions: {
       maxFileSize: 5 * 1024 * 1024,
       maxNumberOfFiles: 1,
@@ -37,16 +22,18 @@ function S3Upload({ presigned }: { presigned: string }): JSX.Element {
       allowedFileTypes: ['image/*'],
     },
   });
-
-  uppy.on('file-added', (file) => {
-    const formData = new FormData();
-    formData.append('file', file.name);
-    submit(formData, { method: 'post', action: `/user/profile-picture` });
+  uppy.on('upload-error', (file, error, response) => {
+    console.log('error with file:', file.id);
+    console.log('error message:', error);
+    uppy.retryUpload(file.id);
   });
   uppy.use(AwsS3, {
     //@ts-ignore
-    async getUploadParameters() {
-      console.log(presigned);
+    async getUploadParameters(file) {
+      const formData = new FormData();
+      formData.append('file', file.name);
+      const kkt = await submit(formData, { method: 'post', action: `/user/profile-picture` });
+      console.log(kkt);
       return {
         method: 'PUT',
         url: presigned,
@@ -65,6 +52,7 @@ function S3Upload({ presigned }: { presigned: string }): JSX.Element {
       console.log('failed', result);
       // setUploadComplete(`Upload error: ${result.failed}`);
     }
+    uppy.reset();
     uppy.close();
   });
   return (
