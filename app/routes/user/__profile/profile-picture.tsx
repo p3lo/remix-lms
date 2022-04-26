@@ -52,7 +52,6 @@ function ProfilePicture() {
   const file = useActionData() as string;
   console.log(file);
   const transition = useTransition();
-  const submission = transition.state === 'submitting' ? true : false;
   const submit = useSubmit();
   function handlechange(event: React.ChangeEvent<HTMLFormElement>) {
     submit(event.currentTarget, { replace: true });
@@ -75,7 +74,7 @@ function ProfilePicture() {
       </Paper>
       <Form method="post" encType="multipart/form-data" onChange={handlechange}>
         <Dropzone
-          loading={submission}
+          loading={transition.state === 'submitting'}
           className="w-full mx-auto xs:w-3/4 md:w-2/3 h-[90px]"
           onDrop={(files) => console.log('accepted files', files)}
           onReject={(files) => console.log('rejected files', files)}
