@@ -30,7 +30,7 @@ function Header() {
       <div></div>
       <div className="flex items-center space-x-3 pr-3">
         {profile ? (
-          <Menu control={<Avatar className="cursor-pointer" src={profile.picture} alt={profile.name} />}>
+          <Menu control={<Avatar className="cursor-pointer" radius="xl" src={profile.picture} alt={profile.name} />}>
             <Menu.Label>{profile.name}</Menu.Label>
             <Menu.Item component={Link} to="/user/profile-edit" icon={<CgProfile size={14} />}>
               Profile

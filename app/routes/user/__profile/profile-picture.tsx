@@ -11,35 +11,48 @@ import { prisma } from '~/utils/db.server';
 
 export const action: ActionFunction = async ({ request }) => {
   const uploadHandler: UploadHandler = async ({ name, stream, mimetype, filename }) => {
-    if (name !== 'file') {
+    const splitted = name.split('-');
+    if (splitted[0] !== 'file') {
       stream.resume();
       return;
     }
-    const unsigned_url = await s3_upload('test/', filename, mimetype);
-    try {
-      await axios.put(unsigned_url, stream, {
+    const unsigned_url = await s3_upload(`profiles/${splitted[1]}/`, filename, mimetype);
+
+    await axios
+      .put(unsigned_url, stream, {
         headers: {
           'Content-Type': mimetype,
         },
         maxBodyLength: Infinity,
         maxContentLength: Infinity,
+      })
+      .then(async () => {
+        await prisma.user.update({
+          where: { id: +splitted[1] },
+          data: {
+            picture: unsigned_url.split('?')[0],
+          },
+        });
+      })
+      .catch(() => {
+        return 'error';
+      })
+      .finally(() => {
+        return 'done';
       });
-      return unsigned_url.split('?')[0];
-    } catch (error) {
-      return 'error';
-    }
+    return 'done';
   };
   const formData = await unstable_parseMultipartFormData(request, uploadHandler);
-  const id = formData.get('id')!;
-  const file = formData.getAll('file')[0] as string;
-  if (file.startsWith('http') && id) {
-    await prisma.user.update({
-      where: { id: +id },
-      data: {
-        picture: file,
-      },
-    });
+
+  let getkey: string = '';
+  formData.forEach((_, key) => {
+    getkey = key;
+  });
+  const file = formData.getAll(getkey)[0] as string;
+  if (!file) {
+    return null;
   }
+
   return file;
 };
 
@@ -59,7 +72,6 @@ export const dropzoneChildren = () => (
 function ProfilePicture() {
   const profile = useMatches()[0].data.profile as User;
   const response = useActionData<string>();
-  console.log(response);
   const transition = useTransition();
   const submit = useSubmit();
   function handlechange(event: React.ChangeEvent<HTMLFormElement>) {
@@ -90,11 +102,10 @@ function ProfilePicture() {
           maxSize={2 * 1024 ** 2}
           accept={IMAGE_MIME_TYPE}
           multiple={false}
-          name="file"
+          name={`file-${profile.id}`}
         >
           {() => dropzoneChildren()}
         </Dropzone>
-        <input hidden name="id" value={profile.id} readOnly />
       </Form>
 
       {response && response !== 'error' && (

@@ -41,7 +41,7 @@ function ProfileLayout() {
           <Divider />
           <Navbar.Section>
             <div className="flex flex-col justify-center items-center p-3">
-              <Avatar className="mb-3" size="xl" src={profile.picture} alt={profile.name} />
+              <Avatar className="mb-3" size="xl" radius="xl" src={profile.picture} alt={profile.name} />
               <Text size="sm" weight={500}>
                 {profile.name}
               </Text>
