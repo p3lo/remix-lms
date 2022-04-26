@@ -6,7 +6,6 @@ import { Form, useActionData, useMatches, useSubmit, useTransition } from '@remi
 import axios from 'axios';
 import { s3_upload } from '~/utils/s3.server';
 import type { User } from '~/utils/types';
-import type { DropzoneStatus } from '@mantine/dropzone';
 import { MIME_TYPES } from '@mantine/dropzone';
 import { Dropzone } from '@mantine/dropzone';
 
@@ -51,6 +50,7 @@ export const dropzoneChildren = () => (
 function ProfilePicture() {
   const profile = useMatches()[0].data.profile as User;
   const file = useActionData() as string;
+  console.log(file);
   const transition = useTransition();
   const submission = transition.state === 'submitting' ? true : false;
   const submit = useSubmit();
