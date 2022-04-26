@@ -2,7 +2,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { S3, PutObjectCommand } from '@aws-sdk/client-s3';
 import invariant from 'tiny-invariant';
 
-export const s3_upload = async (path: string, file: any) => {
+export const s3_upload = async (path: string, file: any, mime: string) => {
   invariant(process.env.WASABI_ENDPOINT, 'WASABI_ENDPOINT is required');
   invariant(process.env.WASABI_KEY, 'WASABI_KEY is required');
   invariant(process.env.WASABI_SECRET, 'WASABI_SECRET is required');
@@ -19,10 +19,10 @@ export const s3_upload = async (path: string, file: any) => {
   const command = new PutObjectCommand({
     Bucket: process.env.WASABI_BUCKET,
     Key: `${path}${file}`,
+    ContentType: mime,
   });
   const signedUrl = await getSignedUrl(client, command, {
     expiresIn: 10 * 60,
   });
-  console.log(signedUrl);
   return signedUrl;
 };
