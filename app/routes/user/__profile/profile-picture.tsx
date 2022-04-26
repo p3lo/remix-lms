@@ -1,13 +1,13 @@
 import { Group, Image, Paper, Text } from '@mantine/core';
 import type { ActionFunction, UploadHandler } from '@remix-run/node';
-import { json } from '@remix-run/node';
 import { unstable_parseMultipartFormData } from '@remix-run/node';
 import { Form, useActionData, useMatches, useSubmit, useTransition } from '@remix-run/react';
 import axios from 'axios';
 import { s3_upload } from '~/utils/s3.server';
 import type { User } from '~/utils/types';
-import { MIME_TYPES } from '@mantine/dropzone';
+import { IMAGE_MIME_TYPE } from '@mantine/dropzone';
 import { Dropzone } from '@mantine/dropzone';
+import { prisma } from '~/utils/db.server';
 
 export const action: ActionFunction = async ({ request }) => {
   const uploadHandler: UploadHandler = async ({ name, stream, mimetype, filename }) => {
@@ -24,24 +24,33 @@ export const action: ActionFunction = async ({ request }) => {
         maxBodyLength: Infinity,
         maxContentLength: Infinity,
       });
-      return JSON.stringify({ success: true, response: 'Upload complete' });
+      return unsigned_url.split('?')[0];
     } catch (error) {
-      return JSON.stringify({ success: false, response: error });
+      return 'error';
     }
   };
   const formData = await unstable_parseMultipartFormData(request, uploadHandler);
-  const file = formData.getAll('file');
-  return json(file.toString());
+  const id = formData.get('id')!;
+  const file = formData.getAll('file')[0] as string;
+  if (file.startsWith('http') && id) {
+    await prisma.user.update({
+      where: { id: +id },
+      data: {
+        picture: file,
+      },
+    });
+  }
+  return file;
 };
 
 export const dropzoneChildren = () => (
   <Group position="center" spacing="xl" style={{ minHeight: 50, pointerEvents: 'none' }}>
     <div>
       <Text size="xl" inline>
-        Drag images here or click to select files
+        Drag image here or click to select file
       </Text>
       <Text size="sm" color="dimmed" inline mt={7}>
-        Attach as many files as you like, each file should not exceed 5mb
+        Change your profile image. Picture shouldn't exceed 4MB.
       </Text>
     </div>
   </Group>
@@ -49,8 +58,8 @@ export const dropzoneChildren = () => (
 
 function ProfilePicture() {
   const profile = useMatches()[0].data.profile as User;
-  const file = useActionData() as string;
-  console.log(file);
+  const response = useActionData<string>();
+  console.log(response);
   const transition = useTransition();
   const submit = useSubmit();
   function handlechange(event: React.ChangeEvent<HTMLFormElement>) {
@@ -78,14 +87,27 @@ function ProfilePicture() {
           className="w-full mx-auto xs:w-3/4 md:w-2/3 h-[90px]"
           onDrop={(files) => console.log('accepted files', files)}
           onReject={(files) => console.log('rejected files', files)}
-          maxSize={32 * 1024 ** 2}
-          accept={[MIME_TYPES.mp4]}
+          maxSize={2 * 1024 ** 2}
+          accept={IMAGE_MIME_TYPE}
           multiple={false}
           name="file"
         >
           {() => dropzoneChildren()}
         </Dropzone>
+        <input hidden name="id" value={profile.id} readOnly />
       </Form>
+
+      {response && response !== 'error' && (
+        <Text size="sm" className="mx-auto">
+          Image has been changed.
+        </Text>
+      )}
+
+      {response && response === 'error' && (
+        <Text size="sm" className="mx-auto">
+          Image upload failed.
+        </Text>
+      )}
     </div>
   );
 }
