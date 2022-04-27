@@ -11,14 +11,15 @@ datasource db {
 }
 
 model user {
-  id       Int     @id @default(autoincrement())
+  id       Int      @id @default(autoincrement())
   name     String
-  email    String  @unique
+  email    String   @unique
   picture  String?
-  role     String  @default("student")
+  role     String   @default("student")
   headline String?
   bio      String?
   website  String?
+  authored course[]
 }
 
 model category {
@@ -32,27 +33,32 @@ model sub_category {
   name       String   @unique
   category   category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   categoryId Int
+  course     course[]
 }
 
 model course {
-  id             Int                     @id @default(autoincrement())
-  createdAt      DateTime                @default(now())
-  updatedAt      DateTime                @default(now())
-  title          String
-  slug           String                  @unique
-  language       String                  @default("en")
-  brief          String?
-  description    String?
-  image          String?
-  preview        String?
-  requirements   String?
-  price          Int?
-  what_you_learn course_what_you_learn[]
+  id            Int                     @id @default(autoincrement())
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @default(now())
+  title         String
+  slug          String                  @unique
+  language      String                  @default("en")
+  author        user                    @relation(fields: [authorId], references: [id])
+  authorId      Int                     @unique
+  subCategory   sub_category            @relation(fields: [subCategoryId], references: [id])
+  subCategoryId Int
+  brief         String?
+  description   String?
+  image         String?
+  preview       String?
+  requirements  String?
+  price         Int?
+  whatYouLearn  course_what_you_learn[]
 }
 
 model course_what_you_learn {
   id             Int    @id @default(autoincrement())
   course         course @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId       Int
-  what_you_learn String
+  whatYoullLearn String
 }
