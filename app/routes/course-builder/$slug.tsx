@@ -18,7 +18,6 @@ export const loader: LoaderFunction = async ({ request }) => {
       whatYouLearn: true,
     },
   });
-  console.log(session?.user?.email, course?.author?.email);
   if (session?.user?.email !== course?.author?.email) {
     return redirect('/user/my-courses');
   }

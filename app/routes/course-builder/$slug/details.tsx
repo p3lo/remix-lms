@@ -8,7 +8,6 @@ import { RiAddCircleLine } from 'react-icons/ri';
 function CourseDetails() {
   const { course } = useMatches()[2].data as { course: Course };
   const [value, onChange] = useState(course.description || '');
-  console.log(course);
   return (
     <Form method="post" className="flex flex-col space-y-3">
       <TextInput placeholder="Title" label="Course title" required name="title" defaultValue={course.title} />
@@ -54,7 +53,7 @@ function CourseDetails() {
             />
           ))
         ) : (
-          <TextInput placeholder="What is output of this course" required name="wyl" />
+          <TextInput placeholder="What is output of this course" required name="wyl" defaultValue="" />
         )}
         <div className="flex justify-center">
           <Button
