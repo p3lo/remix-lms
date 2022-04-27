@@ -1,10 +1,19 @@
 import { Button, Divider, Navbar, Text } from '@mantine/core';
-import { Outlet } from '@remix-run/react';
+import { Outlet, useLoaderData } from '@remix-run/react';
 import MainLayout from '~/components/layouts/main-layout/MainLayout';
 import MainLink from '~/components/layouts/MainLink';
-import { RiMoneyDollarCircleLine, RiFilePaper2Line, RiPencilLine } from 'react-icons/ri';
+import { RiMoneyDollarCircleLine, RiFilePaper2Line, RiPencilLine, RiImage2Line } from 'react-icons/ri';
+import type { LoaderFunction } from '@remix-run/node';
+import { json } from '@remix-run/node';
+
+export const loader: LoaderFunction = async ({ request }) => {
+  const url = new URL(request.url);
+  const slug = url.pathname.split('/')[2];
+  return json({ slug });
+};
 
 function CourseBuilderLayout() {
+  const { slug } = useLoaderData() as { slug: string };
   return (
     <MainLayout>
       <div className="flex">
@@ -19,19 +28,25 @@ function CourseBuilderLayout() {
           <Navbar.Section grow mt="md">
             <div className="flex flex-col">
               <MainLink
-                link="/user/profile-edit"
+                link={`/course-builder/${slug}/details`}
                 icon={<RiPencilLine size={16} />}
                 color="blue"
                 label="Course details"
               />
               <MainLink
-                link="/user/profile-picture"
+                link={`/course-builder/${slug}/media`}
+                icon={<RiImage2Line size={16} />}
+                color="blue"
+                label="Course UI"
+              />
+              <MainLink
+                link={`/course-builder/${slug}/content`}
                 icon={<RiFilePaper2Line size={16} />}
                 color="blue"
                 label="Course content"
               />
               <MainLink
-                link="/user/my-courses"
+                link={`/course-builder/${slug}/payment`}
                 icon={<RiMoneyDollarCircleLine size={16} />}
                 color="blue"
                 label="Payment information"

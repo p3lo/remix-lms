@@ -3,23 +3,27 @@ import { useFocusTrap } from '@mantine/hooks';
 import type { ActionFunction } from '@remix-run/node';
 import { redirect } from '@remix-run/node';
 import { json } from '@remix-run/node';
-import { Form, useActionData, useNavigate } from '@remix-run/react';
+import { Form, useActionData, useMatches, useNavigate } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 import slugify from 'slugify';
 import { prisma } from '~/utils/db.server';
+import type { User } from '~/utils/types';
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const title = formData.get('title') as string;
-  const slug = slugify(title);
+  const id = formData.get('id') as string;
+  const slug = slugify(title, { lower: true });
   const message = prisma.course
     .create({
       data: {
         title,
         slug,
+        authorId: +id,
+        subCategoryId: 1,
       },
     })
-    .then((result) => {
+    .then(() => {
       return redirect(`/course-builder/${slug}`);
     })
     .catch(() => {
@@ -30,8 +34,8 @@ export const action: ActionFunction = async ({ request }) => {
 
 function NewCourse() {
   const [opened, setOpened] = useState(false);
+  const profile = useMatches()[0].data.profile as User;
   const error = useActionData() as { error: string | null };
-  console.log(error);
   const navigate = useNavigate();
   const focusTrapRef = useFocusTrap();
   useEffect(() => {
@@ -56,6 +60,7 @@ function NewCourse() {
           name="title"
           {...(error && { error: error.error })}
         />
+        <input hidden readOnly value={profile.id} name="id" />
         <Button className="w-[150px] mx-auto" type="submit">
           Create course
         </Button>
