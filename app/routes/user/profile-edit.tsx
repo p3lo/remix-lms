@@ -21,10 +21,10 @@ export const action: ActionFunction = async ({ request }) => {
   await prisma.user.update({
     where: { id: Number(id) },
     data: {
-      name,
-      headline,
-      bio,
-      website,
+      name: name?.toString(),
+      headline: headline?.toString(),
+      bio: bio?.toString(),
+      website: website?.toString(),
     },
   });
   return null;
