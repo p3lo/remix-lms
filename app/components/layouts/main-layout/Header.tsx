@@ -12,11 +12,11 @@ function Header() {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const dark = colorScheme === 'dark';
   return (
-    <div className="flex items-center h-[80px] justify-between">
-      <div>
+    <div className="flex items-center h-[70px] justify-between">
+      <div className="">
         <Text
           className="px-3"
-          weight={700}
+          weight={800}
           component={Link}
           to="/"
           size="xl"

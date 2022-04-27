@@ -33,3 +33,26 @@ model sub_category {
   category   category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   categoryId Int
 }
+
+model course {
+  id             Int                     @id @default(autoincrement())
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @default(now())
+  title          String
+  slug           String                  @unique
+  language       String                  @default("en")
+  brief          String?
+  description    String?
+  image          String?
+  preview        String?
+  requirements   String?
+  price          Int?
+  what_you_learn course_what_you_learn[]
+}
+
+model course_what_you_learn {
+  id             Int    @id @default(autoincrement())
+  course         course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId       Int
+  what_you_learn String
+}
