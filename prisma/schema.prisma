@@ -44,7 +44,7 @@ model course {
   slug          String                  @unique
   language      String                  @default("en")
   author        user                    @relation(fields: [authorId], references: [id])
-  authorId      Int                     @unique
+  authorId      Int
   subCategory   sub_category            @relation(fields: [subCategoryId], references: [id])
   subCategoryId Int
   brief         String?

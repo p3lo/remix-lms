@@ -26,7 +26,8 @@ export const action: ActionFunction = async ({ request }) => {
     .then(() => {
       return redirect(`/course-builder/${slug}`);
     })
-    .catch(() => {
+    .catch((e) => {
+      console.log(e);
       return json({ error: 'Course with same title already exists' });
     });
   return message;

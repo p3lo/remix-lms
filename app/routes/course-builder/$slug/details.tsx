@@ -1,15 +1,19 @@
 import { ActionIcon, Box, Button, Divider, InputWrapper, TextInput } from '@mantine/core';
-import { Form, useMatches, useTransition } from '@remix-run/react';
+import { Form, useActionData, useMatches, useTransition } from '@remix-run/react';
 import { useState } from 'react';
 import { RichText } from '~/components/RichText';
 import type { Course } from '~/utils/types';
 import { RiAddCircleLine, RiDeleteBin6Line } from 'react-icons/ri';
 import type { ActionFunction } from '@remix-run/node';
+import { redirect } from '@remix-run/node';
+import { json } from '@remix-run/node';
 import { prisma } from '~/utils/db.server';
+import slugify from 'slugify';
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const courseId = formData.get('courseId');
+  let message;
   if (formData.get('action') === 'add_wyl') {
     formData.forEach(async (value, key) => {
       if (key.startsWith('wyl-')) {
@@ -27,8 +31,11 @@ export const action: ActionFunction = async ({ request }) => {
     return null;
   }
   if (formData.get('action') === 'save_course') {
-    const brief = formData.get('brief');
-    const description = formData.get('description');
+    const title = formData.get('title') as string;
+    const brief = formData.get('brief') as string;
+    const description = formData.get('description') as string;
+    const slug = slugify(title, { lower: true });
+
     formData.forEach(async (value, key) => {
       if (key.startsWith('wyl-')) {
         const id = key.split('-')[1];
@@ -39,30 +46,45 @@ export const action: ActionFunction = async ({ request }) => {
         });
       }
     });
-    await prisma.course.update({
-      where: { id: Number(courseId) },
-      data: {
-        brief: brief?.toString(),
-        description: description?.toString(),
-      },
-    });
+    try {
+      message = await prisma.course.update({
+        where: { id: Number(courseId) },
+        data: {
+          title,
+          slug,
+          brief,
+          description,
+        },
+      });
+      return redirect(`/course-builder/${slug}/details`);
+    } catch (e) {
+      return json({ error: 'Course with same title already exists' });
+    }
   }
   if (formData.get('action')?.toString().startsWith('del_wyl')) {
     const id = formData.get('action')?.toString().split('-')[1];
     await prisma.course_what_you_learn.delete({ where: { id: Number(id) } });
   }
 
-  return null;
+  return message;
 };
 
 function CourseDetails() {
   const { course } = useMatches()[2].data as { course: Course };
+  const error = useActionData() as { error: string | null };
   const [value, onChange] = useState(course.description || '');
   const transition = useTransition();
   const loader = transition.state === 'submitting' || transition.state === 'loading' ? true : false;
   return (
     <Form method="post" className="flex flex-col space-y-3">
-      <TextInput placeholder="Title" label="Course title" required name="title" defaultValue={course.title} />
+      <TextInput
+        placeholder="Title"
+        label="Course title"
+        required
+        name="title"
+        defaultValue={course.title}
+        {...(error && { error: error.error })}
+      />
       <TextInput
         placeholder="Short description of course"
         label="Brief description"
@@ -115,19 +137,21 @@ function CourseDetails() {
           <TextInput placeholder="What is output of this course" required name="wyl-0" defaultValue={undefined} />
         )}
         <input hidden readOnly name="courseId" defaultValue={course.id} />
-        <div className="flex justify-center">
-          <Button
-            type="submit"
-            variant="subtle"
-            leftIcon={<RiAddCircleLine size={17} />}
-            className="w-[200px]"
-            name="action"
-            value="add_wyl"
-            loading={loader}
-          >
-            Add WYL field
-          </Button>
-        </div>
+        {course.whatYouLearn.length < 11 && (
+          <div className="flex justify-center">
+            <Button
+              type="submit"
+              variant="subtle"
+              leftIcon={<RiAddCircleLine size={17} />}
+              className="w-[200px]"
+              name="action"
+              value="add_wyl"
+              loading={loader}
+            >
+              Add WYL field
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="flex justify-center">
