@@ -4,11 +4,15 @@ import MainLayout from '~/components/layouts/main-layout/MainLayout';
 import MainLink from '~/components/layouts/MainLink';
 import { RiMoneyDollarCircleLine, RiFilePaper2Line, RiPencilLine, RiImage2Line } from 'react-icons/ri';
 import type { LoaderFunction } from '@remix-run/node';
-import { json } from '@remix-run/node';
+import { redirect, json } from '@remix-run/node';
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
   const slug = url.pathname.split('/')[2];
+  console.log(slug);
+  if (!slug) {
+    return redirect('/user/my-courses');
+  }
   return json({ slug });
 };
 

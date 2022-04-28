@@ -1,7 +1,6 @@
 import { Text } from '@mantine/core';
 import type { LoaderFunction } from '@remix-run/node';
-import { json } from '@remix-run/node';
-import { redirect } from '@remix-run/node';
+import { json, redirect } from '@remix-run/node';
 import { Outlet, useLoaderData } from '@remix-run/react';
 import { supabaseStrategy } from '~/utils/auth.server';
 import { prisma } from '~/utils/db.server';
@@ -11,6 +10,10 @@ export const loader: LoaderFunction = async ({ request }) => {
   const session = await supabaseStrategy.checkSession(request);
   const url = new URL(request.url);
   const slug = url.pathname.split('/')[2];
+  const section = url.pathname.split('/')[3];
+  if (!section) {
+    return redirect(`/course-builder/${slug}/details`);
+  }
   const course = await prisma.course.findUnique({
     where: { slug },
     include: {
