@@ -56,14 +56,14 @@ export const action: ActionFunction = async ({ request }) => {
   return file;
 };
 
-export const dropzoneChildren = () => (
+export const dropzoneChildren = (text: string) => (
   <Group position="center" spacing="xl" style={{ minHeight: 50, pointerEvents: 'none' }}>
     <div>
       <Text size="xl" inline>
         Drag image here or click to select file
       </Text>
       <Text size="sm" color="dimmed" inline mt={7}>
-        Change your profile image. Picture shouldn't exceed 4MB.
+        {text}
       </Text>
     </div>
   </Group>
@@ -96,7 +96,7 @@ function ProfilePicture() {
       <Form method="post" encType="multipart/form-data" onChange={handlechange}>
         <Dropzone
           loading={transition.state === 'submitting'}
-          className="w-full mx-auto xs:w-3/4 md:w-2/3 h-[90px]"
+          className="w-full mx-auto xs:w-3/4 md:w-2/3 h-[100px]"
           onDrop={(files) => console.log('accepted files', files)}
           onReject={(files) => console.log('rejected files', files)}
           maxSize={2 * 1024 ** 2}
@@ -104,7 +104,7 @@ function ProfilePicture() {
           multiple={false}
           name={`file-${profile.id}`}
         >
-          {() => dropzoneChildren()}
+          {() => dropzoneChildren("Change your profile image. Picture shouldn't exceed 4MB.")}
         </Dropzone>
       </Form>
 

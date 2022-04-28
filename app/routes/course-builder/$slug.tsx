@@ -21,6 +21,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       whatYouLearn: {
         orderBy: { id: 'asc' },
       },
+      subCategory: true,
     },
   });
   if (session?.user?.email !== course?.author?.email) {

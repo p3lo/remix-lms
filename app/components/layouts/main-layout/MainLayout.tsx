@@ -3,11 +3,11 @@ import Header from './Header';
 
 function MainLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col justify-between h-screen">
+    <div className="flex flex-col justify-between min-h-screen">
       <header className="shadow-xl">
         <Header />
       </header>
-      <main className="flex-grow">{children}</main>
+      <main className="h-full grow">{children}</main>
       <Footer />
     </div>
   );

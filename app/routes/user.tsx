@@ -12,7 +12,7 @@ function ProfileLayout() {
   return (
     <MainLayout>
       <div className="flex">
-        <Navbar height={600} width={{ base: 250 }}>
+        <Navbar className="h-[85vh]" width={{ base: 250 }}>
           <Divider />
           <Navbar.Section>
             <Text className="flex justify-center py-3" size="md" weight={600}>
@@ -40,7 +40,7 @@ function ProfileLayout() {
           </Navbar.Section>
           <Divider />
           <Navbar.Section>
-            <div className="flex flex-col justify-center items-center p-3">
+            <div className="flex flex-col items-center justify-center p-3">
               <Avatar className="mb-3" size="xl" radius="xl" src={profile.picture} alt={profile.name} />
               <Text size="sm" weight={500}>
                 {profile.name}
@@ -50,6 +50,7 @@ function ProfileLayout() {
               </Text>
             </div>
           </Navbar.Section>
+          <Divider />
         </Navbar>
         <div className="p-3 grow">
           <Outlet />

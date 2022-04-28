@@ -34,6 +34,7 @@ export const action: ActionFunction = async ({ request }) => {
     const title = formData.get('title') as string;
     const brief = formData.get('brief') as string;
     const description = formData.get('description') as string;
+    const category = formData.get('category') as string;
     const slug = slugify(title, { lower: true });
 
     formData.forEach(async (value, key) => {
@@ -54,6 +55,7 @@ export const action: ActionFunction = async ({ request }) => {
           slug,
           brief,
           description,
+          subCategoryId: +category,
         },
       });
       return redirect(`/course-builder/${slug}/details`);
@@ -64,6 +66,7 @@ export const action: ActionFunction = async ({ request }) => {
   if (formData.get('action')?.toString().startsWith('del_wyl')) {
     const id = formData.get('action')?.toString().split('-')[1];
     await prisma.course_what_you_learn.delete({ where: { id: Number(id) } });
+    return null;
   }
 
   return message;
@@ -71,16 +74,15 @@ export const action: ActionFunction = async ({ request }) => {
 
 function CourseDetails() {
   const { categories } = useMatches()[0].data as { categories: Category[] };
-
   const { course } = useMatches()[2].data as { course: Course };
   const error = useActionData() as { error: string | null };
   const [value, onChange] = useState(course.description || '');
-  const [category, setCategory] = useState<Array<{ value: string; label: string; group: string }>>();
+  const [category, setCategory] = useState([]);
   const transition = useTransition();
   const loader = transition.state === 'submitting' || transition.state === 'loading' ? true : false;
 
   useEffect(() => {
-    let cats: Array<{ value: string; label: string; group: string }> = [];
+    let cats: any = [];
     categories.forEach((cat) => {
       let main_cat = cat.name;
       cat.sub_categories.forEach((sub) => {
@@ -88,7 +90,7 @@ function CourseDetails() {
       });
     });
     setCategory(cats);
-  }, [categories]);
+  }, []);
 
   return (
     <Form method="post" className="flex flex-col space-y-3">
@@ -107,7 +109,15 @@ function CourseDetails() {
         name="brief"
         defaultValue={course.brief}
       />
-      <Select label="Your favorite Rick and Morty character" placeholder="Pick one" data={{ category }} />
+      <Select
+        label="Category"
+        placeholder="Select course category"
+        searchable
+        name="category"
+        defaultValue={course.subCategory.id.toString()}
+        required
+        data={category}
+      />
       <InputWrapper label="Description" required>
         <RichText
           controls={[

@@ -19,15 +19,15 @@ function CourseBuilderLayout() {
   const { slug } = useLoaderData() as { slug: string };
   return (
     <MainLayout>
-      <div className="flex">
-        <Navbar height={600} width={{ base: 250 }}>
-          <Divider />
+      <div className="flex h-full">
+        <Navbar className="h-[85vh]" width={{ base: 250 }}>
+          <Divider size={0.5} />
           <Navbar.Section>
             <Text className="flex justify-center py-3" size="md" weight={600}>
               Course builder menu
             </Text>
           </Navbar.Section>
-          <Divider />
+          <Divider size={0.5} />
           <Navbar.Section grow mt="md">
             <div className="flex flex-col">
               <MainLink
@@ -56,15 +56,16 @@ function CourseBuilderLayout() {
               />
             </div>
           </Navbar.Section>
-          <Divider />
-          <Navbar.Section className="flex flex-col space-y-1">
-            <Button className="mx-auto w-[200px]" color="red" m={15}>
+          <Divider size={0.5} />
+          <Navbar.Section className="flex flex-col py-4 space-y-3">
+            <Button className="mx-auto w-[200px]" color="red" mx={15}>
               Delete course
             </Button>
-            <Button className="mx-auto w-[200px]" m={15}>
+            <Button className="mx-auto w-[200px]" mx={15}>
               Submit for review
             </Button>
           </Navbar.Section>
+          <Divider size={0.5} />
         </Navbar>
         <div className="p-3 grow">
           <Outlet />
