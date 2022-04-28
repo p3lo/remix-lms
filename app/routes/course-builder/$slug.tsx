@@ -15,7 +15,9 @@ export const loader: LoaderFunction = async ({ request }) => {
     where: { slug },
     include: {
       author: true,
-      whatYouLearn: true,
+      whatYouLearn: {
+        orderBy: { id: 'asc' },
+      },
     },
   });
   if (session?.user?.email !== course?.author?.email) {
