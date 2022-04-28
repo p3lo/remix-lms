@@ -23,12 +23,21 @@ export const loader: LoaderFunction = async ({ request }) => {
   if (session) {
     profile = await prisma.user.findUnique({ where: { email: session.user?.email } });
   }
+  const categories = await prisma.category.findMany({
+    orderBy: { name: 'asc' },
+    include: {
+      sub_categories: {
+        orderBy: { name: 'asc' },
+      },
+    },
+  });
   return json({
     env: {
       SUPABASE_URL: process.env.SUPABASE_URL,
       PUBLIC_SUPABASE_ANON_KEY: process.env.PUBLIC_SUPABASE_ANON_KEY,
     },
     profile,
+    categories,
   });
 };
 

@@ -13,7 +13,7 @@ export interface User {
 export interface Category {
   id: number;
   name: string;
-  subcategory: SubCategory[];
+  sub_categories: SubCategory[];
 }
 
 export interface SubCategory {

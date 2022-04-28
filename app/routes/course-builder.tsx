@@ -9,7 +9,6 @@ import { redirect, json } from '@remix-run/node';
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
   const slug = url.pathname.split('/')[2];
-  console.log(slug);
   if (!slug) {
     return redirect('/user/my-courses');
   }
@@ -58,8 +57,11 @@ function CourseBuilderLayout() {
             </div>
           </Navbar.Section>
           <Divider />
-          <Navbar.Section className="flex">
-            <Button className="mx-auto" m={15}>
+          <Navbar.Section className="flex flex-col space-y-1">
+            <Button className="mx-auto w-[200px]" color="red" m={15}>
+              Delete course
+            </Button>
+            <Button className="mx-auto w-[200px]" m={15}>
               Submit for review
             </Button>
           </Navbar.Section>

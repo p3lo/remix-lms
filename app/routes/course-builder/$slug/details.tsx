@@ -1,8 +1,8 @@
-import { ActionIcon, Box, Button, Divider, InputWrapper, TextInput } from '@mantine/core';
+import { ActionIcon, Box, Button, Divider, InputWrapper, Select, TextInput } from '@mantine/core';
 import { Form, useActionData, useMatches, useTransition } from '@remix-run/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { RichText } from '~/components/RichText';
-import type { Course } from '~/utils/types';
+import type { Category, Course } from '~/utils/types';
 import { RiAddCircleLine, RiDeleteBin6Line } from 'react-icons/ri';
 import type { ActionFunction } from '@remix-run/node';
 import { redirect } from '@remix-run/node';
@@ -70,11 +70,26 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 function CourseDetails() {
+  const { categories } = useMatches()[0].data as { categories: Category[] };
+
   const { course } = useMatches()[2].data as { course: Course };
   const error = useActionData() as { error: string | null };
   const [value, onChange] = useState(course.description || '');
+  const [category, setCategory] = useState<Array<{ value: string; label: string; group: string }>>();
   const transition = useTransition();
   const loader = transition.state === 'submitting' || transition.state === 'loading' ? true : false;
+
+  useEffect(() => {
+    let cats: Array<{ value: string; label: string; group: string }> = [];
+    categories.forEach((cat) => {
+      let main_cat = cat.name;
+      cat.sub_categories.forEach((sub) => {
+        cats.push({ value: sub.id.toString(), label: sub.name, group: main_cat });
+      });
+    });
+    setCategory(cats);
+  }, [categories]);
+
   return (
     <Form method="post" className="flex flex-col space-y-3">
       <TextInput
@@ -92,6 +107,7 @@ function CourseDetails() {
         name="brief"
         defaultValue={course.brief}
       />
+      <Select label="Your favorite Rick and Morty character" placeholder="Pick one" data={{ category }} />
       <InputWrapper label="Description" required>
         <RichText
           controls={[
