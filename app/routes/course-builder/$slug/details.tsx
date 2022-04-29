@@ -93,7 +93,7 @@ function CourseDetails() {
   }, []);
 
   return (
-    <Form method="post" className="flex flex-col space-y-3">
+    <Form method="post" className="flex flex-col space-y-3 mb-10">
       <TextInput
         placeholder="Title"
         label="Course title"

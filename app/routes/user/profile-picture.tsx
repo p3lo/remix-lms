@@ -60,7 +60,7 @@ export const dropzoneChildren = (text: string) => (
   <Group position="center" spacing="xl" style={{ minHeight: 50, pointerEvents: 'none' }}>
     <div>
       <Text size="xl" inline>
-        Drag image here or click to select file
+        Drag file here or click to select file
       </Text>
       <Text size="sm" color="dimmed" inline mt={7}>
         {text}
