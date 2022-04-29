@@ -19,8 +19,8 @@ function CourseBuilderLayout() {
   const { slug } = useLoaderData() as { slug: string };
   return (
     <MainLayout>
-      <div className="flex h-full">
-        <Navbar className="h-[85vh]" width={{ base: 250 }}>
+      <div className="flex h-full ">
+        <Navbar className="h-[85vh] shadow-xl" width={{ base: 250 }}>
           <Divider size={0.5} />
           <Navbar.Section>
             <Text className="flex justify-center py-3" size="md" weight={600}>
