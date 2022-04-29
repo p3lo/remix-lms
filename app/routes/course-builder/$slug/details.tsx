@@ -5,8 +5,7 @@ import { RichText } from '~/components/RichText';
 import type { Category, Course } from '~/utils/types';
 import { RiAddCircleLine, RiDeleteBin6Line } from 'react-icons/ri';
 import type { ActionFunction } from '@remix-run/node';
-import { redirect } from '@remix-run/node';
-import { json } from '@remix-run/node';
+import { redirect, json } from '@remix-run/node';
 import { prisma } from '~/utils/db.server';
 import slugify from 'slugify';
 

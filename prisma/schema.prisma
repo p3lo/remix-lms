@@ -69,7 +69,7 @@ model course_content_sections {
   course       course                   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId     Int
   sectionTitle String
-  position     Int                      @unique
+  position     Int
   lessons      course_content_lessons[]
 }
 
@@ -78,7 +78,7 @@ model course_content_lessons {
   section     course_content_sections @relation(fields: [sectionId], references: [id], onDelete: Cascade)
   sectionId   Int
   lessonTitle String
-  position    Int                     @unique
+  position    Int
   video       String?
   description String?
   duration    Int?

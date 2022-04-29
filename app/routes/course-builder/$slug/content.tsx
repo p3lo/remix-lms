@@ -1,6 +1,6 @@
-import { Accordion, Button } from '@mantine/core';
-import { Link, Outlet, useMatches, useTransition } from '@remix-run/react';
-import { RiAddCircleLine } from 'react-icons/ri';
+import { Accordion, AccordionItem, ActionIcon, Button } from '@mantine/core';
+import { Link, Outlet, useMatches } from '@remix-run/react';
+import { RiAddCircleLine, RiDeleteBin6Line, RiEditBoxLine } from 'react-icons/ri';
 import type { Course } from '~/utils/types';
 
 function Content() {
@@ -9,16 +9,31 @@ function Content() {
   return (
     <>
       <Outlet />
-      <div className="flex flex-col space-y-5">
-        <Accordion multiple>
-          {course.content &&
-            course.content.map((section) => (
-              <Accordion.Item key={section.id} label={section.sectionTitle}>
-                <p>kokot</p>
-              </Accordion.Item>
-            ))}
-        </Accordion>
-        <div className="flex justify-center">
+      <div className="flex flex-col ">
+        {course.content &&
+          course.content.map((section) => (
+            <div key={section.id} className="flex items-center space-x-1">
+              <Accordion className="grow" multiple>
+                <AccordionItem key={section.id} label={section.sectionTitle}>
+                  <p>kokot</p>
+                </AccordionItem>
+              </Accordion>
+              <ActionIcon
+                component={Link}
+                to={`/course-builder/${course.slug}/content/edit-section?section=${section.id}`}
+              >
+                <RiEditBoxLine color="cyan" size={15} />
+              </ActionIcon>
+              <ActionIcon
+                component={Link}
+                to={`/course-builder/${course.slug}/content/delete-section?section=${section.id}`}
+              >
+                <RiDeleteBin6Line color="red" size={15} />
+              </ActionIcon>
+            </div>
+          ))}
+
+        <div className="flex justify-center mt-5">
           <Button
             component={Link}
             to={`/course-builder/${course.slug}/content/new-section`}
