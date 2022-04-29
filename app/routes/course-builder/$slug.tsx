@@ -22,6 +22,14 @@ export const loader: LoaderFunction = async ({ request }) => {
         orderBy: { id: 'asc' },
       },
       subCategory: true,
+      content: {
+        orderBy: { position: 'asc' },
+        include: {
+          lessons: {
+            orderBy: { position: 'asc' },
+          },
+        },
+      },
     },
   });
   if (session?.user?.email !== course?.author?.email) {

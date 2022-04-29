@@ -1,8 +1,7 @@
 import { Button, Modal, TextInput } from '@mantine/core';
 import { useFocusTrap } from '@mantine/hooks';
 import type { ActionFunction } from '@remix-run/node';
-import { redirect } from '@remix-run/node';
-import { json } from '@remix-run/node';
+import { redirect, json } from '@remix-run/node';
 import { Form, useActionData, useMatches, useNavigate } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 import slugify from 'slugify';

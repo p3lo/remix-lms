@@ -37,9 +37,28 @@ export interface Course {
   price: number;
   whatYouLearn: WhatYoullLearn[];
   subCategory: SubCategory;
+  content: CourseSections[];
 }
 
 export interface WhatYoullLearn {
   id: number;
   whatYoullLearn: string;
+}
+
+export interface CourseSections {
+  id: number;
+  sectionTitle: string;
+  position: number;
+  lessons: CourseLessons[];
+}
+
+export interface CourseLessons {
+  id: number;
+  lessonTitle: string;
+  position: number;
+  video: string;
+  description: string;
+  duration: number;
+  preview: boolean;
+  type: string;
 }

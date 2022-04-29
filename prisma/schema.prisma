@@ -37,15 +37,15 @@ model sub_category {
 }
 
 model course {
-  id            Int                     @id @default(autoincrement())
-  createdAt     DateTime                @default(now())
-  updatedAt     DateTime                @default(now())
+  id            Int                       @id @default(autoincrement())
+  createdAt     DateTime                  @default(now())
+  updatedAt     DateTime                  @default(now())
   title         String
-  slug          String                  @unique
-  language      String                  @default("en")
-  author        user                    @relation(fields: [authorId], references: [id])
+  slug          String                    @unique
+  language      String                    @default("en")
+  author        user                      @relation(fields: [authorId], references: [id])
   authorId      Int
-  subCategory   sub_category            @relation(fields: [subCategoryId], references: [id])
+  subCategory   sub_category              @relation(fields: [subCategoryId], references: [id])
   subCategoryId Int
   brief         String?
   description   String?
@@ -54,6 +54,7 @@ model course {
   requirements  String?
   price         Int?
   whatYouLearn  course_what_you_learn[]
+  content       course_content_sections[]
 }
 
 model course_what_you_learn {
@@ -61,4 +62,26 @@ model course_what_you_learn {
   course         course @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId       Int
   whatYoullLearn String
+}
+
+model course_content_sections {
+  id           Int                      @id @default(autoincrement())
+  course       course                   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId     Int
+  sectionTitle String
+  position     Int                      @unique
+  lessons      course_content_lessons[]
+}
+
+model course_content_lessons {
+  id          Int                     @id @default(autoincrement())
+  section     course_content_sections @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  sectionId   Int
+  lessonTitle String
+  position    Int                     @unique
+  video       String?
+  description String?
+  duration    Int?
+  preview     Boolean                 @default(false)
+  type        String?                 @default("video")
 }
