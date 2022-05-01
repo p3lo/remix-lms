@@ -3,7 +3,6 @@ import { json } from '@remix-run/node';
 import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from '@remix-run/react';
 import type { ColorScheme } from '@mantine/core';
 import { MantineProvider, ColorSchemeProvider } from '@mantine/core';
-import { useState } from 'react';
 import styles from './tailwind.css';
 import { supabaseStrategy } from './utils/auth.server';
 import { useLocalStorage } from '@mantine/hooks';

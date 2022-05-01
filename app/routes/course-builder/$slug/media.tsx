@@ -1,81 +1,137 @@
-import { Divider, Image, Paper } from '@mantine/core';
-import { Dropzone, IMAGE_MIME_TYPE, MIME_TYPES } from '@mantine/dropzone';
-import type { ActionFunction, UploadHandler } from '@remix-run/node';
-import { unstable_parseMultipartFormData } from '@remix-run/node';
-import { Form, useMatches, useSubmit, useTransition } from '@remix-run/react';
-import axios from 'axios';
+import { Divider, Image, Paper, RingProgress, Text } from '@mantine/core';
+import type { ActionFunction } from '@remix-run/node';
+import { useMatches, useSubmit } from '@remix-run/react';
+import AwsS3Multipart from '@uppy/aws-s3-multipart';
+import Uppy from '@uppy/core';
+import { FileInput } from '@uppy/react';
+import { useState } from 'react';
 import ReactPlayer from 'react-player';
-import { dropzoneChildren } from '~/routes/user/profile-picture';
 import { prisma } from '~/utils/db.server';
-import { s3_upload } from '~/utils/s3.server';
 import type { Course } from '~/utils/types';
+import uppycore from '@uppy/core/dist/style.min.css';
+import uppyfileinput from '@uppy/file-input/dist/style.css';
+
+export function links() {
+  return [
+    {
+      rel: 'stylesheet',
+      href: uppycore,
+    },
+    {
+      rel: 'stylesheet',
+      href: uppyfileinput,
+    },
+  ];
+}
 
 export const action: ActionFunction = async ({ request }) => {
-  const uploadHandler: UploadHandler = async ({ name, stream, mimetype, filename }) => {
-    const splitted = name.split('-');
-    if (splitted[0] !== 'file') {
-      stream.resume();
-      return;
-    }
-    const unsigned_url = await s3_upload(`course/${splitted[1]}/`, filename, mimetype);
-
-    await axios
-      .put(unsigned_url, stream, {
-        headers: {
-          'Content-Type': mimetype,
+  const formData = await request.formData();
+  const url = formData.get('url') as string;
+  const id = formData.get('id') as string;
+  const type = formData.get('type') as string;
+  if (type === 'image') {
+    await prisma.course
+      .update({
+        where: { id: +id },
+        data: {
+          image: url,
         },
-        maxBodyLength: Infinity,
-        maxContentLength: Infinity,
-      })
-      .then(async () => {
-        if (splitted[2] === 'image') {
-          await prisma.course.update({
-            where: { id: +splitted[1] },
-            data: {
-              image: unsigned_url.split('?')[0],
-            },
-          });
-        } else {
-          await prisma.course.update({
-            where: { id: +splitted[1] },
-            data: {
-              preview: unsigned_url.split('?')[0],
-            },
-          });
-        }
       })
       .catch(() => {
         return 'error';
-      })
-      .finally(() => {
-        return 'done';
       });
-    return 'done';
-  };
-  const formData = await unstable_parseMultipartFormData(request, uploadHandler);
-
-  let getkey: string = '';
-  formData.forEach((_, key) => {
-    getkey = key;
-  });
-  const file = formData.getAll(getkey)[0] as string;
-  if (!file) {
-    return null;
+  } else if (type === 'preview') {
+    await prisma.course
+      .update({
+        where: { id: +id },
+        data: {
+          preview: url,
+        },
+      })
+      .catch(() => {
+        return 'error';
+      });
   }
-
-  return file;
+  return 'done';
 };
 
 function Media() {
   const { course } = useMatches()[2].data as { course: Course };
-
-  const transition = useTransition();
+  const [progressImage, setProgressImage] = useState(0);
+  const [progressPreview, setProgressPreview] = useState(0);
   const submit = useSubmit();
-  function handlechange(event: React.ChangeEvent<HTMLFormElement>) {
-    submit(event.currentTarget, { replace: true });
-  }
+  const uppyImage = new Uppy({
+    id: 'image',
+    meta: { type: 'image' },
+    restrictions: { maxNumberOfFiles: 1, allowedFileTypes: ['image/*'], maxFileSize: 1024 * 1024 * 4 },
+    autoProceed: true,
+    onBeforeFileAdded: () => {
+      Promise.resolve();
+      return true;
+    },
+    onBeforeUpload: (files) => {
+      for (var prop in files) {
+        files[prop].name = `course/${course.id}/` + files[prop].name;
+        files[prop].meta.name = `course/${course.id}/` + files[prop].meta.name;
+      }
+
+      Promise.resolve();
+      return files;
+    },
+  });
+  uppyImage.use(AwsS3Multipart, {
+    limit: 4,
+    companionUrl: 'https://companion.dev.p3lo.com/',
+    retryDelays: [0, 1000, 3000, 5000],
+  });
+  uppyImage.on('complete', async (result) => {
+    const url = result.successful[0].uploadURL;
+    setProgressImage(0);
+    submit({ url, id: course.id.toString(), type: 'image' }, { method: 'post', replace: true });
+  });
+  uppyImage.on('upload-progress', (file, progress) => {
+    // file: { id, name, type, ... }
+    // progress: { uploader, bytesUploaded, bytesTotal }
+    setProgressImage(Math.floor((progress.bytesUploaded / progress.bytesTotal) * 100));
+    // console.log(file.id, progress.bytesUploaded, progress.bytesTotal);
+  });
+  const uppyPreview = new Uppy({
+    id: 'preview',
+    meta: { type: 'preview' },
+    restrictions: { maxNumberOfFiles: 1, allowedFileTypes: ['video/*'], maxFileSize: 1024 * 1024 * 40 },
+    autoProceed: true,
+    onBeforeFileAdded: () => {
+      Promise.resolve();
+      return true;
+    },
+    onBeforeUpload: (files) => {
+      for (var prop in files) {
+        files[prop].name = `course/${course.id}/` + files[prop].name;
+        files[prop].meta.name = `course/${course.id}/` + files[prop].meta.name;
+      }
+
+      Promise.resolve();
+      return files;
+    },
+  });
+  uppyPreview.use(AwsS3Multipart, {
+    limit: 4,
+    companionUrl: 'https://companion.dev.p3lo.com/',
+    retryDelays: [0, 1000, 3000, 5000],
+  });
+  uppyPreview.on('complete', async (result) => {
+    const url = result.successful[0].uploadURL;
+    setProgressPreview(0);
+    submit({ url, id: course.id.toString(), type: 'preview' }, { method: 'post', replace: true });
+  });
+  uppyPreview.on('upload-progress', (file, progress) => {
+    // file: { id, name, type, ... }
+    // progress: { uploader, bytesUploaded, bytesTotal }
+    setProgressPreview(Math.floor((progress.bytesUploaded / progress.bytesTotal) * 100));
+    // console.log(file.id, progress.bytesUploaded, progress.bytesTotal);
+  });
   return (
-    <div className="flex flex-col space-y-5 mb-10">
+    <div className="flex flex-col mb-10 space-y-5">
       <div className="flex flex-col space-y-2">
         <Divider label="Course image" />
         <Paper
@@ -94,20 +150,30 @@ function Media() {
             {...(!course.image && { withPlaceholder: true })}
           />
         </Paper>
-        <Form method="post" encType="multipart/form-data" onChange={handlechange}>
-          <Dropzone
-            loading={transition.state === 'submitting'}
-            className="h-[100px]"
-            onDrop={(files) => console.log('accepted files', files)}
-            onReject={(files) => console.log('rejected files', files)}
-            maxSize={2 * 1024 * 2}
-            accept={IMAGE_MIME_TYPE}
-            multiple={false}
-            name={`file-${course.id}-image`}
-          >
-            {() => dropzoneChildren("Change your cover image. Picture shouldn't exceed 4MB.")}
-          </Dropzone>
-        </Form>
+        <div className="flex flex-col space-y-1">
+          <div className="mx-auto">
+            <FileInput
+              uppy={uppyImage}
+              pretty
+              inputName="files[]"
+              locale={{ strings: { chooseFiles: 'Choose image' } }}
+            />
+          </div>
+
+          {progressImage > 0 && (
+            <RingProgress
+              className="mx-auto"
+              sections={[{ value: progressImage, color: 'blue' }]}
+              size={80}
+              thickness={10}
+              label={
+                <Text color="blue" weight={400} align="center" size="xs">
+                  {progressImage}%
+                </Text>
+              }
+            />
+          )}
+        </div>
       </div>
       <div className="flex flex-col space-y-2">
         <Divider label="Course video preview" />
@@ -135,20 +201,29 @@ function Media() {
             onDuration={(duration) => console.log('duration', duration)}
           />
         </Paper>
-        <Form method="post" encType="multipart/form-data" onChange={handlechange}>
-          <Dropzone
-            loading={transition.state === 'submitting'}
-            className="h-[100px]"
-            onDrop={(files) => console.log('accepted files', files)}
-            onReject={(files) => console.log('rejected files', files)}
-            maxSize={20 * 1024 * 2}
-            accept={[MIME_TYPES.mp4]}
-            multiple={false}
-            name={`file-${course.id}-preview`}
-          >
-            {() => dropzoneChildren("Change your preview video. Video shouldn't exceed 40MB.")}
-          </Dropzone>
-        </Form>
+        <div className="flex flex-col">
+          <div className="mx-auto">
+            <FileInput
+              uppy={uppyPreview}
+              pretty
+              inputName="files[]"
+              locale={{ strings: { chooseFiles: 'Choose video' } }}
+            />
+          </div>
+          {progressPreview > 0 && (
+            <RingProgress
+              className="mx-auto"
+              size={80}
+              thickness={10}
+              sections={[{ value: progressPreview, color: 'blue' }]}
+              label={
+                <Text color="blue" weight={400} align="center" size="xs">
+                  {progressPreview}%
+                </Text>
+              }
+            />
+          )}
+        </div>
       </div>
     </div>
   );

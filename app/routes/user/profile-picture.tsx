@@ -1,82 +1,86 @@
-import { Group, Image, Paper, Text } from '@mantine/core';
-import type { ActionFunction, UploadHandler } from '@remix-run/node';
-import { unstable_parseMultipartFormData } from '@remix-run/node';
-import { Form, useActionData, useMatches, useSubmit, useTransition } from '@remix-run/react';
-import axios from 'axios';
-import { s3_upload } from '~/utils/s3.server';
+import { Image, Paper, RingProgress, Text } from '@mantine/core';
+import type { ActionFunction } from '@remix-run/node';
+import { useActionData, useMatches, useSubmit } from '@remix-run/react';
 import type { User } from '~/utils/types';
-import { IMAGE_MIME_TYPE } from '@mantine/dropzone';
-import { Dropzone } from '@mantine/dropzone';
 import { prisma } from '~/utils/db.server';
+import Uppy from '@uppy/core';
+import AwsS3Multipart from '@uppy/aws-s3-multipart';
+import { FileInput } from '@uppy/react';
+import uppycore from '@uppy/core/dist/style.min.css';
+import uppyfileinput from '@uppy/file-input/dist/style.css';
+import { useState } from 'react';
+
+export function links() {
+  return [
+    {
+      rel: 'stylesheet',
+      href: uppycore,
+    },
+    {
+      rel: 'stylesheet',
+      href: uppyfileinput,
+    },
+  ];
+}
 
 export const action: ActionFunction = async ({ request }) => {
-  const uploadHandler: UploadHandler = async ({ name, stream, mimetype, filename }) => {
-    const splitted = name.split('-');
-    if (splitted[0] !== 'file') {
-      stream.resume();
-      return;
-    }
-    const unsigned_url = await s3_upload(`profiles/${splitted[1]}/`, filename, mimetype);
-
-    await axios
-      .put(unsigned_url, stream, {
-        headers: {
-          'Content-Type': mimetype,
-        },
-        maxBodyLength: Infinity,
-        maxContentLength: Infinity,
-      })
-      .then(async () => {
-        await prisma.user.update({
-          where: { id: +splitted[1] },
-          data: {
-            picture: unsigned_url.split('?')[0],
-          },
-        });
-      })
-      .catch(() => {
-        return 'error';
-      })
-      .finally(() => {
-        return 'done';
-      });
-    return 'done';
-  };
-  const formData = await unstable_parseMultipartFormData(request, uploadHandler);
-
-  let getkey: string = '';
-  formData.forEach((_, key) => {
-    getkey = key;
-  });
-  const file = formData.getAll(getkey)[0] as string;
-  if (!file) {
-    return null;
-  }
-
-  return file;
+  const formData = await request.formData();
+  const url = formData.get('url') as string;
+  const id = formData.get('id') as string;
+  console.log(url, id);
+  await prisma.user
+    .update({
+      where: { id: +id },
+      data: {
+        picture: url,
+      },
+    })
+    .catch(() => {
+      return 'error';
+    });
+  return 'done';
 };
-
-export const dropzoneChildren = (text: string) => (
-  <Group position="center" spacing="xl" style={{ minHeight: 50, pointerEvents: 'none' }}>
-    <div>
-      <Text size="xl" inline>
-        Drag file here or click to select file
-      </Text>
-      <Text size="sm" color="dimmed" inline mt={7}>
-        {text}
-      </Text>
-    </div>
-  </Group>
-);
 
 function ProfilePicture() {
   const profile = useMatches()[0].data.profile as User;
   const response = useActionData<string>();
-  const transition = useTransition();
   const submit = useSubmit();
-  function handlechange(event: React.ChangeEvent<HTMLFormElement>) {
-    submit(event.currentTarget, { replace: true });
-  }
+  const [progress, setProgress] = useState(0);
+  const uppy = new Uppy({
+    id: 'avatar',
+    meta: { type: 'avatar' },
+    restrictions: { maxNumberOfFiles: 1, allowedFileTypes: ['image/*'], maxFileSize: 1024 * 1024 * 4 },
+    autoProceed: true,
+    onBeforeFileAdded: () => {
+      Promise.resolve();
+      return true;
+    },
+    onBeforeUpload: (files) => {
+      for (var prop in files) {
+        files[prop].name = `profile/${profile.id}/` + files[prop].name;
+        files[prop].meta.name = `profile/${profile.id}/` + files[prop].meta.name;
+      }
+
+      Promise.resolve();
+      return files;
+    },
+  });
+  uppy.use(AwsS3Multipart, {
+    limit: 4,
+    companionUrl: 'https://companion.dev.p3lo.com/',
+    retryDelays: [0, 1000, 3000, 5000],
+  });
+  uppy.on('complete', async (result) => {
+    const url = result.successful[0].uploadURL;
+    setProgress(0);
+    submit({ url, id: profile.id.toString() }, { method: 'post', replace: true });
+  });
+  uppy.on('upload-progress', (file, progress) => {
+    // file: { id, name, type, ... }
+    // progress: { uploader, bytesUploaded, bytesTotal }
+    setProgress(Math.floor((progress.bytesUploaded / progress.bytesTotal) * 100));
+    // console.log(file.id, progress.bytesUploaded, progress.bytesTotal);
+  });
   return (
     <div className="flex flex-col space-y-3">
       <Text className="flex justify-center p-3" size="xl" weight={700}>
@@ -93,20 +97,24 @@ function ProfilePicture() {
       >
         <Image fit="contain" height={300} src={profile.picture} />
       </Paper>
-      <Form method="post" encType="multipart/form-data" onChange={handlechange}>
-        <Dropzone
-          loading={transition.state === 'submitting'}
-          className="w-full mx-auto xs:w-3/4 md:w-2/3 h-[100px]"
-          onDrop={(files) => console.log('accepted files', files)}
-          onReject={(files) => console.log('rejected files', files)}
-          maxSize={2 * 1024 ** 2}
-          accept={IMAGE_MIME_TYPE}
-          multiple={false}
-          name={`file-${profile.id}`}
-        >
-          {() => dropzoneChildren("Change your profile image. Picture shouldn't exceed 4MB.")}
-        </Dropzone>
-      </Form>
+      <div className="flex flex-col space-y-1">
+        <div className="mx-auto">
+          <FileInput uppy={uppy} pretty inputName="files[]" locale={{ strings: { chooseFiles: 'Choose file' } }} />
+        </div>
+        {progress > 0 && (
+          <RingProgress
+            className="mx-auto"
+            sections={[{ value: progress, color: 'blue' }]}
+            size={80}
+            thickness={10}
+            label={
+              <Text color="blue" weight={400} align="center" size="xs">
+                {progress}%
+              </Text>
+            }
+          />
+        )}
+      </div>
 
       {response && response !== 'error' && (
         <Text size="sm" className="mx-auto">
