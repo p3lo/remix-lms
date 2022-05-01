@@ -1,6 +1,4 @@
-import AwsS3Multipart from '@uppy/aws-s3-multipart';
 import type { UppyFile } from '@uppy/core';
-import Uppy from '@uppy/core';
 
 export function generateUUID(digits: number) {
   let str = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVXZ';

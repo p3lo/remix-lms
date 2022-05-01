@@ -1,4 +1,4 @@
-import { Divider, Image, Paper, RingProgress, Text } from '@mantine/core';
+import { Divider, Image, LoadingOverlay, Paper, RingProgress, Text } from '@mantine/core';
 import type { ActionFunction } from '@remix-run/node';
 import { useMatches, useSubmit } from '@remix-run/react';
 import AwsS3Multipart from '@uppy/aws-s3-multipart';
@@ -117,7 +117,8 @@ function Media() {
           />
         </Paper>
         <div className="flex flex-col space-y-1">
-          <div className="mx-auto">
+          <div className="relative mx-auto">
+            <LoadingOverlay loaderProps={{ size: 'xs', variant: 'bars' }} visible={progressImage > 0} />
             <FileInput
               uppy={uppyImage}
               pretty
@@ -168,7 +169,8 @@ function Media() {
           />
         </Paper>
         <div className="flex flex-col">
-          <div className="mx-auto">
+          <div className="relative mx-auto">
+            <LoadingOverlay loaderProps={{ size: 'xs', variant: 'bars' }} visible={progressPreview > 0} />
             <FileInput
               uppy={uppyPreview}
               pretty
