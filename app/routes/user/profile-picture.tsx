@@ -5,10 +5,11 @@ import type { User } from '~/utils/types';
 import { prisma } from '~/utils/db.server';
 import Uppy from '@uppy/core';
 import AwsS3Multipart from '@uppy/aws-s3-multipart';
-import { FileInput } from '@uppy/react';
+import { FileInput, useUppy } from '@uppy/react';
 import uppycore from '@uppy/core/dist/style.min.css';
 import uppyfileinput from '@uppy/file-input/dist/style.css';
 import { useState } from 'react';
+import { uppyOptions } from '~/utils/helpers';
 
 export function links() {
   return [
@@ -46,40 +47,22 @@ function ProfilePicture() {
   const response = useActionData<string>();
   const submit = useSubmit();
   const [progress, setProgress] = useState(0);
-  const uppy = new Uppy({
-    id: 'avatar',
-    meta: { type: 'avatar' },
-    restrictions: { maxNumberOfFiles: 1, allowedFileTypes: ['image/*'], maxFileSize: 1024 * 1024 * 4 },
-    autoProceed: true,
-    onBeforeFileAdded: () => {
-      Promise.resolve();
-      return true;
-    },
-    onBeforeUpload: (files) => {
-      for (var prop in files) {
-        files[prop].name = `profile/${profile.id}/` + files[prop].name;
-        files[prop].meta.name = `profile/${profile.id}/` + files[prop].meta.name;
-      }
-
-      Promise.resolve();
-      return files;
-    },
-  });
-  uppy.use(AwsS3Multipart, {
-    limit: 4,
-    companionUrl: 'https://companion.dev.p3lo.com/',
-    retryDelays: [0, 1000, 3000, 5000],
-  });
-  uppy.on('complete', async (result) => {
-    const url = result.successful[0].uploadURL;
-    setProgress(0);
-    submit({ url, id: profile.id.toString() }, { method: 'post', replace: true });
-  });
-  uppy.on('upload-progress', (file, progress) => {
-    // file: { id, name, type, ... }
-    // progress: { uploader, bytesUploaded, bytesTotal }
-    setProgress(Math.floor((progress.bytesUploaded / progress.bytesTotal) * 100));
-    // console.log(file.id, progress.bytesUploaded, progress.bytesTotal);
+  const uppy = useUppy(() => {
+    return new Uppy(uppyOptions('avatar', ['image/*'], 5, `profile/${profile.id}`))
+      .use(AwsS3Multipart, {
+        limit: 4,
+        companionUrl: 'https://companion.dev.p3lo.com/',
+        retryDelays: [0, 1000, 3000, 5000],
+      })
+      .on('complete', async (result) => {
+        const url = result.successful[0].uploadURL;
+        setProgress(0);
+        submit({ url, id: profile.id.toString() }, { method: 'post', replace: true });
+      })
+      .on('upload-progress', (file, progress) => {
+        setProgress(Math.floor((progress.bytesUploaded / progress.bytesTotal) * 100));
+        // console.log(file.id, progress.bytesUploaded, progress.bytesTotal);
+      });
   });
   return (
     <div className="flex flex-col space-y-3">

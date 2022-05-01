@@ -1,4 +1,5 @@
 import AwsS3Multipart from '@uppy/aws-s3-multipart';
+import type { UppyFile } from '@uppy/core';
 import Uppy from '@uppy/core';
 
 export function generateUUID(digits: number) {
@@ -18,29 +19,24 @@ export function getDate(date: Date) {
   return month + 1 + '/' + day + '/' + year;
 }
 
-export function uppy(directory: string) {
-  const uppy = new Uppy({
-    meta: { type: 'avatar' },
-    restrictions: { maxNumberOfFiles: 10 },
+export function uppyOptions(id: string, filetypes: string[], filesizeMB: number, directory: string) {
+  return {
+    id: id,
+    meta: { type: id },
+    restrictions: { maxNumberOfFiles: 1, allowedFileTypes: filetypes, maxFileSize: filesizeMB * 1024 * 1024 },
     autoProceed: true,
     onBeforeFileAdded: () => {
       Promise.resolve();
       return true;
     },
-    onBeforeUpload: (files) => {
+    onBeforeUpload: (files: { [key: string]: UppyFile<Record<string, unknown>, Record<string, unknown>> }) => {
       for (var prop in files) {
-        files[prop].name = directory + files[prop].name;
-        files[prop].meta.name = directory + files[prop].meta.name;
+        files[prop].name = directory + '/' + files[prop].name;
+        files[prop].meta.name = directory + '/' + files[prop].meta.name;
       }
 
       Promise.resolve();
       return files;
     },
-  });
-  uppy.use(AwsS3Multipart, {
-    limit: 4,
-    companionUrl: 'https://companion.dev.p3lo.com/',
-    retryDelays: [0, 1000, 3000, 5000],
-  });
-  return uppy;
+  };
 }

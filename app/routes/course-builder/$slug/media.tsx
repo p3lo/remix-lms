@@ -3,13 +3,14 @@ import type { ActionFunction } from '@remix-run/node';
 import { useMatches, useSubmit } from '@remix-run/react';
 import AwsS3Multipart from '@uppy/aws-s3-multipart';
 import Uppy from '@uppy/core';
-import { FileInput } from '@uppy/react';
+import { FileInput, useUppy } from '@uppy/react';
 import { useState } from 'react';
 import ReactPlayer from 'react-player';
 import { prisma } from '~/utils/db.server';
 import type { Course } from '~/utils/types';
 import uppycore from '@uppy/core/dist/style.min.css';
 import uppyfileinput from '@uppy/file-input/dist/style.css';
+import { uppyOptions } from '~/utils/helpers';
 
 export function links() {
   return [
@@ -60,76 +61,41 @@ function Media() {
   const [progressImage, setProgressImage] = useState(0);
   const [progressPreview, setProgressPreview] = useState(0);
   const submit = useSubmit();
-  const uppyImage = new Uppy({
-    id: 'image',
-    meta: { type: 'image' },
-    restrictions: { maxNumberOfFiles: 1, allowedFileTypes: ['image/*'], maxFileSize: 1024 * 1024 * 4 },
-    autoProceed: true,
-    onBeforeFileAdded: () => {
-      Promise.resolve();
-      return true;
-    },
-    onBeforeUpload: (files) => {
-      for (var prop in files) {
-        files[prop].name = `course/${course.id}/` + files[prop].name;
-        files[prop].meta.name = `course/${course.id}/` + files[prop].meta.name;
-      }
+  const uppyImage = useUppy(() => {
+    return new Uppy(uppyOptions('image', ['image/*'], 5, `course/${course.id}`))
+      .use(AwsS3Multipart, {
+        limit: 4,
+        companionUrl: 'https://companion.dev.p3lo.com/',
+        retryDelays: [0, 1000, 3000, 5000],
+      })
+      .on('complete', async (result) => {
+        const url = result.successful[0].uploadURL;
+        setProgressImage(0);
+        submit({ url, id: course.id.toString(), type: 'image' }, { method: 'post', replace: true });
+      })
+      .on('upload-progress', (file, progress) => {
+        setProgressImage(Math.floor((progress.bytesUploaded / progress.bytesTotal) * 100));
+        // console.log(file.id, progress.bytesUploaded, progress.bytesTotal);
+      });
+  });
+  const uppyPreview = useUppy(() => {
+    return new Uppy(uppyOptions('preview', ['video/*'], 40, `course/${course.id}`))
+      .use(AwsS3Multipart, {
+        limit: 4,
+        companionUrl: 'https://companion.dev.p3lo.com/',
+        retryDelays: [0, 1000, 3000, 5000],
+      })
+      .on('complete', async (result) => {
+        const url = result.successful[0].uploadURL;
+        setProgressPreview(0);
+        submit({ url, id: course.id.toString(), type: 'preview' }, { method: 'post', replace: true });
+      })
+      .on('upload-progress', (file, progress) => {
+        setProgressPreview(Math.floor((progress.bytesUploaded / progress.bytesTotal) * 100));
+        // console.log(file.id, progress.bytesUploaded, progress.bytesTotal);
+      });
+  });
 
-      Promise.resolve();
-      return files;
-    },
-  });
-  uppyImage.use(AwsS3Multipart, {
-    limit: 4,
-    companionUrl: 'https://companion.dev.p3lo.com/',
-    retryDelays: [0, 1000, 3000, 5000],
-  });
-  uppyImage.on('complete', async (result) => {
-    const url = result.successful[0].uploadURL;
-    setProgressImage(0);
-    submit({ url, id: course.id.toString(), type: 'image' }, { method: 'post', replace: true });
-  });
-  uppyImage.on('upload-progress', (file, progress) => {
-    // file: { id, name, type, ... }
-    // progress: { uploader, bytesUploaded, bytesTotal }
-    setProgressImage(Math.floor((progress.bytesUploaded / progress.bytesTotal) * 100));
-    // console.log(file.id, progress.bytesUploaded, progress.bytesTotal);
-  });
-  const uppyPreview = new Uppy({
-    id: 'preview',
-    meta: { type: 'preview' },
-    restrictions: { maxNumberOfFiles: 1, allowedFileTypes: ['video/*'], maxFileSize: 1024 * 1024 * 40 },
-    autoProceed: true,
-    onBeforeFileAdded: () => {
-      Promise.resolve();
-      return true;
-    },
-    onBeforeUpload: (files) => {
-      for (var prop in files) {
-        files[prop].name = `course/${course.id}/` + files[prop].name;
-        files[prop].meta.name = `course/${course.id}/` + files[prop].meta.name;
-      }
-
-      Promise.resolve();
-      return files;
-    },
-  });
-  uppyPreview.use(AwsS3Multipart, {
-    limit: 4,
-    companionUrl: 'https://companion.dev.p3lo.com/',
-    retryDelays: [0, 1000, 3000, 5000],
-  });
-  uppyPreview.on('complete', async (result) => {
-    const url = result.successful[0].uploadURL;
-    setProgressPreview(0);
-    submit({ url, id: course.id.toString(), type: 'preview' }, { method: 'post', replace: true });
-  });
-  uppyPreview.on('upload-progress', (file, progress) => {
-    // file: { id, name, type, ... }
-    // progress: { uploader, bytesUploaded, bytesTotal }
-    setProgressPreview(Math.floor((progress.bytesUploaded / progress.bytesTotal) * 100));
-    // console.log(file.id, progress.bytesUploaded, progress.bytesTotal);
-  });
   return (
     <div className="flex flex-col mb-10 space-y-5">
       <div className="flex flex-col space-y-2">
