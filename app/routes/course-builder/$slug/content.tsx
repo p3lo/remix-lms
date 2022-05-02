@@ -7,7 +7,7 @@ import type { Course } from '~/utils/types';
 
 function Content() {
   const { course } = useMatches()[2].data as { course: Course };
-  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const { colorScheme } = useMantineColorScheme();
   const dark = colorScheme === 'dark';
 
   return (

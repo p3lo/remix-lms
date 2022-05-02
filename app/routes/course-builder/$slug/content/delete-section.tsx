@@ -5,7 +5,8 @@ import { Form, useLoaderData, useMatches, useNavigate, useTransition } from '@re
 import { useEffect, useState } from 'react';
 import invariant from 'tiny-invariant';
 import { prisma } from '~/utils/db.server';
-import type { Course, CourseSections } from '~/utils/types';
+import { getSectionIndex } from '~/utils/helpers';
+import type { Course } from '~/utils/types';
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
@@ -15,11 +16,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     return redirect(`/course-builder/${slug}/content`);
   }
   invariant(id, 'section id is required');
-  const section = await prisma.course_content_sections.findUnique({
-    where: { id: +id },
-  });
-
-  return json({ section });
+  return json({ id });
 };
 
 export const action: ActionFunction = async ({ request }) => {
@@ -36,8 +33,9 @@ export const action: ActionFunction = async ({ request }) => {
 };
 
 function DeleteSection() {
-  const { section } = useLoaderData() as { section: CourseSections };
+  const { id } = useLoaderData() as { id: string };
   const { course } = useMatches()[2].data as { course: Course };
+  const sectionIndex = getSectionIndex(course.content, +id);
   const [opened, setOpened] = useState(false);
   const navigate = useNavigate();
   const transition = useTransition();
@@ -56,8 +54,8 @@ function DeleteSection() {
   return (
     <Modal opened={opened} onClose={onDismiss} title="Delete section">
       <Form method="post" className="flex flex-col space-y-3">
-        <Text size="sm">"{section.sectionTitle}"?</Text>
-        <input hidden readOnly name="id" value={section.id} />
+        <Text size="sm">"{course.content[sectionIndex].sectionTitle}"?</Text>
+        <input hidden readOnly name="id" value={course.content[sectionIndex].id} />
         <Button className="w-[150px] mx-auto" color="red" type="submit" loading={loader}>
           Delete
         </Button>

@@ -26,6 +26,20 @@ export function sumTime(section: CourseSections) {
   return secondsToTime(sum);
 }
 
+export function getSectionIndex(sections: CourseSections[], sectionId: number) {
+  const index = sections.findIndex((section) => section.id === sectionId);
+  return index;
+}
+
+export function getLessonPosition(lessons: CourseLessons[]) {
+  const lastLesson = lessons.pop();
+  if (lastLesson) {
+    return lastLesson.position + 1;
+  } else {
+    return 1;
+  }
+}
+
 export function secondsToTime(e: number) {
   let h = Math.floor(e / 3600)
       .toString()

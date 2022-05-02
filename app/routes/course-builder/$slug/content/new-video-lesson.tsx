@@ -11,7 +11,7 @@ import {
   TextInput,
 } from '@mantine/core';
 import type { ActionFunction, LoaderFunction } from '@remix-run/node';
-import { redirect } from '@remix-run/node';
+import { json, redirect } from '@remix-run/node';
 import { Form, useActionData, useLoaderData, useMatches, useNavigate, useTransition } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 import invariant from 'tiny-invariant';
@@ -22,7 +22,7 @@ import AwsS3Multipart from '@uppy/aws-s3-multipart';
 import { FileInput, useUppy } from '@uppy/react';
 import uppycore from '@uppy/core/dist/style.min.css';
 import uppyfileinput from '@uppy/file-input/dist/style.css';
-import { uppyOptions } from '~/utils/helpers';
+import { getLessonPosition, getSectionIndex, uppyOptions } from '~/utils/helpers';
 import ReactPlayer from 'react-player';
 
 export function links() {
@@ -40,20 +40,9 @@ export function links() {
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
-  const sectionId = url.searchParams.get('section');
-  invariant(sectionId, 'section id is required');
-  const section = await prisma.course_content_sections.findUnique({
-    where: { id: +sectionId },
-    include: {
-      lessons: true,
-    },
-  });
-  const lastLesson = section?.lessons.pop();
-  if (lastLesson) {
-    return { section: sectionId, lessonPosition: lastLesson.position + 1 };
-  } else {
-    return { section: sectionId, lessonPosition: 1 };
-  }
+  const id = url.searchParams.get('section');
+  invariant(id, 'section id is required');
+  return json({ id });
 };
 
 export const action: ActionFunction = async ({ request }) => {
@@ -97,13 +86,15 @@ export const action: ActionFunction = async ({ request }) => {
 
 function NewVideoLesson() {
   const { course } = useMatches()[2].data as { course: Course };
-  const loaderData = useLoaderData() as { section: string; lessonPosition: number };
+  const { id } = useLoaderData() as { id: string };
+  const sectionIndex = getSectionIndex(course.content, +id);
   const actionData = useActionData() as { error: string };
   const [opened, setOpened] = useState(false);
   const navigate = useNavigate();
   const transition = useTransition();
   const loader = transition.state === 'submitting' || transition.state === 'loading' ? true : false;
   const [progressContent, setProgressContent] = useState(0);
+  const [lessonPosition, setLessonPosition] = useState(0);
   const [videoUrl, setVideoUrl] = useState('');
   const [videoDuration, setVideoDuration] = useState(0);
   const [selectDestination, setSelectDestination] = useState<string>('cloud');
@@ -128,7 +119,9 @@ function NewVideoLesson() {
     setTimeout(() => {
       setOpened((prev) => !prev);
     }, 1);
+    setLessonPosition(getLessonPosition(course.content[sectionIndex].lessons));
   }, []);
+
   useEffect(() => {
     setVideoUrl('');
   }, [selectDestination]);
@@ -141,7 +134,7 @@ function NewVideoLesson() {
   }
   return (
     <Modal opened={opened} onClose={onDismiss} title="Add video lesson" size="lg">
-      <Form method="post" action={`?section=${loaderData.section}`} className="flex flex-col space-y-3">
+      <Form method="post" action={`?section=${id}`} className="flex flex-col space-y-3">
         <TextInput placeholder="Lesson title" label="Lesson title" required name="title" />
         <Switch defaultChecked={false} label="This lesson is free preview" name="free" />
         <TextInput placeholder="Lesson description (optional)" label="Lesson description" name="description" />
@@ -241,8 +234,8 @@ function NewVideoLesson() {
           value={videoDuration}
           onChange={(e) => setVideoDuration(+e.target.value)}
         />
-        <input hidden value={loaderData.section} readOnly name="section" />
-        <input hidden value={loaderData.lessonPosition} readOnly name="position" />
+        <input hidden value={id} readOnly name="section" />
+        <input hidden value={lessonPosition} readOnly name="position" />
         <input hidden value={videoUrl} readOnly name="video_url" />
         <input hidden value={course.slug} readOnly name="slug" />
         <Button className="w-[150px] mx-auto" type="submit" loading={loader}>
