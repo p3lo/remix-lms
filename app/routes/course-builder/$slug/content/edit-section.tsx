@@ -10,12 +10,12 @@ import type { Course } from '~/utils/types';
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
-  const id = url.searchParams.get('section');
+  const id = url.searchParams.get('id');
   const slug = url.pathname.split('/')[2];
   if (!id) {
     return redirect(`/course-builder/${slug}/content`);
   }
-  invariant(id, 'section id is required');
+  invariant(id, 'id is required');
 
   return json({ id });
 };

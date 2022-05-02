@@ -22,19 +22,20 @@ export function links() {
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
-  const id = url.searchParams.get('sectionId');
-  invariant(id, 'sectionId id is required');
-  return json({ id });
+  const sectionId = url.searchParams.get('sectionId');
+  const lessonId = url.searchParams.get('lessonId');
+  invariant(sectionId, 'sectionId id is required');
+  invariant(lessonId, 'sectionId id is required');
+  return json({ sectionId, lessonId });
 };
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const title = formData.get('title') as string;
-  const sectionId = formData.get('section') as string;
+  const lessonId = formData.get('lesson') as string;
   const description = formData.get('description') as string | '';
   const select = formData.get('select') as string;
   const freePreview = formData.get('free') as string;
-  const position = formData.get('position') as string;
   const slug = formData.get('slug') as string;
   const video_url = formData.get('video_url') as string;
   const noncloud_video_url = formData.get('noncloud_video_url') as string;
@@ -52,13 +53,14 @@ export const action: ActionFunction = async ({ request }) => {
   if (freePreview === 'on') {
     preview = true;
   }
-  await prisma.course_content_lessons.create({
+  await prisma.course_content_lessons.update({
+    where: {
+      id: +lessonId,
+    },
     data: {
       lessonTitle: title,
       description,
-      position: +position,
       video: url,
-      sectionId: +sectionId,
       preview,
       duration: +duration,
     },
@@ -66,9 +68,9 @@ export const action: ActionFunction = async ({ request }) => {
   return redirect('/course-builder/' + slug + '/content');
 };
 
-function NewVideoLesson() {
-  const { id } = useLoaderData() as { id: string };
-  return <CourseLessonModal sectionId={+id} type="new-video-lesson" />;
+function EditVideoLesson() {
+  const { sectionId, lessonId } = useLoaderData() as { sectionId: string; lessonId: string };
+  return <CourseLessonModal sectionId={+sectionId} type="edit-video-lesson" lessonId={+lessonId} />;
 }
 
-export default NewVideoLesson;
+export default EditVideoLesson;

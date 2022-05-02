@@ -29,19 +29,13 @@ function Content() {
                 >
                   {section.lessons.map((lesson) => (
                     <div key={lesson.id} className={`flex flex-col mb-3 p-1 ${dark ? 'bg-gray-800' : 'bg-gray-50'}`}>
-                      <CourseLessonList
-                        lessonTitle={lesson.lessonTitle}
-                        preview={lesson.preview}
-                        description={lesson.description}
-                        type={lesson.type}
-                        duration={lesson.duration || 0}
-                      />
+                      <CourseLessonList lesson={lesson} slug={course.slug} sectionId={section.id} />
                     </div>
                   ))}
                   <div className="flex flex-col md:flex-row">
                     <Button
                       component={Link}
-                      to={`/course-builder/${course.slug}/content/new-video-lesson?section=${section.id}`}
+                      to={`/course-builder/${course.slug}/content/new-video-lesson?sectionId=${section.id}`}
                       variant="subtle"
                       leftIcon={<RiAddCircleLine size={17} />}
                       className="w-full md:w-[33%]"
@@ -52,7 +46,7 @@ function Content() {
                     </Button>
                     <Button
                       component={Link}
-                      to={`/course-builder/${course.slug}/content/new-text-lesson?section=${section.id}`}
+                      to={`/course-builder/${course.slug}/content/new-text-lesson?sectionId=${section.id}`}
                       variant="subtle"
                       leftIcon={<RiAddCircleLine size={17} />}
                       className="w-full md:w-[33%]"
@@ -63,7 +57,7 @@ function Content() {
                     </Button>
                     <Button
                       component={Link}
-                      to={`/course-builder/${course.slug}/content/new-quiz?section=${section.id}`}
+                      to={`/course-builder/${course.slug}/content/new-quiz?sectionId=${section.id}`}
                       variant="subtle"
                       leftIcon={<RiAddCircleLine size={17} />}
                       className="w-full md:w-[33%]"
@@ -77,13 +71,13 @@ function Content() {
               </Accordion>
               <ActionIcon
                 component={Link}
-                to={`/course-builder/${course.slug}/content/edit-section?section=${section.id}`}
+                to={`/course-builder/${course.slug}/content/edit-section?sectionId=${section.id}`}
               >
                 <RiEditBoxLine color="cyan" size={15} />
               </ActionIcon>
               <ActionIcon
                 component={Link}
-                to={`/course-builder/${course.slug}/content/delete-section?section=${section.id}`}
+                to={`/course-builder/${course.slug}/content/delete-section?sectionId=${section.id}`}
               >
                 <RiDeleteBin6Line color="red" size={15} />
               </ActionIcon>

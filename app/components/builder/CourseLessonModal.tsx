@@ -15,19 +15,19 @@ import AwsS3Multipart from '@uppy/aws-s3-multipart';
 import { FileInput, useUppy } from '@uppy/react';
 
 import { useFetcher, useMatches, useNavigate, useTransition } from '@remix-run/react';
-import type { Course } from '~/utils/types';
+import type { Course, CourseLessons, CourseSections } from '~/utils/types';
 import { useEffect, useState } from 'react';
-import { getLessonPosition, getSectionIndex, uppyOptions } from '~/utils/helpers';
+import { getLessonIndex, getLessonPosition, getSectionIndex, uppyOptions } from '~/utils/helpers';
 import ReactPlayer from 'react-player';
 
-function CourseLessonModal({ id, type }: { id: number; type: string }) {
+function CourseLessonModal({ sectionId, type, lessonId }: { sectionId: number; type: string; lessonId?: number }) {
   const { course } = useMatches()[2].data as { course: Course };
   const fetcher = useFetcher() as any;
-  const sectionIndex = getSectionIndex(course.content, id);
   const [opened, setOpened] = useState(false);
   const navigate = useNavigate();
   const transition = useTransition();
   const loader = transition.state === 'submitting' || transition.state === 'loading' ? true : false;
+  const [lesson, setLesson] = useState<CourseLessons | null>(null);
   const [progressContent, setProgressContent] = useState(0);
   const [lessonPosition, setLessonPosition] = useState(0);
   const [videoUrl, setVideoUrl] = useState('');
@@ -54,11 +54,25 @@ function CourseLessonModal({ id, type }: { id: number; type: string }) {
     setTimeout(() => {
       setOpened((prev) => !prev);
     }, 1);
-    setLessonPosition(getLessonPosition(course.content[sectionIndex].lessons));
+    const sectionIndex = getSectionIndex(course.content, sectionId);
+    const sectionFull = Object.assign({}, course.content[sectionIndex]) as CourseSections;
+    setLessonPosition(getLessonPosition(sectionFull.lessons));
+    if (lessonId) {
+      const lessonIndex = getLessonIndex(sectionFull.lessons, +lessonId);
+      const lesson = Object.assign({}, sectionFull.lessons[lessonIndex]) as CourseLessons;
+      setLesson(lesson);
+      setVideoDuration(lesson.duration);
+      setSelectDestination(
+        lesson.video.includes('youtube') ? 'youtube' : lesson.video.includes('vimeo') ? 'vimeo' : 'cloud'
+      );
+      setVideoUrl(lesson.video);
+    }
   }, []);
 
   useEffect(() => {
-    setVideoUrl('');
+    if (!lessonId) {
+      setVideoUrl('');
+    }
   }, [selectDestination]);
 
   function onDismiss() {
@@ -71,19 +85,34 @@ function CourseLessonModal({ id, type }: { id: number; type: string }) {
     <Modal
       opened={opened}
       onClose={onDismiss}
-      title={type === 'new' ? 'Add video lesson' : 'Update video lesson'}
+      title={type === 'new-video-lesson' ? 'Add video lesson' : 'Update video lesson'}
       size="lg"
     >
       <fetcher.Form
         method="post"
-        action={`/course-builder/test/content/new-video-lesson?section=${id}`}
+        action={
+          lesson
+            ? `/course-builder/${course.slug}/content/${type}?sectionId=${sectionId}&lessonId=${lessonId}`
+            : `/course-builder/${course.slug}/content/${type}?sectionId=${sectionId}`
+        }
         className="flex flex-col space-y-3"
       >
-        <TextInput placeholder="Lesson title" label="Lesson title" required name="title" />
-        <Switch defaultChecked={false} label="This lesson is free preview" name="free" />
-        <TextInput placeholder="Lesson description (optional)" label="Lesson description" name="description" />
+        <TextInput
+          placeholder="Lesson title"
+          label="Lesson title"
+          required
+          name="title"
+          defaultValue={lesson?.lessonTitle}
+        />
+        <Switch defaultChecked={lesson ? lesson.preview : false} label="This lesson is free preview" name="free" />
+        <TextInput
+          placeholder="Lesson description (optional)"
+          label="Lesson description"
+          name="description"
+          defaultValue={lesson?.description}
+        />
         <Divider my="xs" label="Video upload & preview" />
-        <div className="flex md:flex-row md:space-x-2 md:space-y-0 flex-col space-y-2 items-center">
+        <div className="flex flex-col items-center space-y-2 md:flex-row md:space-x-2 md:space-y-0">
           <Select
             label="Choose video source"
             placeholder="Pick one"
@@ -178,12 +207,13 @@ function CourseLessonModal({ id, type }: { id: number; type: string }) {
           value={videoDuration}
           onChange={(e) => setVideoDuration(+e.target.value)}
         />
-        <input hidden value={id} readOnly name="section" />
+        <input hidden value={sectionId} readOnly name="section" />
         <input hidden value={lessonPosition} readOnly name="position" />
         <input hidden value={videoUrl} readOnly name="video_url" />
         <input hidden value={course.slug} readOnly name="slug" />
+        <input hidden value={lessonId} readOnly name="lesson" />
         <Button className="w-[150px] mx-auto" type="submit" loading={loader}>
-          {type === 'new' ? 'Add lesson' : 'Update lesson'}
+          {type === 'new-video-lesson' ? 'Add lesson' : 'Update lesson'}
         </Button>
       </fetcher.Form>
     </Modal>

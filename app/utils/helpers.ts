@@ -31,13 +31,23 @@ export function getSectionIndex(sections: CourseSections[], sectionId: number) {
   return index;
 }
 
+export function getLessonIndex(lessons: CourseLessons[], lessonId: number) {
+  const index = lessons.findIndex((lesson) => lesson.id === lessonId);
+  return index;
+}
+
 export function getLessonPosition(lessons: CourseLessons[]) {
-  const lastLesson = lessons.pop();
-  if (lastLesson) {
-    return lastLesson.position + 1;
-  } else {
+  if (lessons.length === 0) {
     return 1;
+  } else {
+    return lessons[lessons.length - 1].position + 1;
   }
+  // const lastLesson = lessons.pop();
+  // if (lastLesson) {
+  //   return lastLesson.position + 1;
+  // } else {
+  //   return 1;
+  // }
 }
 
 export function secondsToTime(e: number) {
