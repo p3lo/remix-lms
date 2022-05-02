@@ -1,4 +1,4 @@
-import { Accordion, AccordionItem, ActionIcon, Button, Text } from '@mantine/core';
+import { Accordion, AccordionItem, ActionIcon, Button, Text, useMantineColorScheme } from '@mantine/core';
 import { Link, Outlet, useMatches } from '@remix-run/react';
 import { RiAddCircleLine, RiDeleteBin6Line, RiEditBoxLine } from 'react-icons/ri';
 import CourseLessonList from '~/components/CourseLessonList';
@@ -7,6 +7,8 @@ import type { Course } from '~/utils/types';
 
 function Content() {
   const { course } = useMatches()[2].data as { course: Course };
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const dark = colorScheme === 'dark';
 
   return (
     <>
@@ -26,7 +28,7 @@ function Content() {
                   }
                 >
                   {section.lessons.map((lesson) => (
-                    <div key={lesson.id} className="flex flex-col mb-3 p-1 bg-gray-800">
+                    <div key={lesson.id} className={`flex flex-col mb-3 p-1 ${dark ? 'bg-gray-800' : 'bg-gray-50'}`}>
                       <CourseLessonList
                         lessonTitle={lesson.lessonTitle}
                         preview={lesson.preview}
