@@ -1,6 +1,8 @@
-import { Accordion, AccordionItem, ActionIcon, Button } from '@mantine/core';
+import { Accordion, AccordionItem, ActionIcon, Button, Text } from '@mantine/core';
 import { Link, Outlet, useMatches } from '@remix-run/react';
 import { RiAddCircleLine, RiDeleteBin6Line, RiEditBoxLine } from 'react-icons/ri';
+import CourseLessonList from '~/components/CourseLessonList';
+import { sumTime } from '~/utils/helpers';
 import type { Course } from '~/utils/types';
 
 function Content() {
@@ -14,7 +16,26 @@ function Content() {
           course.content.map((section) => (
             <div key={section.id} className="flex items-start space-x-1">
               <Accordion className="grow" multiple>
-                <AccordionItem key={section.id} label={section.sectionTitle}>
+                <AccordionItem
+                  key={section.id}
+                  label={
+                    <div className="flex items-center justify-between">
+                      <Text size="lg">{section.sectionTitle}</Text>
+                      <Text>{sumTime(section)}</Text>
+                    </div>
+                  }
+                >
+                  {section.lessons.map((lesson) => (
+                    <div key={lesson.id} className="flex flex-col mb-3 p-1 bg-gray-800">
+                      <CourseLessonList
+                        lessonTitle={lesson.lessonTitle}
+                        preview={lesson.preview}
+                        description={lesson.description}
+                        type={lesson.type}
+                        duration={lesson.duration || 0}
+                      />
+                    </div>
+                  ))}
                   <div className="flex flex-col md:flex-row">
                     <Button
                       component={Link}

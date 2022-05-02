@@ -11,6 +11,7 @@ import {
   TextInput,
 } from '@mantine/core';
 import type { ActionFunction, LoaderFunction } from '@remix-run/node';
+import { redirect } from '@remix-run/node';
 import { Form, useActionData, useLoaderData, useMatches, useNavigate, useTransition } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 import invariant from 'tiny-invariant';
@@ -23,7 +24,6 @@ import uppycore from '@uppy/core/dist/style.min.css';
 import uppyfileinput from '@uppy/file-input/dist/style.css';
 import { uppyOptions } from '~/utils/helpers';
 import ReactPlayer from 'react-player';
-import { redirect } from '@remix-run/server-runtime';
 
 export function links() {
   return [
