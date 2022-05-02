@@ -1,6 +1,17 @@
-import { Button, Divider, LoadingOverlay, Modal, Paper, RingProgress, Switch, Text, TextInput } from '@mantine/core';
+import {
+  Button,
+  Divider,
+  LoadingOverlay,
+  Modal,
+  Paper,
+  RingProgress,
+  Select,
+  Switch,
+  Text,
+  TextInput,
+} from '@mantine/core';
 import type { ActionFunction, LoaderFunction } from '@remix-run/node';
-import { Form, useLoaderData, useMatches, useNavigate, useSubmit, useTransition } from '@remix-run/react';
+import { Form, useActionData, useLoaderData, useMatches, useNavigate, useTransition } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 import invariant from 'tiny-invariant';
 import { prisma } from '~/utils/db.server';
@@ -12,6 +23,7 @@ import uppycore from '@uppy/core/dist/style.min.css';
 import uppyfileinput from '@uppy/file-input/dist/style.css';
 import { uppyOptions } from '~/utils/helpers';
 import ReactPlayer from 'react-player';
+import { redirect } from '@remix-run/server-runtime';
 
 export function links() {
   return [
@@ -38,7 +50,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   });
   const lastLesson = section?.lessons.pop();
   if (lastLesson) {
-    return {};
+    return { section: sectionId, lessonPosition: lastLesson.position + 1 };
   } else {
     return { section: sectionId, lessonPosition: 1 };
   }
@@ -46,19 +58,55 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
-  console.log(formData);
-  return null;
+  const title = formData.get('title') as string;
+  const sectionId = formData.get('section') as string;
+  const description = formData.get('description') as string | '';
+  const select = formData.get('select') as string;
+  const freePreview = formData.get('free') as string;
+  const position = formData.get('position') as string;
+  const slug = formData.get('slug') as string;
+  const video_url = formData.get('video_url') as string;
+  const noncloud_video_url = formData.get('noncloud_video_url') as string;
+  const duration = formData.get('duration') as string;
+  if (select === 'cloud' && !video_url) {
+    return { error: 'Video was not uploaded, please upload it first or set url' };
+  }
+  let url = '';
+  if (select === 'cloud') {
+    url = video_url;
+  } else {
+    url = noncloud_video_url;
+  }
+  let preview = false;
+  if (freePreview === 'on') {
+    preview = true;
+  }
+  await prisma.course_content_lessons.create({
+    data: {
+      lessonTitle: title,
+      description,
+      position: +position,
+      video: url,
+      sectionId: +sectionId,
+      preview,
+      duration: +duration,
+    },
+  });
+  return redirect('/course-builder/' + slug + '/content');
 };
 
 function NewVideoLesson() {
   const { course } = useMatches()[2].data as { course: Course };
   const loaderData = useLoaderData() as { section: string; lessonPosition: number };
+  const actionData = useActionData() as { error: string };
   const [opened, setOpened] = useState(false);
   const navigate = useNavigate();
   const transition = useTransition();
   const loader = transition.state === 'submitting' || transition.state === 'loading' ? true : false;
   const [progressContent, setProgressContent] = useState(0);
   const [videoUrl, setVideoUrl] = useState('');
+  const [videoDuration, setVideoDuration] = useState(0);
+  const [selectDestination, setSelectDestination] = useState<string>('cloud');
   const uppyContent = useUppy(() => {
     return new Uppy(uppyOptions('content', ['video/*'], 400, `course/${course.id}/content`))
       .use(AwsS3Multipart, {
@@ -81,6 +129,10 @@ function NewVideoLesson() {
       setOpened((prev) => !prev);
     }, 1);
   }, []);
+  useEffect(() => {
+    setVideoUrl('');
+  }, [selectDestination]);
+
   function onDismiss() {
     setOpened((prev) => !prev);
     setTimeout(() => {
@@ -89,37 +141,70 @@ function NewVideoLesson() {
   }
   return (
     <Modal opened={opened} onClose={onDismiss} title="Add video lesson" size="lg">
-      <Form method="post" className="flex flex-col space-y-3">
+      <Form method="post" action={`?section=${loaderData.section}`} className="flex flex-col space-y-3">
         <TextInput placeholder="Lesson title" label="Lesson title" required name="title" />
         <Switch defaultChecked={false} label="This lesson is free preview" name="free" />
         <TextInput placeholder="Lesson description (optional)" label="Lesson description" name="description" />
         <Divider my="xs" label="Video upload & preview" />
+        <div className="flex md:flex-row md:space-x-2 md:space-y-0 flex-col space-y-2 items-center">
+          <Select
+            label="Choose video source"
+            placeholder="Pick one"
+            defaultValue={selectDestination}
+            onChange={setSelectDestination as any}
+            className="w-full md:w-1/2"
+            name="select"
+            data={[
+              { value: 'cloud', label: 'Upload' },
+              { value: 'youtube', label: 'Youtube' },
+              { value: 'vimeo', label: 'Vimeo' },
+            ]}
+          />
+          {selectDestination !== 'cloud' && (
+            <TextInput
+              className="w-full md:w-1/2"
+              placeholder="Video url"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              required
+              label="Video url"
+              name="noncloud_video_url"
+            />
+          )}
+        </div>
+        {actionData?.error && (
+          <Text size="xs" color="red">
+            {actionData.error}
+          </Text>
+        )}
         <div className="flex space-x-2">
-          <div className="flex flex-col space-y-1">
-            <form className="relative mx-auto">
-              <LoadingOverlay loaderProps={{ size: 'xs', variant: 'bars' }} visible={progressContent > 0} />
-              <FileInput
-                uppy={uppyContent}
-                pretty
-                inputName="files[]"
-                locale={{ strings: { chooseFiles: 'Choose video' } }}
-              />
-            </form>
+          {selectDestination === 'cloud' && (
+            <div className="flex flex-col space-y-1">
+              <form className="relative mx-auto">
+                <LoadingOverlay loaderProps={{ size: 'xs', variant: 'bars' }} visible={progressContent > 0} />
+                <FileInput
+                  uppy={uppyContent}
+                  pretty
+                  inputName="files[]"
+                  locale={{ strings: { chooseFiles: 'Choose video' } }}
+                />
+              </form>
 
-            {progressContent > 0 && (
-              <RingProgress
-                className="mx-auto"
-                sections={[{ value: progressContent, color: 'blue' }]}
-                size={80}
-                thickness={10}
-                label={
-                  <Text color="blue" weight={400} align="center" size="xs">
-                    {progressContent}%
-                  </Text>
-                }
-              />
-            )}
-          </div>
+              {progressContent > 0 && (
+                <RingProgress
+                  className="mx-auto"
+                  sections={[{ value: progressContent, color: 'blue' }]}
+                  size={80}
+                  thickness={10}
+                  label={
+                    <Text color="blue" weight={400} align="center" size="xs">
+                      {progressContent}%
+                    </Text>
+                  }
+                />
+              )}
+            </div>
+          )}
           <div className="grow">
             <Paper
               sx={(theme) => ({
@@ -142,12 +227,21 @@ function NewVideoLesson() {
                 width="100%"
                 height={220}
                 url={videoUrl}
-                onDuration={(duration) => console.log('duration', duration)}
+                onDuration={(duration) => setVideoDuration(Math.floor(duration))}
               />
             </Paper>
           </div>
         </div>
-        <input hidden value={loaderData.section} readOnly name="section_id" />
+        <TextInput
+          placeholder="Video duration"
+          label="Video duration (seconds)"
+          type="number"
+          required
+          name="duration"
+          value={videoDuration}
+          onChange={(e) => setVideoDuration(+e.target.value)}
+        />
+        <input hidden value={loaderData.section} readOnly name="section" />
         <input hidden value={loaderData.lessonPosition} readOnly name="position" />
         <input hidden value={videoUrl} readOnly name="video_url" />
         <input hidden value={course.slug} readOnly name="slug" />

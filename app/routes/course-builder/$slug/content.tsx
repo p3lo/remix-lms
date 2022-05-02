@@ -23,6 +23,7 @@ function Content() {
                       leftIcon={<RiAddCircleLine size={17} />}
                       className="w-full md:w-[33%]"
                       color="cyan"
+                      size="xs"
                     >
                       Add video lesson
                     </Button>
@@ -33,6 +34,7 @@ function Content() {
                       leftIcon={<RiAddCircleLine size={17} />}
                       className="w-full md:w-[33%]"
                       color="green"
+                      size="xs"
                     >
                       Add text lesson
                     </Button>
@@ -43,6 +45,7 @@ function Content() {
                       leftIcon={<RiAddCircleLine size={17} />}
                       className="w-full md:w-[33%]"
                       color="gray"
+                      size="xs"
                     >
                       Add quiz
                     </Button>
