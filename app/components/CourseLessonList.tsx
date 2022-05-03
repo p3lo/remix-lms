@@ -48,7 +48,7 @@ function CourseLessonList({ lesson, slug, sectionId }: { lesson: CourseLessons; 
       </ActionIcon>
       <ActionIcon
         component={Link}
-        to={`/course-builder/${slug}/content/delete-video-lesson?sectionId=${sectionId}&lessonId=${lesson.id}`}
+        to={`/course-builder/${slug}/content/delete-lesson?sectionId=${sectionId}&lessonId=${lesson.id}`}
       >
         <RiDeleteBin6Line color="red" size={15} />
       </ActionIcon>

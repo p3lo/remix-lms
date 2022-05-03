@@ -10,7 +10,7 @@ import type { Course } from '~/utils/types';
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
-  const id = url.searchParams.get('id');
+  const id = url.searchParams.get('sectionId');
   const slug = url.pathname.split('/')[2];
   if (!id) {
     return redirect(`/course-builder/${slug}/content`);
@@ -53,7 +53,11 @@ function DeleteSection() {
   }
   return (
     <Modal opened={opened} onClose={onDismiss} title="Delete section">
-      <Form method="post" className="flex flex-col space-y-3">
+      <Form
+        method="post"
+        action={`/course-builder/${course.slug}/content/delete-section?sectionId=${course.content[sectionIndex].id}`}
+        className="flex flex-col space-y-3"
+      >
         <Text size="sm">"{course.content[sectionIndex].sectionTitle}"?</Text>
         <input hidden readOnly name="id" value={course.content[sectionIndex].id} />
         <Button className="w-[150px] mx-auto" color="red" type="submit" loading={loader}>

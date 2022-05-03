@@ -1,46 +1,46 @@
-import { Button, Modal, TextInput } from '@mantine/core';
+import { Button, Modal, Text } from '@mantine/core';
 import type { ActionFunction, LoaderFunction } from '@remix-run/node';
-import { redirect, json } from '@remix-run/node';
+import { json, redirect } from '@remix-run/node';
 import { Form, useLoaderData, useMatches, useNavigate, useTransition } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 import invariant from 'tiny-invariant';
 import { prisma } from '~/utils/db.server';
-import { getSectionIndex } from '~/utils/helpers';
+import { getLessonIndex, getSectionIndex } from '~/utils/helpers';
 import type { Course } from '~/utils/types';
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
-  const id = url.searchParams.get('sectionId');
+  const sectionId = url.searchParams.get('sectionId');
+  const lessonId = url.searchParams.get('lessonId');
   const slug = url.pathname.split('/')[2];
-  if (!id) {
+  if (!sectionId || !lessonId) {
     return redirect(`/course-builder/${slug}/content`);
   }
-  invariant(id, 'id is required');
-
-  return json({ id });
+  return json({ sectionId, lessonId });
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
-  const title = formData.get('title') as string;
   const url = new URL(request.url);
-  const id = formData.get('id') as string;
+  const sectionId = url.searchParams.get('sectionId');
+  const lessonId = url.searchParams.get('lessonId');
   const slug = url.pathname.split('/')[2];
 
-  invariant(id, 'section id is required');
-  await prisma.course_content_sections.update({
-    where: { id: +id },
-    data: { sectionTitle: title },
+  invariant(sectionId, 'section id is required');
+  invariant(lessonId, 'lesson id is required');
+  await prisma.course_content_lessons.delete({
+    where: { id: +lessonId },
   });
   return redirect(`/course-builder/${slug}/content`);
 };
 
-function EditSection() {
-  const { id } = useLoaderData() as { id: string };
+function DeleteLesson() {
+  const { sectionId, lessonId } = useLoaderData() as { sectionId: string; lessonId: string };
   const { course } = useMatches()[2].data as { course: Course };
-  const sectionIndex = getSectionIndex(course.content, +id);
+  const sectionIndex = getSectionIndex(course.content, +sectionId);
+  const section = course.content[sectionIndex];
   const [opened, setOpened] = useState(false);
   const navigate = useNavigate();
+  const lesson = section.lessons[getLessonIndex(section.lessons, +lessonId)];
   const transition = useTransition();
   const loader = transition.state === 'submitting' || transition.state === 'loading' ? true : false;
   useEffect(() => {
@@ -55,27 +55,19 @@ function EditSection() {
     }, 100);
   }
   return (
-    <Modal opened={opened} onClose={onDismiss} title="Update section title">
+    <Modal opened={opened} onClose={onDismiss} title="Delete lesson">
       <Form
         method="post"
-        action={`/course-builder/${course.slug}/content/edit-section?sectionId=${course.content[sectionIndex].id}`}
+        action={`/course-builder/${course.slug}/content/delete-lesson?sectionId=${section.id}&lessonId=${lesson.id}`}
         className="flex flex-col space-y-3"
       >
-        <TextInput
-          placeholder="Section title"
-          label="Section title"
-          required
-          name="title"
-          defaultValue={course.content[sectionIndex].sectionTitle}
-        />
-
-        <input hidden readOnly name="id" value={course.content[sectionIndex].id} />
-        <Button className="w-[150px] mx-auto" type="submit" loading={loader}>
-          Update
+        <Text size="sm">"{lesson.lessonTitle}"?</Text>
+        <Button className="w-[150px] mx-auto" color="red" type="submit" loading={loader}>
+          Delete
         </Button>
       </Form>
     </Modal>
   );
 }
 
-export default EditSection;
+export default DeleteLesson;

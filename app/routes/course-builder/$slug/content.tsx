@@ -38,7 +38,7 @@ function Content() {
                       to={`/course-builder/${course.slug}/content/new-video-lesson?sectionId=${section.id}`}
                       variant="subtle"
                       leftIcon={<RiAddCircleLine size={17} />}
-                      className="w-full md:w-[33%]"
+                      className="w-full md:w-[33.33%]"
                       color="cyan"
                       size="xs"
                     >
@@ -49,7 +49,7 @@ function Content() {
                       to={`/course-builder/${course.slug}/content/new-text-lesson?sectionId=${section.id}`}
                       variant="subtle"
                       leftIcon={<RiAddCircleLine size={17} />}
-                      className="w-full md:w-[33%]"
+                      className="w-full md:w-[33.33%]"
                       color="green"
                       size="xs"
                     >
@@ -60,7 +60,7 @@ function Content() {
                       to={`/course-builder/${course.slug}/content/new-quiz?sectionId=${section.id}`}
                       variant="subtle"
                       leftIcon={<RiAddCircleLine size={17} />}
-                      className="w-full md:w-[33%]"
+                      className="w-full md:w-[33.33%]"
                       color="gray"
                       size="xs"
                     >
