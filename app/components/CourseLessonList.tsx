@@ -33,7 +33,12 @@ function CourseLessonList({ lesson, slug, sectionId }: { lesson: CourseLessons; 
         </div>
         <div className="flex items-center mr-2 space-x-5">
           {lesson.type === 'video' && (
-            <Anchor component={Link} to="" size="xs" className="text-sm">
+            <Anchor
+              component={Link}
+              to={`/course-builder/${slug}/content/preview-video?sectionId=${sectionId}&lessonId=${lesson.id}`}
+              size="xs"
+              className="text-sm"
+            >
               Preview
             </Anchor>
           )}
