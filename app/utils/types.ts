@@ -61,4 +61,5 @@ export interface CourseLessons {
   duration: number;
   preview: boolean;
   type: string;
+  textContent: string;
 }

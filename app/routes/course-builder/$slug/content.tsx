@@ -70,12 +70,14 @@ function Content() {
                 </AccordionItem>
               </Accordion>
               <ActionIcon
+                mt={15}
                 component={Link}
                 to={`/course-builder/${course.slug}/content/edit-section?sectionId=${section.id}`}
               >
                 <RiEditBoxLine color="cyan" size={15} />
               </ActionIcon>
               <ActionIcon
+                mt={15}
                 component={Link}
                 to={`/course-builder/${course.slug}/content/delete-section?sectionId=${section.id}`}
               >

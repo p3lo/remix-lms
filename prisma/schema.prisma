@@ -80,6 +80,7 @@ model course_content_lessons {
   lessonTitle String
   position    Int
   video       String?
+  textContent String?
   description String?
   duration    Int?
   preview     Boolean                 @default(false)
