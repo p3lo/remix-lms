@@ -27,8 +27,8 @@ function PreviewModalText({ text, slug, title }: { text: string; slug: string; t
           p="sm"
           withBorder
         >
-          <ScrollArea style={{ height: 400 }} scrollbarSize={6}>
-            <div dangerouslySetInnerHTML={{ __html: text }} />
+          <ScrollArea style={{ height: 400, width: '100%' }} scrollbarSize={6}>
+            <div className="w-full text-sm" dangerouslySetInnerHTML={{ __html: text }} />
           </ScrollArea>
         </Paper>
       </div>
