@@ -57,7 +57,7 @@ function Content() {
                     </Button>
                     <Button
                       component={Link}
-                      to={`/course-builder/${course.slug}/content/new-quiz?sectionId=${section.id}`}
+                      to={`/course-builder/${course.slug}/content/new-quiz-lesson?sectionId=${section.id}`}
                       variant="subtle"
                       leftIcon={<RiAddCircleLine size={17} />}
                       className="w-full md:w-[33.33%]"

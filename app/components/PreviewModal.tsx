@@ -37,6 +37,7 @@ function PreviewModal({ url, slug, title }: { url: string; slug: string; title: 
                 },
               },
             }}
+            light={true}
             controls
             width="100%"
             height={350}

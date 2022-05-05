@@ -85,4 +85,30 @@ model course_content_lessons {
   duration    Int?
   preview     Boolean                 @default(false)
   type        String?                 @default("video")
+  quiz        quiz[]
+}
+
+model quiz {
+  id       Int                    @id @default(autoincrement())
+  lesson   course_content_lessons @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lessonId Int
+  question quiz_question[]
+}
+
+model quiz_question {
+  id       Int           @id @default(autoincrement())
+  quiz     quiz          @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quizId   Int
+  question String
+  position Int
+  answer   quiz_answer[]
+}
+
+model quiz_answer {
+  id                   Int           @id @default(autoincrement())
+  question             quiz_question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId           Int
+  answer               String
+  isCorrect            Boolean       @default(false)
+  commentOnWrongAnswer String?
 }
