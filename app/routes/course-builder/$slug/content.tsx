@@ -17,18 +17,22 @@ function Content() {
         {course.content &&
           course.content.map((section) => (
             <div key={section.id} className="flex items-start space-x-1">
-              <Accordion className="grow" multiple>
+              <Accordion className="grow" multiple offsetIcon={false}>
                 <AccordionItem
+                  className={`${dark ? 'bg-zinc-800' : 'bg-zinc-100'}`}
                   key={section.id}
                   label={
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between ">
                       <Text size="lg">{section.sectionTitle}</Text>
                       <Text>{sumTime(section)}</Text>
                     </div>
                   }
                 >
                   {section.lessons.map((lesson) => (
-                    <div key={lesson.id} className={`flex flex-col mb-3 p-1 ${dark ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                    <div
+                      key={lesson.id}
+                      className={`flex rounded flex-col mb-[1px] p-1 ${dark ? 'bg-zinc-700' : 'bg-zinc-50'}`}
+                    >
                       <CourseLessonList lesson={lesson} slug={course.slug} sectionId={section.id} />
                     </div>
                   ))}
