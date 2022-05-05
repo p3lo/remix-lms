@@ -62,26 +62,26 @@ export interface CourseLessons {
   preview: boolean;
   type: string;
   textContent: string;
-  quiz: Quiz[];
+  quiz: Quiz;
 }
 
 export interface Quiz {
-  id: number;
-  lessonId: number;
-  question: QuizQuestion[];
+  id?: number;
+  lessonId?: number;
+  questions: QuizQuestion[];
 }
 
 export interface QuizQuestion {
-  id: number;
-  quizId: number;
+  id?: number;
+  quizId?: number;
   question: string;
   position: number;
   answers: QuizAnswer[];
 }
 
 export interface QuizAnswer {
-  id: number;
-  questionId: number;
+  id?: number;
+  questionId?: number;
   answer: string;
   isCorrect: boolean;
   commentOnWrongAnswer: string;
