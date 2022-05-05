@@ -127,9 +127,9 @@ function CourseLessonQuizModal({ sectionId, type, lessonId }: { sectionId: numbe
               {question.answers.map((answer, indexa) => (
                 <div className="flex items-center" key={indexa}>
                   {answer.isCorrect ? (
-                    <Checkbox size="xs" mt={25} name={`correct-answer-${indexq}-${indexa}`} defaultChecked />
+                    <Checkbox size="xs" mt={25} name={`quiz-correct-answer-${indexq}-${indexa}`} defaultChecked />
                   ) : (
-                    <Checkbox size="xs" mt={25} name={`correct-answer-${indexq}-${indexa}`} />
+                    <Checkbox size="xs" mt={25} name={`quiz-correct-answer-${indexq}-${indexa}`} />
                   )}
 
                   <TextInput
@@ -148,6 +148,9 @@ function CourseLessonQuizModal({ sectionId, type, lessonId }: { sectionId: numbe
               ))}
             </div>
           ))}
+          <input hidden value={sectionId} readOnly name="section" />
+          <input hidden value={lessonPosition} readOnly name="position" />
+          <input hidden value={course.slug} readOnly name="slug" />
           <Button
             variant="subtle"
             leftIcon={<RiAddCircleLine size={17} />}
@@ -158,6 +161,15 @@ function CourseLessonQuizModal({ sectionId, type, lessonId }: { sectionId: numbe
           >
             Add question
           </Button>
+          <TextInput
+            placeholder="Quiz duration"
+            label="Quiz duration (seconds)"
+            type="number"
+            required
+            name="duration"
+            value={lessonDuration}
+            onChange={(e) => setLessonDuration(+e.target.value)}
+          />
           <Button className="w-[150px] mx-auto mt-5" type="submit" loading={loader}>
             {type === 'new-quiz-lesson' ? 'Add lesson' : 'Update lesson'}
           </Button>
