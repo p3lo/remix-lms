@@ -27,6 +27,17 @@ export const loader: LoaderFunction = async ({ request }) => {
         include: {
           lessons: {
             orderBy: { position: 'asc' },
+            include: {
+              quiz: {
+                include: {
+                  question: {
+                    include: {
+                      answer: true,
+                    },
+                  },
+                },
+              },
+            },
           },
         },
       },

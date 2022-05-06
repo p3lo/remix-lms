@@ -2,7 +2,7 @@ import { ActionIcon, Anchor, Collapse, Text } from '@mantine/core';
 import { Link } from '@remix-run/react';
 import { useState } from 'react';
 import { CgChevronDownO, CgChevronUpO } from 'react-icons/cg';
-import { RiDeleteBin6Line, RiEditBoxLine, RiVideoLine, RiFileTextLine } from 'react-icons/ri';
+import { RiDeleteBin6Line, RiEditBoxLine, RiVideoLine, RiFileTextLine, RiQuestionnaireLine } from 'react-icons/ri';
 import { secondsToTime } from '~/utils/helpers';
 import type { CourseLessons } from '~/utils/types';
 
@@ -15,6 +15,7 @@ function CourseLessonList({ lesson, slug, sectionId }: { lesson: CourseLessons; 
           <div className="flex items-center space-x-2" onClick={() => setOpen((o) => !o)}>
             {lesson.type === 'video' && <RiVideoLine size={17} />}
             {lesson.type === 'text' && <RiFileTextLine size={17} />}
+            {lesson.type === 'quiz' && <RiQuestionnaireLine size={17} />}
             {lesson.description ? (
               <>
                 <Text className="cursor-pointer">{lesson.lessonTitle}</Text>
@@ -53,6 +54,16 @@ function CourseLessonList({ lesson, slug, sectionId }: { lesson: CourseLessons; 
               Preview
             </Anchor>
           )}
+          {lesson.type === 'quiz' && (
+            <Anchor
+              component={Link}
+              to={`/course-builder/${slug}/content/preview-quiz?sectionId=${sectionId}&lessonId=${lesson.id}`}
+              size="xs"
+              className="text-sm"
+            >
+              Preview
+            </Anchor>
+          )}
           <Text size="sm">{secondsToTime(lesson.duration || 0)}</Text>
         </div>
       </div>
@@ -68,6 +79,14 @@ function CourseLessonList({ lesson, slug, sectionId }: { lesson: CourseLessons; 
         <ActionIcon
           component={Link}
           to={`/course-builder/${slug}/content/edit-text-lesson?sectionId=${sectionId}&lessonId=${lesson.id}`}
+        >
+          <RiEditBoxLine color="cyan" size={15} />
+        </ActionIcon>
+      )}
+      {lesson.type === 'quiz' && (
+        <ActionIcon
+          component={Link}
+          to={`/course-builder/${slug}/content/edit-quiz-lesson?sectionId=${sectionId}&lessonId=${lesson.id}`}
         >
           <RiEditBoxLine color="cyan" size={15} />
         </ActionIcon>

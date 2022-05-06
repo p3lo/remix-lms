@@ -62,13 +62,13 @@ export interface CourseLessons {
   preview: boolean;
   type: string;
   textContent: string;
-  quiz: Quiz;
+  quiz: Quiz[];
 }
 
 export interface Quiz {
   id?: number;
   lessonId?: number;
-  questions: QuizQuestion[];
+  question: QuizQuestion[];
 }
 
 export interface QuizQuestion {
@@ -77,7 +77,7 @@ export interface QuizQuestion {
   question: string;
   position: number;
   commentOnWrongAnswer: string;
-  answers: QuizAnswer[];
+  answer: QuizAnswer[];
 }
 
 export interface QuizAnswer {

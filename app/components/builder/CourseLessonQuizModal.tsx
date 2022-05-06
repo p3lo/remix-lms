@@ -9,7 +9,7 @@ const initialQuiz = {
   question: '',
   position: 0,
   commentOnWrongAnswer: '',
-  answers: [
+  answer: [
     {
       answer: '',
       isCorrect: true,
@@ -30,7 +30,7 @@ function CourseLessonQuizModal({ sectionId, type, lessonId }: { sectionId: numbe
   const loader = transition.state === 'submitting' || transition.state === 'loading' ? true : false;
   const [lesson, setLesson] = useState<CourseLessons | null>(null);
   const [lessonPosition, setLessonPosition] = useState(0);
-  const [quiz, setQuiz] = useState<Quiz>({ questions: [initialQuiz] });
+  const [quiz, setQuiz] = useState<Quiz>({ question: [initialQuiz] });
   const [lessonDuration, setLessonDuration] = useState(0);
   const { colorScheme } = useMantineColorScheme();
   const dark = colorScheme === 'dark';
@@ -45,7 +45,8 @@ function CourseLessonQuizModal({ sectionId, type, lessonId }: { sectionId: numbe
       const lessonIndex = getLessonIndex(sectionFull.lessons, +lessonId);
       const lesson = Object.assign({}, sectionFull.lessons[lessonIndex]) as CourseLessons;
       setLesson(lesson);
-      setQuiz(lesson.quiz);
+      console.log(lesson);
+      setQuiz(lesson.quiz[0]);
       setLessonDuration(lesson.duration);
     }
   }, []);
@@ -56,16 +57,16 @@ function CourseLessonQuizModal({ sectionId, type, lessonId }: { sectionId: numbe
     }, 100);
   }
   function addQuestion() {
-    setQuiz((prev) => ({ ...prev, questions: [...prev.questions, initialQuiz] }));
+    setQuiz((prev) => ({ ...prev, question: [...prev.question, initialQuiz] }));
   }
   function addAnswer(questionIndex: number) {
     setQuiz((prev) => ({
       ...prev,
-      questions: prev.questions.map((question, i) => {
+      question: prev.question.map((question, i) => {
         if (i !== questionIndex) return question;
         return {
           ...question,
-          answers: [...question.answers, { answer: '', isCorrect: false, commentOnWrongAnswer: '' }],
+          answer: [...question.answer, { answer: '', isCorrect: false, commentOnWrongAnswer: '' }],
         };
       }),
     }));
@@ -73,17 +74,17 @@ function CourseLessonQuizModal({ sectionId, type, lessonId }: { sectionId: numbe
   function removeQuestion(index: number) {
     setQuiz((prev) => ({
       ...prev,
-      questions: prev.questions.filter((_, i) => i !== index),
+      question: prev.question.filter((_, i) => i !== index),
     }));
   }
   function removeAnswer(questionIndex: number, answerIndex: number) {
     setQuiz((prev) => ({
       ...prev,
-      questions: prev.questions.map((question, i) => {
+      question: prev.question.map((question, i) => {
         if (i !== questionIndex) return question;
         return {
           ...question,
-          answers: question.answers.filter((_, i) => i !== answerIndex),
+          answer: question.answer.filter((_, i) => i !== answerIndex),
         };
       }),
     }));
@@ -112,7 +113,7 @@ function CourseLessonQuizModal({ sectionId, type, lessonId }: { sectionId: numbe
             name="title"
             defaultValue={lesson?.lessonTitle}
           />
-          {quiz.questions.map((question, indexq) => (
+          {quiz.question.map((question, indexq) => (
             <div className={`flex flex-col space-y-1 p-2 ${dark ? 'bg-zinc-900' : 'bg-zinc-100'}`} key={indexq}>
               <div className="flex items-center">
                 <TextInput
@@ -123,6 +124,7 @@ function CourseLessonQuizModal({ sectionId, type, lessonId }: { sectionId: numbe
                   defaultValue={question.question}
                   className="grow"
                 />
+
                 <ActionIcon mt={25} component={Button}>
                   <RiAddCircleLine color="cyan" size={15} onClick={() => addAnswer(indexq)} />
                 </ActionIcon>
@@ -132,7 +134,7 @@ function CourseLessonQuizModal({ sectionId, type, lessonId }: { sectionId: numbe
                   </ActionIcon>
                 )}
               </div>
-              {question.answers.map((answer, indexa) => (
+              {question.answer.map((answer, indexa) => (
                 <div className="flex items-center" key={indexa}>
                   {answer.isCorrect ? (
                     <Checkbox size="xs" mt={25} name={`quiz-correct-answer-${indexq}-${indexa}`} defaultChecked />
@@ -161,6 +163,7 @@ function CourseLessonQuizModal({ sectionId, type, lessonId }: { sectionId: numbe
           <input hidden value={sectionId} readOnly name="section" />
           <input hidden value={lessonPosition} readOnly name="position" />
           <input hidden value={course.slug} readOnly name="slug" />
+          <input hidden value={lessonId} readOnly name="lesson" />
           <Button
             variant="subtle"
             leftIcon={<RiAddCircleLine size={17} />}
