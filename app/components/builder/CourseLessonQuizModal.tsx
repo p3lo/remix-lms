@@ -8,16 +8,15 @@ import type { Course, CourseLessons, CourseSections, Quiz, QuizQuestion } from '
 const initialQuiz = {
   question: '',
   position: 0,
+  commentOnWrongAnswer: '',
   answers: [
     {
       answer: '',
       isCorrect: true,
-      commentOnWrongAnswer: '',
     },
     {
       answer: '',
       isCorrect: false,
-      commentOnWrongAnswer: '',
     },
   ],
 } as QuizQuestion;
@@ -106,6 +105,13 @@ function CourseLessonQuizModal({ sectionId, type, lessonId }: { sectionId: numbe
               : `/course-builder/${course.slug}/content/${type}?sectionId=${sectionId}`
           }
         >
+          <TextInput
+            placeholder="Quiz title"
+            label="Quiz title"
+            required
+            name="title"
+            defaultValue={lesson?.lessonTitle}
+          />
           {quiz.questions.map((question, indexq) => (
             <div className={`flex flex-col space-y-1 p-2 ${dark ? 'bg-zinc-900' : 'bg-zinc-100'}`} key={indexq}>
               <div className="flex items-center">
@@ -120,9 +126,11 @@ function CourseLessonQuizModal({ sectionId, type, lessonId }: { sectionId: numbe
                 <ActionIcon mt={25} component={Button}>
                   <RiAddCircleLine color="cyan" size={15} onClick={() => addAnswer(indexq)} />
                 </ActionIcon>
-                <ActionIcon mt={25} component={Button}>
-                  <RiDeleteBin6Line color="red" size={15} onClick={() => removeQuestion(indexq)} />
-                </ActionIcon>
+                {indexq > 0 && (
+                  <ActionIcon mt={25} component={Button}>
+                    <RiDeleteBin6Line color="red" size={15} onClick={() => removeQuestion(indexq)} />
+                  </ActionIcon>
+                )}
               </div>
               {question.answers.map((answer, indexa) => (
                 <div className="flex items-center" key={indexa}>
@@ -141,9 +149,11 @@ function CourseLessonQuizModal({ sectionId, type, lessonId }: { sectionId: numbe
                     defaultValue={answer.answer}
                     className="ml-2 grow"
                   />
-                  <ActionIcon mt={25} component={Button}>
-                    <RiDeleteBin6Line color="red" size={15} onClick={() => removeAnswer(indexq, indexa)} />
-                  </ActionIcon>
+                  {indexa > 1 && (
+                    <ActionIcon mt={25} component={Button}>
+                      <RiDeleteBin6Line color="red" size={15} onClick={() => removeAnswer(indexq, indexa)} />
+                    </ActionIcon>
+                  )}
                 </div>
               ))}
             </div>

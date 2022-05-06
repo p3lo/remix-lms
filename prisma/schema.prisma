@@ -96,19 +96,19 @@ model quiz {
 }
 
 model quiz_question {
-  id       Int           @id @default(autoincrement())
-  quiz     quiz          @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  quizId   Int
-  question String
-  position Int
-  answer   quiz_answer[]
+  id                   Int           @id @default(autoincrement())
+  quiz                 quiz          @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  quizId               Int
+  question             String
+  position             Int
+  commentOnWrongAnswer String?
+  answer               quiz_answer[]
 }
 
 model quiz_answer {
-  id                   Int           @id @default(autoincrement())
-  question             quiz_question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  questionId           Int
-  answer               String
-  isCorrect            Boolean       @default(false)
-  commentOnWrongAnswer String?
+  id         Int           @id @default(autoincrement())
+  question   quiz_question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId Int
+  answer     String
+  isCorrect  Boolean       @default(false)
 }

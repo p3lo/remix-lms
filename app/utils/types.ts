@@ -76,6 +76,7 @@ export interface QuizQuestion {
   quizId?: number;
   question: string;
   position: number;
+  commentOnWrongAnswer: string;
   answers: QuizAnswer[];
 }
 
@@ -84,5 +85,4 @@ export interface QuizAnswer {
   questionId?: number;
   answer: string;
   isCorrect: boolean;
-  commentOnWrongAnswer: string;
 }
