@@ -24,7 +24,7 @@ function Content() {
                   label={
                     <div className="flex items-center justify-between ">
                       <Text size="lg">{section.sectionTitle}</Text>
-                      <Text>{sumTime(section)}</Text>
+                      <Text className="">{sumTime(section)}</Text>
                     </div>
                   }
                 >

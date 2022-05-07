@@ -1,0 +1,7 @@
+*,
+::before,
+::after {
+  border-width: 0;
+  border-style: solid;
+  border-color: currentColor /* or gray-DEFAULT / gray-400 */;
+}

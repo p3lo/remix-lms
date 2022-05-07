@@ -4,11 +4,15 @@ import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration, useLoaderD
 import type { ColorScheme } from '@mantine/core';
 import { MantineProvider, ColorSchemeProvider } from '@mantine/core';
 import styles from './tailwind.css';
+import customStyle from './custom.css';
 import { supabaseStrategy } from './utils/auth.server';
 import { useLocalStorage } from '@mantine/hooks';
 import { prisma } from './utils/db.server';
 
-export const links: LinksFunction = () => [{ rel: 'stylesheet', href: styles }];
+export const links: LinksFunction = () => [
+  { rel: 'stylesheet', href: styles },
+  { rel: 'stylesheet', href: customStyle },
+];
 
 export const meta: MetaFunction = () => ({
   charset: 'utf-8',
