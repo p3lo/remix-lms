@@ -46,7 +46,7 @@ function CourseLessonQuizModal({ sectionId, type, lessonId }: { sectionId: numbe
       const lesson = Object.assign({}, sectionFull.lessons[lessonIndex]) as CourseLessons;
       setLesson(lesson);
       console.log(lesson);
-      setQuiz(lesson.quiz[0]);
+      setQuiz(lesson.quiz);
       setLessonDuration(lesson.duration);
     }
   }, []);

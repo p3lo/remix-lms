@@ -31,6 +31,7 @@ export const loader: LoaderFunction = async ({ request }) => {
               quiz: {
                 include: {
                   question: {
+                    orderBy: { position: 'asc' },
                     include: {
                       answer: true,
                     },

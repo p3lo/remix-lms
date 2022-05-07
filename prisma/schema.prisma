@@ -85,13 +85,13 @@ model course_content_lessons {
   duration    Int?
   preview     Boolean                 @default(false)
   type        String?                 @default("video")
-  quiz        quiz[]
+  quiz        quiz?
 }
 
 model quiz {
   id       Int                    @id @default(autoincrement())
   lesson   course_content_lessons @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  lessonId Int
+  lessonId Int                    @unique
   question quiz_question[]
 }
 

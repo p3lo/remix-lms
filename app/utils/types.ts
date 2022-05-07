@@ -62,7 +62,7 @@ export interface CourseLessons {
   preview: boolean;
   type: string;
   textContent: string;
-  quiz: Quiz[];
+  quiz: Quiz;
 }
 
 export interface Quiz {
