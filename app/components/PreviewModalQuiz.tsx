@@ -1,4 +1,4 @@
-import { Button, Divider, Modal, Paper, Radio, RadioGroup } from '@mantine/core';
+import { Button, Chip, Chips, Divider, Modal, Paper, Text } from '@mantine/core';
 import { useFetcher, useNavigate, useTransition } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 import type { Quiz } from '~/utils/types';
@@ -6,6 +6,7 @@ import type { Quiz } from '~/utils/types';
 function PreviewModalQuiz({ quiz, title, slug }: { quiz: Quiz; title: string; slug: string }) {
   const [opened, setOpened] = useState(false);
   const fetcher = useFetcher() as any;
+  console.log(fetcher.data);
   const navigate = useNavigate();
   const transition = useTransition();
   const loader = transition.state === 'submitting' || transition.state === 'loading' ? true : false;
@@ -38,18 +39,16 @@ function PreviewModalQuiz({ quiz, title, slug }: { quiz: Quiz; title: string; sl
           >
             {quiz.question.map((question) => (
               <>
-                <RadioGroup
-                  key={question.id}
-                  orientation="vertical"
-                  label={question.question}
-                  spacing="xs"
-                  required
-                  name={`select-${question.id}`}
-                >
+                <Text key={question.id} size="sm">
+                  Question: {question.question}
+                </Text>
+                <Chips variant="filled" direction="column" name={`select-${question.id}`} grow>
                   {question.answer.map((answer) => (
-                    <Radio key={answer.id} label={answer.answer} value={answer.id!.toString()} />
+                    <Chip key={answer.id} value={answer.id}>
+                      {answer.answer}
+                    </Chip>
                   ))}
-                </RadioGroup>
+                </Chips>
                 <Divider />
               </>
             ))}

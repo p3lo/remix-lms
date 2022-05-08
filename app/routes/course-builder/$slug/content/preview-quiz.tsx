@@ -2,6 +2,7 @@ import type { ActionFunction, LoaderFunction } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
 import { useLoaderData, useMatches } from '@remix-run/react';
 import PreviewModalQuiz from '~/components/PreviewModalQuiz';
+import { prisma } from '~/utils/db.server';
 import { getLessonIndex, getSectionIndex } from '~/utils/helpers';
 import type { Course } from '~/utils/types';
 
@@ -18,8 +19,22 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
-  console.log(formData);
-  return null;
+  const quiz = [] as any;
+  for (let [key, value] of formData.entries()) {
+    const qId = key.split('-')[1];
+    const aId = value;
+    const correctAId = await prisma.quiz_answer.findFirst({
+      where: {
+        questionId: +qId,
+        isCorrect: true,
+      },
+      select: {
+        id: true,
+      },
+    });
+    quiz.push({ qId: +qId, aId: +aId, answer: +value, correctAId: correctAId?.id });
+  }
+  return quiz;
 };
 
 function PreviewQuiz() {
