@@ -12,13 +12,15 @@ export interface DivAccordionProps {
   index: number;
   children: React.ReactNode;
   moveAccordion: (dragIndex: number, hoverIndex: number) => void;
+  moveAccordionCompleted: (index: number, itemIndex: number) => void;
 }
 
 interface DragItem {
   index: number;
+  itemIndex: number;
 }
 
-export const DivAccordionDND: FC<DivAccordionProps> = ({ moveAccordion, children, index }) => {
+export const DivAccordionDND: FC<DivAccordionProps> = ({ moveAccordion, children, index, moveAccordionCompleted }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [{ handlerId }, drop] = useDrop<DragItem, void, { handlerId: Identifier | null }>({
     accept: ItemTypes.DIDND,
@@ -53,11 +55,14 @@ export const DivAccordionDND: FC<DivAccordionProps> = ({ moveAccordion, children
   const [{ isDragging }, drag] = useDrag({
     type: ItemTypes.DIDND,
     item: () => {
-      return { index };
+      return { index, itemIndex: index };
     },
     collect: (monitor: any) => ({
       isDragging: monitor.isDragging(),
     }),
+    end: (item: DragItem, monitor) => {
+      moveAccordionCompleted(index, item.itemIndex);
+    },
   });
   const opacity = isDragging ? 0 : 1;
   drag(drop(ref));

@@ -15,13 +15,14 @@ export interface AccordionItem {
   id: number;
   children: React.ReactNode;
   moveAccordionItem: (dragIndex: number, hoverIndex: number, indexQ: number, index: number) => void;
-  moveAccordionItemCompleted: (indexQ: number, index: number, id: number) => void;
+  moveAccordionItemCompleted: (indexQ: number, index: number, id: number, itemIndex: number) => void;
 }
 
 interface DragItem {
   index: number;
   indexQ: number;
   id: number;
+  itemIndex: number;
 }
 
 export const DivAccordionItemDND: FC<AccordionItem> = ({
@@ -40,8 +41,6 @@ export const DivAccordionItemDND: FC<AccordionItem> = ({
     collect(monitor) {
       return {
         handlerId: monitor.getHandlerId(),
-        didDrop: monitor.didDrop(),
-        isOver: monitor.isOver(),
       };
     },
     hover(item: DragItem, monitor) {
@@ -73,13 +72,13 @@ export const DivAccordionItemDND: FC<AccordionItem> = ({
   const [{ isDragging }, drag] = useDrag({
     type: ItemTypes.AIDNDI,
     item: () => {
-      return { indexQ, index, id };
+      return { indexQ, index, id, itemIndex: index };
     },
     collect: (monitor: any) => ({
       isDragging: monitor.isDragging(),
     }),
     end: (item: DragItem, monitor) => {
-      moveAccordionItemCompleted(indexQ, index, item.id);
+      moveAccordionItemCompleted(indexQ, index, item.id, item.itemIndex);
     },
   });
 

@@ -3,54 +3,43 @@ import { Link, Outlet, useMatches, useSubmit } from '@remix-run/react';
 import { RiAddCircleLine, RiDeleteBin6Line, RiEditBoxLine } from 'react-icons/ri';
 import CourseLessonList from '~/components/CourseLessonList';
 import { sumTime } from '~/utils/helpers';
-import type { Course, CourseLessons } from '~/utils/types';
+import type { Course, CourseLessons, CourseSections } from '~/utils/types';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import update from 'immutability-helper';
 import { DivAccordionDND } from '~/components/builder/DivAccordionDND';
 import { DivAccordionItemDND } from '~/components/builder/DivAccordionItemDND';
 import type { ActionFunction } from '@remix-run/node';
 import invariant from 'tiny-invariant';
+import { prisma } from '~/utils/db.server';
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const action = formData.get('action') as string;
-  const indexContent = formData.get('indexQ');
-  const indexPosition = formData.get('index');
-  const lessonId = formData.get('id');
-  const getLessons = formData.get('lessons');
-  invariant(indexContent, 'index content is required');
-  invariant(indexPosition, 'index position is required');
-  invariant(lessonId, 'lesson id is required');
   invariant(action, 'action is required');
+
   if (action === 'accordionItem') {
+    const getLessons = formData.get('lessons');
+    const indexContent = formData.get('indexQ');
+    invariant(indexContent, 'index content is required');
     invariant(getLessons, 'lessons is required');
     const lessons = JSON.parse(getLessons.toString()) as CourseLessons[];
-    let position = 0;
-    let newLessons: CourseLessons[] = [];
-    lessons.map((lesson: CourseLessons) => {
-      console.log('lesson', lesson);
-      console.log('position', position);
-      console.log('indexPosition', indexPosition);
-      console.log('lessonid', lessonId);
-      if (position === +indexPosition) {
-        const lessonIndex = lessons.findIndex((lessonItem: CourseLessons) => lessonItem.id === +lessonId);
-        const lessonPush = Object.assign(lessons[lessonIndex]);
-        newLessons.push(update(lessonPush, { position: { $set: position } }));
-        position++;
-      }
-      if (lesson.id === +lessonId) {
-        if (position !== +indexPosition) {
-          return null;
-        }
-      }
-      newLessons.push(update(lesson, { position: { $set: position } }));
-      position++;
-    });
-    console.log(newLessons);
-
-    // console.log(indexContent, indexPosition, lessonId, lessons);
+    await prisma.$transaction(
+      lessons.map((lesson, index) =>
+        prisma.course_content_lessons.update({ where: { id: lesson.id }, data: { position: index } })
+      )
+    );
+  }
+  if (action === 'accordion') {
+    const getSections = formData.get('sections');
+    invariant(getSections, 'sections is required');
+    const sections = JSON.parse(getSections.toString()) as CourseSections[];
+    await prisma.$transaction(
+      sections.map((section, index) =>
+        prisma.course_content_sections.update({ where: { id: section.id }, data: { position: index } })
+      )
+    );
   }
   return null;
 };
@@ -61,6 +50,10 @@ function Content() {
   const dark = colorScheme === 'dark';
   const submit = useSubmit();
   const [items, setItems] = useState(course);
+  useEffect(() => {
+    setItems(course);
+  }, [course]);
+
   const moveAccordion = useCallback((dragIndex: number, hoverIndex: number) => {
     setItems((prev: any) =>
       update(prev, {
@@ -94,24 +87,49 @@ function Content() {
 
     [items]
   );
-  const moveAccordionCompleted = useCallback((indexQ: number, index: number, id: number) => {
-    submit(
-      { indexQ: indexQ.toString(), index: index.toString(), id: id.toString() },
-      { method: 'post', replace: true }
-    );
-  }, []);
-  const moveAccordionItemCompleted = useCallback((indexQ: number, index: number, id: number) => {
-    submit(
-      {
-        action: 'accordionItem',
-        indexQ: indexQ.toString(),
-        index: index.toString(),
-        id: id.toString(),
-        lessons: JSON.stringify(items.content[indexQ].lessons),
-      },
-      { method: 'post', replace: true }
-    );
-  }, []);
+  const moveAccordionCompleted = useCallback(
+    (index: number, itemIndex: number) => {
+      const getSections = course.content;
+      const sections = Object.assign(
+        update(getSections, {
+          $splice: [
+            [itemIndex, 1],
+            [index, 0, getSections[itemIndex]],
+          ],
+        })
+      );
+      submit(
+        {
+          action: 'accordion',
+          sections: JSON.stringify(sections),
+        },
+        { method: 'post', replace: true }
+      );
+    },
+    [submit, course]
+  );
+  const moveAccordionItemCompleted = useCallback(
+    (indexQ: number, index: number, id: number, itemIndex: number) => {
+      const getLessons = course.content[indexQ].lessons;
+      const lessons = Object.assign(
+        update(getLessons, {
+          $splice: [
+            [itemIndex, 1],
+            [index, 0, getLessons[itemIndex]],
+          ],
+        })
+      );
+      submit(
+        {
+          action: 'accordionItem',
+          indexQ: indexQ.toString(),
+          lessons: JSON.stringify(lessons),
+        },
+        { method: 'post', replace: true }
+      );
+    },
+    [submit, course]
+  );
   return (
     <>
       <Outlet />
@@ -119,7 +137,12 @@ function Content() {
         <div className="flex flex-col ">
           {items.content &&
             items.content.map((section, indexQ) => (
-              <DivAccordionDND key={section.id} index={indexQ} moveAccordion={moveAccordion}>
+              <DivAccordionDND
+                key={section.id}
+                index={indexQ}
+                moveAccordion={moveAccordion}
+                moveAccordionCompleted={moveAccordionCompleted}
+              >
                 <Accordion className="grow" multiple offsetIcon={false}>
                   <AccordionItem
                     className={`${dark ? 'bg-zinc-800' : 'bg-zinc-100'}`}
