@@ -3,13 +3,57 @@ import { Link, Outlet, useMatches, useSubmit } from '@remix-run/react';
 import { RiAddCircleLine, RiDeleteBin6Line, RiEditBoxLine } from 'react-icons/ri';
 import CourseLessonList from '~/components/CourseLessonList';
 import { sumTime } from '~/utils/helpers';
-import type { Course } from '~/utils/types';
+import type { Course, CourseLessons } from '~/utils/types';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useCallback, useState } from 'react';
 import update from 'immutability-helper';
 import { DivAccordionDND } from '~/components/builder/DivAccordionDND';
 import { DivAccordionItemDND } from '~/components/builder/DivAccordionItemDND';
+import type { ActionFunction } from '@remix-run/node';
+import invariant from 'tiny-invariant';
+
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData();
+  const action = formData.get('action') as string;
+  const indexContent = formData.get('indexQ');
+  const indexPosition = formData.get('index');
+  const lessonId = formData.get('id');
+  const getLessons = formData.get('lessons');
+  invariant(indexContent, 'index content is required');
+  invariant(indexPosition, 'index position is required');
+  invariant(lessonId, 'lesson id is required');
+  invariant(action, 'action is required');
+  if (action === 'accordionItem') {
+    invariant(getLessons, 'lessons is required');
+    const lessons = JSON.parse(getLessons.toString()) as CourseLessons[];
+    let position = 0;
+    let newLessons: CourseLessons[] = [];
+    lessons.map((lesson: CourseLessons) => {
+      console.log('lesson', lesson);
+      console.log('position', position);
+      console.log('indexPosition', indexPosition);
+      console.log('lessonid', lessonId);
+      if (position === +indexPosition) {
+        const lessonIndex = lessons.findIndex((lessonItem: CourseLessons) => lessonItem.id === +lessonId);
+        const lessonPush = Object.assign(lessons[lessonIndex]);
+        newLessons.push(update(lessonPush, { position: { $set: position } }));
+        position++;
+      }
+      if (lesson.id === +lessonId) {
+        if (position !== +indexPosition) {
+          return null;
+        }
+      }
+      newLessons.push(update(lesson, { position: { $set: position } }));
+      position++;
+    });
+    console.log(newLessons);
+
+    // console.log(indexContent, indexPosition, lessonId, lessons);
+  }
+  return null;
+};
 
 function Content() {
   const { course } = useMatches()[2].data as { course: Course };
@@ -58,7 +102,13 @@ function Content() {
   }, []);
   const moveAccordionItemCompleted = useCallback((indexQ: number, index: number, id: number) => {
     submit(
-      { indexQ: indexQ.toString(), index: index.toString(), id: id.toString() },
+      {
+        action: 'accordionItem',
+        indexQ: indexQ.toString(),
+        index: index.toString(),
+        id: id.toString(),
+        lessons: JSON.stringify(items.content[indexQ].lessons),
+      },
       { method: 'post', replace: true }
     );
   }, []);
@@ -87,7 +137,7 @@ function Content() {
                         index={indexA}
                         indexQ={indexQ}
                         moveAccordionItem={moveAccordionItem}
-                        moveAccordionCompleted={moveAccordionCompleted}
+                        moveAccordionItemCompleted={moveAccordionItemCompleted}
                       >
                         <CourseLessonList lesson={lesson} slug={course.slug} sectionId={section.id} />
                       </DivAccordionItemDND>

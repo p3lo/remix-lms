@@ -15,7 +15,7 @@ export interface AccordionItem {
   id: number;
   children: React.ReactNode;
   moveAccordionItem: (dragIndex: number, hoverIndex: number, indexQ: number, index: number) => void;
-  moveAccordionCompleted: (indexQ: number, index: number, id: number) => void;
+  moveAccordionItemCompleted: (indexQ: number, index: number, id: number) => void;
 }
 
 interface DragItem {
@@ -29,7 +29,7 @@ export const DivAccordionItemDND: FC<AccordionItem> = ({
   index,
   indexQ,
   children,
-  moveAccordionCompleted,
+  moveAccordionItemCompleted,
   id,
 }) => {
   const { colorScheme } = useMantineColorScheme();
@@ -79,9 +79,7 @@ export const DivAccordionItemDND: FC<AccordionItem> = ({
       isDragging: monitor.isDragging(),
     }),
     end: (item: DragItem, monitor) => {
-      if (monitor.didDrop()) {
-        // moveCompleted(indexQ, index, item.id);
-      }
+      moveAccordionItemCompleted(indexQ, index, item.id);
     },
   });
 
