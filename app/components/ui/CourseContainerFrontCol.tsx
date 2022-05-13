@@ -1,4 +1,4 @@
-import { ActionIcon, Badge, Image, List, Popover, Text, UnstyledButton } from '@mantine/core';
+import { ActionIcon, Badge, Image, List, Paper, Popover, Text, UnstyledButton } from '@mantine/core';
 import { Link } from '@remix-run/react';
 import { useState } from 'react';
 import { RiCheckLine, RiEditBoxLine } from 'react-icons/ri';
@@ -6,9 +6,16 @@ import type { Course } from '~/utils/types';
 
 function CourseItem({ course, owner }: { course: Course; owner?: boolean }) {
   return (
-    <div className="relative w-[250px] h-[300px]">
+    <Paper
+      sx={(theme) => ({
+        backgroundColor: theme.colorScheme === 'dark' ? theme.colors.gray[9] : theme.colors.gray[2],
+      })}
+      shadow="md"
+      withBorder
+      className="relative w-full h-[300px]"
+    >
       <UnstyledButton component={Link} to={`/course/${course.slug}`}>
-        <div className="group cursor-pointer">
+        <div className="w-full h-full cursor-pointer group">
           <div className="flex flex-col ">
             <Image
               height={150}
@@ -18,7 +25,7 @@ function CourseItem({ course, owner }: { course: Course; owner?: boolean }) {
               fit="contain"
               className="group-hover:opacity-50"
             />
-            <div className="flex flex-col py-2 space-y-1">
+            <div className="flex flex-col p-2 space-y-1">
               <Text weight={700} lineClamp={2}>
                 {course.title}
               </Text>
@@ -37,15 +44,15 @@ function CourseItem({ course, owner }: { course: Course; owner?: boolean }) {
       )}
       {owner && (
         <ActionIcon
-          className="absolute bottom-[25%] right-0"
+          className="absolute bottom-[20%] right-0"
           mt={15}
           component={Link}
           to={`/course-builder/${course.slug}/details`}
         >
-          <RiEditBoxLine color="cyan" size={15} />
+          <RiEditBoxLine color="blue" size={15} />
         </ActionIcon>
       )}
-    </div>
+    </Paper>
   );
 }
 
@@ -58,10 +65,11 @@ function CourseContainerFrontCol({ course, owner }: { course: Course; owner?: bo
       position="right"
       placement="center"
       withArrow
-      trapFocus={false}
+      trapFocus={true}
       closeOnEscape={true}
       transition="pop-top-left"
       width={260}
+      gutter={1}
       styles={{ body: { pointerEvents: 'none' } }}
       target={
         <div onMouseEnter={() => setOpened(true)} onMouseLeave={() => setOpened(false)}>

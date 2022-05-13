@@ -1,4 +1,4 @@
-import { Button, UnstyledButton } from '@mantine/core';
+import { Button } from '@mantine/core';
 import type { LoaderFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { Link, Outlet, useLoaderData } from '@remix-run/react';
@@ -37,7 +37,8 @@ function MyCourses() {
           New course
         </Button>
       </div>
-      <div className="flex items-center justify-evenly">
+
+      <div className="grid grid-cols-1 gap-3 p-3 md:grid-cols-2 xl:grid-cols-4">
         {courses.map((course) => (
           <CourseContainerFrontCol key={course.id} course={course} owner />
         ))}

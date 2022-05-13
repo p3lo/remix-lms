@@ -20,7 +20,7 @@ function CourseBuilderLayout() {
   return (
     <MainLayout>
       <div className="flex h-full ">
-        <Navbar className="h-[85vh] shadow-xl" width={{ base: 250 }}>
+        <Navbar className="h-[85vh] shadow-xl w-[250px]">
           <Divider size={0.5} />
           <Navbar.Section>
             <Text className="flex justify-center py-3" size="md" weight={600}>

@@ -12,7 +12,7 @@ function ProfileLayout() {
   return (
     <MainLayout>
       <div className="flex">
-        <Navbar className="h-[85vh] shadow-xl" width={{ base: 250 }}>
+        <Navbar className="h-[85vh] shadow-xl w-[250px]">
           <Divider />
           <Navbar.Section>
             <Text className="flex justify-center py-3" size="md" weight={600}>
@@ -52,7 +52,7 @@ function ProfileLayout() {
           </Navbar.Section>
           <Divider />
         </Navbar>
-        <div className="p-3 grow">
+        <div className="p-3 grow w-[80%]">
           <Outlet />
         </div>
       </div>
