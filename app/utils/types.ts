@@ -29,6 +29,7 @@ export interface Course {
   slug: string;
   language: string;
   author: User;
+  isDraft: boolean;
   brief: string;
   description: string;
   image: string;

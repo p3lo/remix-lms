@@ -47,6 +47,7 @@ model course {
   authorId      Int
   subCategory   sub_category              @relation(fields: [subCategoryId], references: [id])
   subCategoryId Int
+  isDraft       Boolean                   @default(true)
   brief         String?
   description   String?
   image         String?
