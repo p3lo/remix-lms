@@ -21,6 +21,7 @@ export const loader: LoaderFunction = async ({ request }) => {
           name: true,
         },
       },
+      whatYouLearn: true,
     },
   });
   return json({ courses });
@@ -38,14 +39,7 @@ function MyCourses() {
       </div>
       <div className="flex items-center justify-evenly">
         {courses.map((course) => (
-          <UnstyledButton
-            key={course.id}
-            className="w-full xs:w-1/2 sm:w-1/3 md:w-1/4 xl:w-1/5 h-[300px]"
-            component={Link}
-            to={`/course/${course.slug}`}
-          >
-            <CourseContainerFrontCol course={course} owner />
-          </UnstyledButton>
+          <CourseContainerFrontCol key={course.id} course={course} owner />
         ))}
       </div>
     </>
