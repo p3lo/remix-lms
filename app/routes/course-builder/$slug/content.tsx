@@ -162,7 +162,7 @@ function Content() {
                         moveAccordionItem={moveAccordionItem}
                         moveAccordionItemCompleted={moveAccordionItemCompleted}
                       >
-                        <CourseLessonList lesson={lesson} slug={course.slug} sectionId={section.id} />
+                        <CourseLessonList lesson={lesson} slug={course.slug} sectionId={section.id} isBuilder={true} />
                       </DivAccordionItemDND>
                     ))}
                     <div className="flex flex-col md:flex-row">

@@ -18,12 +18,12 @@ export function getDate(date: Date) {
   return month + 1 + '/' + day + '/' + year;
 }
 
-export function sumTime(section: CourseSections) {
+export function sumTime(section: CourseSections, detials: boolean = false) {
   let sum = 0;
   section.lessons.forEach((lesson) => {
     sum += lesson.duration;
   });
-  return secondsToTime(sum);
+  return secondsToTime(sum, detials);
 }
 
 export function getSectionIndex(sections: CourseSections[], sectionId: number) {
@@ -50,7 +50,7 @@ export function getLessonPosition(lessons: CourseLessons[]) {
   // }
 }
 
-export function secondsToTime(e: number) {
+export function secondsToTime(e: number, detials: boolean = false) {
   let h = Math.floor(e / 3600)
       .toString()
       .padStart(2, '0'),
@@ -61,9 +61,17 @@ export function secondsToTime(e: number) {
       .toString()
       .padStart(2, '0');
   if (h === '00') {
-    return m + ':' + s;
+    if (detials) {
+      return m + 'm ' + s + 's';
+    } else {
+      return m + ':' + s;
+    }
   } else {
-    return h + ':' + m + ':' + s;
+    if (detials) {
+      return h + 'h ' + m + 'm ' + s + 's';
+    } else {
+      return h + ':' + m + ':' + s;
+    }
   }
   //return `${h}:${m}:${s}`;
 }

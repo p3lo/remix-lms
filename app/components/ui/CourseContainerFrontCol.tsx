@@ -38,7 +38,7 @@ function CourseItem({ course, owner }: { course: Course; owner?: boolean }) {
         </div>
       </UnstyledButton>
       {course.isDraft && (
-        <Badge component={Link} to="/kokot" className="absolute inset-0" color="red">
+        <Badge className="absolute inset-0" color="red">
           Draft
         </Badge>
       )}

@@ -6,7 +6,17 @@ import { RiDeleteBin6Line, RiEditBoxLine, RiVideoLine, RiFileTextLine, RiQuestio
 import { secondsToTime } from '~/utils/helpers';
 import type { CourseLessons } from '~/utils/types';
 
-function CourseLessonList({ lesson, slug, sectionId }: { lesson: CourseLessons; slug: string; sectionId: number }) {
+function CourseLessonList({
+  lesson,
+  slug,
+  sectionId,
+  isBuilder = false,
+}: {
+  lesson: CourseLessons;
+  slug: string;
+  sectionId: number;
+  isBuilder: boolean;
+}) {
   const [opened, setOpen] = useState(false);
   return (
     <div className="flex items-center">
@@ -34,69 +44,112 @@ function CourseLessonList({ lesson, slug, sectionId }: { lesson: CourseLessons; 
           </Collapse>
         </div>
         <div className="flex items-center mr-2 space-x-5">
-          {lesson.type === 'video' && (
-            <Anchor
-              component={Link}
-              to={`/course-builder/${slug}/content/preview-video?sectionId=${sectionId}&lessonId=${lesson.id}`}
-              size="xs"
-              className="text-sm"
-            >
-              Preview
-            </Anchor>
+          {isBuilder && (
+            <>
+              {lesson.type === 'video' && (
+                <Anchor
+                  component={Link}
+                  to={`/course-builder/${slug}/content/preview-video?sectionId=${sectionId}&lessonId=${lesson.id}`}
+                  size="xs"
+                  className="text-sm"
+                >
+                  Preview
+                </Anchor>
+              )}
+              {lesson.type === 'text' && (
+                <Anchor
+                  component={Link}
+                  to={`/course-builder/${slug}/content/preview-text?sectionId=${sectionId}&lessonId=${lesson.id}`}
+                  size="xs"
+                  className="text-sm"
+                >
+                  Preview
+                </Anchor>
+              )}
+              {lesson.type === 'quiz' && (
+                <Anchor
+                  component={Link}
+                  to={`/course-builder/${slug}/content/preview-quiz?sectionId=${sectionId}&lessonId=${lesson.id}`}
+                  size="xs"
+                  className="text-sm"
+                >
+                  Preview
+                </Anchor>
+              )}
+            </>
           )}
-          {lesson.type === 'text' && (
-            <Anchor
-              component={Link}
-              to={`/course-builder/${slug}/content/preview-text?sectionId=${sectionId}&lessonId=${lesson.id}`}
-              size="xs"
-              className="text-sm"
-            >
-              Preview
-            </Anchor>
-          )}
-          {lesson.type === 'quiz' && (
-            <Anchor
-              component={Link}
-              to={`/course-builder/${slug}/content/preview-quiz?sectionId=${sectionId}&lessonId=${lesson.id}`}
-              size="xs"
-              className="text-sm"
-            >
-              Preview
-            </Anchor>
+          {!isBuilder && lesson.preview && (
+            <>
+              {lesson.type === 'video' && (
+                <Anchor
+                  component={Link}
+                  to={`/course/${slug}/content/preview-video?sectionId=${sectionId}&lessonId=${lesson.id}`}
+                  size="xs"
+                  className="text-sm"
+                >
+                  Preview
+                </Anchor>
+              )}
+              {lesson.type === 'text' && (
+                <Anchor
+                  component={Link}
+                  to={`/course/${slug}/content/preview-text?sectionId=${sectionId}&lessonId=${lesson.id}`}
+                  size="xs"
+                  className="text-sm"
+                >
+                  Preview
+                </Anchor>
+              )}
+              {lesson.type === 'quiz' && (
+                <Anchor
+                  component={Link}
+                  to={`/course/${slug}/content/preview-quiz?sectionId=${sectionId}&lessonId=${lesson.id}`}
+                  size="xs"
+                  className="text-sm"
+                >
+                  Preview
+                </Anchor>
+              )}
+            </>
           )}
           <Text size="sm">{secondsToTime(lesson.duration || 0)}</Text>
         </div>
       </div>
-      {lesson.type === 'video' && (
-        <ActionIcon
-          component={Link}
-          to={`/course-builder/${slug}/content/edit-video-lesson?sectionId=${sectionId}&lessonId=${lesson.id}`}
-        >
-          <RiEditBoxLine color="cyan" size={15} />
-        </ActionIcon>
+
+      {isBuilder && (
+        <>
+          {lesson.type === 'video' && (
+            <ActionIcon
+              component={Link}
+              to={`/course-builder/${slug}/content/edit-video-lesson?sectionId=${sectionId}&lessonId=${lesson.id}`}
+            >
+              <RiEditBoxLine color="cyan" size={15} />
+            </ActionIcon>
+          )}
+          {lesson.type === 'text' && (
+            <ActionIcon
+              component={Link}
+              to={`/course-builder/${slug}/content/edit-text-lesson?sectionId=${sectionId}&lessonId=${lesson.id}`}
+            >
+              <RiEditBoxLine color="cyan" size={15} />
+            </ActionIcon>
+          )}
+          {lesson.type === 'quiz' && (
+            <ActionIcon
+              component={Link}
+              to={`/course-builder/${slug}/content/edit-quiz-lesson?sectionId=${sectionId}&lessonId=${lesson.id}`}
+            >
+              <RiEditBoxLine color="cyan" size={15} />
+            </ActionIcon>
+          )}
+          <ActionIcon
+            component={Link}
+            to={`/course-builder/${slug}/content/delete-lesson?sectionId=${sectionId}&lessonId=${lesson.id}`}
+          >
+            <RiDeleteBin6Line color="red" size={15} />
+          </ActionIcon>
+        </>
       )}
-      {lesson.type === 'text' && (
-        <ActionIcon
-          component={Link}
-          to={`/course-builder/${slug}/content/edit-text-lesson?sectionId=${sectionId}&lessonId=${lesson.id}`}
-        >
-          <RiEditBoxLine color="cyan" size={15} />
-        </ActionIcon>
-      )}
-      {lesson.type === 'quiz' && (
-        <ActionIcon
-          component={Link}
-          to={`/course-builder/${slug}/content/edit-quiz-lesson?sectionId=${sectionId}&lessonId=${lesson.id}`}
-        >
-          <RiEditBoxLine color="cyan" size={15} />
-        </ActionIcon>
-      )}
-      <ActionIcon
-        component={Link}
-        to={`/course-builder/${slug}/content/delete-lesson?sectionId=${sectionId}&lessonId=${lesson.id}`}
-      >
-        <RiDeleteBin6Line color="red" size={15} />
-      </ActionIcon>
     </div>
   );
 }
