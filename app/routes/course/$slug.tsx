@@ -6,6 +6,7 @@ import {
   Avatar,
   Divider,
   List,
+  Spoiler,
   Text,
   Title,
   TypographyStylesProvider,
@@ -178,9 +179,11 @@ function CourseItem() {
           <Text size="xl" color="gray">
             Description
           </Text>
-          <TypographyStylesProvider>
-            <div className="text-sm" dangerouslySetInnerHTML={{ __html: course.description }} />
-          </TypographyStylesProvider>
+          <Spoiler maxHeight={200} showLabel="Show more" hideLabel="Hide">
+            <TypographyStylesProvider>
+              <div className="text-sm" dangerouslySetInnerHTML={{ __html: course.description }} />
+            </TypographyStylesProvider>
+          </Spoiler>
         </div>
         <div className="flex flex-col space-y-2">
           <Text size="xl" color="gray">
@@ -261,10 +264,11 @@ function CourseItem() {
                   </Text>
                 </div>
               </div>
-
-              <TypographyStylesProvider>
-                <div className="text-sm" dangerouslySetInnerHTML={{ __html: course.author.bio }} />
-              </TypographyStylesProvider>
+              <Spoiler maxHeight={100} showLabel="Show more" hideLabel="Hide">
+                <TypographyStylesProvider>
+                  <div className="text-sm" dangerouslySetInnerHTML={{ __html: course.author.bio }} />
+                </TypographyStylesProvider>
+              </Spoiler>
             </div>
           </div>
         </div>
