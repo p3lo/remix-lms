@@ -120,7 +120,7 @@ function CourseItem() {
     return d.toLocaleDateString('en-UK', options);
   }
   return (
-    <div className="grid grid-cols-3 gap-10">
+    <div className="grid grid-cols-3 gap-10 ">
       <div className="flex flex-col col-span-2 space-y-5">
         <div className="flex items-center space-x-2">
           <Text>Rating 5.00</Text>
@@ -312,8 +312,8 @@ function CourseItem() {
           </div>
         </div>
       </div>
-      <div>
-        <div className={`border-[0.5px] ${dark ? 'border-gray-700' : 'border-gray-300'}`}>
+      <div className="">
+        <div className={`sticky top-10 border-[0.5px] ${dark ? 'border-gray-700' : 'border-gray-300'}`}>
           <div className="flex flex-col">
             <ReactPlayer
               config={{
