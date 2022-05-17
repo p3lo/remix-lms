@@ -64,7 +64,7 @@ export const oAuthStrategy = new SupabaseStrategy(
     await prisma.user.createMany({
       data: [
         {
-          name: session_parsed.user.user_metadata.preferred_username,
+          name: session_parsed.user.user_metadata.preferred_username || session_parsed.user.user_metadata.name,
           email: session_parsed.user.user_metadata.email,
           picture: session_parsed.user.user_metadata.avatar_url,
         },

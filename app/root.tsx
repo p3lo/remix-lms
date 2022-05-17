@@ -24,7 +24,10 @@ export const loader: LoaderFunction = async ({ request }) => {
   const session = await supabaseStrategy.checkSession(request);
   let profile;
   if (session) {
-    profile = await prisma.user.findUnique({ where: { email: session.user?.email } });
+    profile = await prisma.user.findUnique({
+      where: { email: session.user?.email },
+      include: { cart: { include: { course: { select: { title: true, slug: true } } } } },
+    });
   }
   const categories = await prisma.category.findMany({
     orderBy: { name: 'asc' },

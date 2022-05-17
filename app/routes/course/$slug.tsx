@@ -13,9 +13,9 @@ import {
   TypographyStylesProvider,
   useMantineColorScheme,
 } from '@mantine/core';
-import type { LoaderFunction } from '@remix-run/node';
+import type { ActionFunction, LoaderFunction } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
-import { Link, Outlet, useLoaderData } from '@remix-run/react';
+import { Form, Link, Outlet, useLoaderData, useMatches, useTransition } from '@remix-run/react';
 import {
   RiCheckLine,
   RiFacebookFill,
@@ -32,7 +32,9 @@ import ReactPlayer from 'react-player';
 import CourseLessonList from '~/components/CourseLessonList';
 import { prisma } from '~/utils/db.server';
 import { secondsToTime, sumTime } from '~/utils/helpers';
-import type { Course } from '~/utils/types';
+import type { Course, User } from '~/utils/types';
+import invariant from 'tiny-invariant';
+import { CgProfile } from 'react-icons/cg';
 
 export const loader: LoaderFunction = async ({ request }) => {
   const url = new URL(request.url);
@@ -104,14 +106,62 @@ export const loader: LoaderFunction = async ({ request }) => {
   return json({ course, sum_seconds, sum_lessons });
 };
 
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData();
+  const courseId = formData.get('courseId');
+  const profileId = formData.get('profileId');
+  invariant(courseId, 'courseId is required');
+  invariant(profileId, 'profileId is required');
+  const alreadyEnrolled = await prisma.enrolled_course.findFirst({
+    where: {
+      AND: [
+        {
+          courseId: +courseId,
+        },
+        {
+          userId: +profileId,
+        },
+      ],
+    },
+  });
+  if (alreadyEnrolled) {
+    return null;
+  }
+  const inCart = await prisma.cart.findFirst({
+    where: {
+      AND: [
+        {
+          courseId: +courseId,
+        },
+        {
+          userId: +profileId,
+        },
+      ],
+    },
+  });
+  if (inCart) {
+    return null;
+  }
+  await prisma.cart.create({
+    data: {
+      courseId: +courseId,
+      userId: +profileId,
+    },
+  });
+  return null;
+};
+
 function CourseItem() {
   const { course, sum_seconds, sum_lessons } = useLoaderData() as {
     course: Course;
     sum_seconds: number;
     sum_lessons: number;
   };
+  const { profile } = useMatches()[0].data as { profile: User };
   const { colorScheme } = useMantineColorScheme();
   const dark = colorScheme === 'dark';
+  const transition = useTransition();
+  const loader = transition.state === 'submitting' || transition.state === 'loading' ? true : false;
 
   function getDate(date: string) {
     var options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -120,7 +170,7 @@ function CourseItem() {
     return d.toLocaleDateString('en-UK', options);
   }
   return (
-    <div className="grid grid-cols-3 gap-10 ">
+    <div className="grid max-w-6xl grid-cols-3 gap-10 mx-auto">
       <Outlet />
       <div className="flex flex-col col-span-2 space-y-5">
         {/* <div className="flex items-center space-x-2">
@@ -372,11 +422,25 @@ function CourseItem() {
                   </Text>
                 </div>
               </div>
-              <div className="flex pt-5">
-                <Button className="grow" size="lg" leftIcon={<MdOutlineShoppingCart size={24} />}>
-                  Add to cart
+              {profile ? (
+                <Form method="post" className="flex pt-5">
+                  <input hidden readOnly value={course.id} name="courseId" />
+                  <input hidden readOnly value={profile.id} name="profileId" />
+                  <Button
+                    type="submit"
+                    className="grow"
+                    size="lg"
+                    leftIcon={<MdOutlineShoppingCart size={24} />}
+                    loading={loader}
+                  >
+                    Add to cart
+                  </Button>
+                </Form>
+              ) : (
+                <Button className="grow" component={Link} to="/login" size="lg" leftIcon={<CgProfile size={24} />}>
+                  Login
                 </Button>
-              </div>
+              )}
             </div>
           </div>
         </div>
