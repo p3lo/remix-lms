@@ -61,6 +61,7 @@ export const loader: LoaderFunction = async ({ request }) => {
           },
         },
       },
+      enrolled: true,
       whatYouLearn: true,
       subCategory: {
         select: {
@@ -226,13 +227,13 @@ function CourseItem() {
             <Text size="sm" color="gray" className="opacity-50">
               Duration
             </Text>
-            <Text size="sm">02:10</Text>
+            <Text size="sm">{secondsToTime(sum_seconds, true)}</Text>
           </div>
           <div className="flex flex-col items-center">
             <Text size="sm" color="gray" className="opacity-50">
               Total Enrolled
             </Text>
-            <Text size="sm">0</Text>
+            <Text size="sm">{course.enrolled.length}</Text>
           </div>
           <div className="flex flex-col items-end">
             <Text size="sm" color="gray" className="opacity-50">
