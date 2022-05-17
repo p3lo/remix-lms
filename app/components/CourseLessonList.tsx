@@ -83,7 +83,7 @@ function CourseLessonList({
               {lesson.type === 'video' && (
                 <Anchor
                   component={Link}
-                  to={`/course/${slug}/content/preview-video?sectionId=${sectionId}&lessonId=${lesson.id}`}
+                  to={`/course/${slug}/preview-video?lessonId=${lesson.id}`}
                   size="xs"
                   className="text-sm"
                 >
@@ -93,7 +93,7 @@ function CourseLessonList({
               {lesson.type === 'text' && (
                 <Anchor
                   component={Link}
-                  to={`/course/${slug}/content/preview-text?sectionId=${sectionId}&lessonId=${lesson.id}`}
+                  to={`/course/${slug}/preview-text?lessonId=${lesson.id}`}
                   size="xs"
                   className="text-sm"
                 >
@@ -103,7 +103,7 @@ function CourseLessonList({
               {lesson.type === 'quiz' && (
                 <Anchor
                   component={Link}
-                  to={`/course/${slug}/content/preview-quiz?sectionId=${sectionId}&lessonId=${lesson.id}`}
+                  to={`/course/${slug}/preview-quiz?lessonId=${lesson.id}`}
                   size="xs"
                   className="text-sm"
                 >

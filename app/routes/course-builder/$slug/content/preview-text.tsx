@@ -21,7 +21,7 @@ function PreviewText() {
   const { course } = useMatches()[2].data as { course: Course };
   const section = course.content[getSectionIndex(course.content, +sectionId)];
   const lesson = section.lessons[getLessonIndex(section.lessons, +lessonId)];
-  return <PreviewModalText text={lesson.textContent} title={lesson.lessonTitle} slug={course.slug} />;
+  return <PreviewModalText text={lesson.textContent} title={lesson.lessonTitle} slug={course.slug} isBuilder={true} />;
 }
 
 export default PreviewText;

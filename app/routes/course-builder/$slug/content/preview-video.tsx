@@ -21,7 +21,9 @@ function PreviewVideo() {
   const { course } = useMatches()[2].data as { course: Course };
   const section = course.content[getSectionIndex(course.content, +sectionId)];
   const lesson = section.lessons[getLessonIndex(section.lessons, +lessonId)];
-  return <PreviewModal url={lesson.video} title={lesson.lessonTitle} slug={course.slug}></PreviewModal>;
+  return (
+    <PreviewModal url={lesson.video} title={lesson.lessonTitle} slug={course.slug} isBuilder={true}></PreviewModal>
+  );
 }
 
 export default PreviewVideo;

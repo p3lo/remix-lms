@@ -3,7 +3,17 @@ import { useFetcher, useNavigate, useTransition } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 import type { Quiz } from '~/utils/types';
 
-function PreviewModalQuiz({ quiz, title, slug }: { quiz: Quiz; title: string; slug: string }) {
+function PreviewModalQuiz({
+  quiz,
+  title,
+  slug,
+  isBuilder = false,
+}: {
+  quiz: Quiz;
+  title: string;
+  slug: string;
+  isBuilder: boolean;
+}) {
   const [opened, setOpened] = useState(false);
   const fetcher = useFetcher() as any;
   const navigate = useNavigate();
@@ -17,7 +27,11 @@ function PreviewModalQuiz({ quiz, title, slug }: { quiz: Quiz; title: string; sl
   function onDismiss() {
     setOpened((prev) => !prev);
     setTimeout(() => {
-      navigate(`/course-builder/${slug}/content`);
+      if (isBuilder) {
+        navigate(`/course-builder/${slug}/content`);
+      } else {
+        navigate(`/course/${slug}`);
+      }
     }, 100);
   }
   return (
@@ -90,7 +104,7 @@ function PreviewModalQuiz({ quiz, title, slug }: { quiz: Quiz; title: string; sl
           ) : (
             <fetcher.Form
               method="post"
-              action={`/course-builder/${slug}/content/preview-quiz`}
+              action={isBuilder ? `/course-builder/${slug}/content/preview-quiz` : `/course/${slug}/preview-quiz`}
               className="flex flex-col space-y-2 "
             >
               {quiz.question.map((question) => (

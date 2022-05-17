@@ -2,7 +2,17 @@ import { Modal, Paper, ScrollArea } from '@mantine/core';
 import { useNavigate } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 
-function PreviewModalText({ text, slug, title }: { text: string; slug: string; title: string }) {
+function PreviewModalText({
+  text,
+  slug,
+  title,
+  isBuilder = false,
+}: {
+  text: string;
+  slug: string;
+  title: string;
+  isBuilder: boolean;
+}) {
   const [opened, setOpened] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
@@ -13,7 +23,11 @@ function PreviewModalText({ text, slug, title }: { text: string; slug: string; t
   function onDismiss() {
     setOpened((prev) => !prev);
     setTimeout(() => {
-      navigate(`/course-builder/${slug}/content`);
+      if (isBuilder) {
+        navigate(`/course-builder/${slug}/content`);
+      } else {
+        navigate(`/course/${slug}`);
+      }
     }, 100);
   }
   return (

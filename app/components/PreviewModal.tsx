@@ -3,7 +3,17 @@ import { useNavigate } from '@remix-run/react';
 import { useEffect, useState } from 'react';
 import ReactPlayer from 'react-player';
 
-function PreviewModal({ url, slug, title }: { url: string; slug: string; title: string }) {
+function PreviewModal({
+  url,
+  slug,
+  title,
+  isBuilder = false,
+}: {
+  url: string;
+  slug: string;
+  title: string;
+  isBuilder: boolean;
+}) {
   const [opened, setOpened] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
@@ -14,7 +24,11 @@ function PreviewModal({ url, slug, title }: { url: string; slug: string; title: 
   function onDismiss() {
     setOpened((prev) => !prev);
     setTimeout(() => {
-      navigate(`/course-builder/${slug}/content`);
+      if (isBuilder) {
+        navigate(`/course-builder/${slug}/content`);
+      } else {
+        navigate(`/course/${slug}`);
+      }
     }, 100);
   }
   return (

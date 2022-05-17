@@ -15,7 +15,7 @@ import {
 } from '@mantine/core';
 import type { LoaderFunction } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
-import { Link, useLoaderData } from '@remix-run/react';
+import { Link, Outlet, useLoaderData } from '@remix-run/react';
 import {
   RiCheckLine,
   RiFacebookFill,
@@ -121,11 +121,12 @@ function CourseItem() {
   }
   return (
     <div className="grid grid-cols-3 gap-10 ">
+      <Outlet />
       <div className="flex flex-col col-span-2 space-y-5">
-        <div className="flex items-center space-x-2">
+        {/* <div className="flex items-center space-x-2">
           <Text>Rating 5.00</Text>
           <Text className="opacity-50">(2)</Text>
-        </div>
+        </div> */}
         <Title order={1}>{course.title}</Title>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1">
@@ -141,16 +142,16 @@ function CourseItem() {
             <Text size="sm" color="gray" className="opacity-50">
               Share:
             </Text>
-            <ActionIcon className="opacity-50 hover:opacity-100">
+            <ActionIcon variant="transparent" className="opacity-50 hover:opacity-100 hover:text-blue-500">
               <RiFacebookFill />
             </ActionIcon>
-            <ActionIcon className="opacity-50 hover:opacity-100">
+            <ActionIcon variant="transparent" className="opacity-50 hover:opacity-100 hover:text-blue-500">
               <RiTwitterFill />
             </ActionIcon>
-            <ActionIcon className="opacity-50 hover:opacity-100">
+            <ActionIcon variant="transparent" className="opacity-50 hover:opacity-100 hover:text-blue-500">
               <RiLinkedinFill />
             </ActionIcon>
-            <ActionIcon className="opacity-50 hover:opacity-100">
+            <ActionIcon variant="transparent" className="opacity-50 hover:opacity-100 hover:text-blue-500">
               <RiTumblrFill />
             </ActionIcon>
           </div>
@@ -343,7 +344,7 @@ function CourseItem() {
                 <div className="flex items-center space-x-2">
                   <RiVideoLine size={17} />
                   <Text size="sm" color="gray">
-                    {secondsToTime(sum_seconds, true).split(' ')[0]} on-demand video
+                    Over {secondsToTime(sum_seconds, true).split(' ')[0]} on-demand video
                   </Text>
                 </div>
                 <div className="flex items-center space-x-2">
