@@ -6,10 +6,12 @@ import { AiOutlineLogout } from 'react-icons/ai';
 import { CgProfile } from 'react-icons/cg';
 import type { User } from '~/utils/types';
 import { MdOutlineShoppingCart } from 'react-icons/md';
+import { RiDeleteBin6Line } from 'react-icons/ri';
 
 function Header() {
   const profile = useMatches()[0].data.profile as User;
   const logout = useFetcher();
+  const fetcher = useFetcher();
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const dark = colorScheme === 'dark';
   return (
@@ -43,18 +45,25 @@ function Header() {
                 </Indicator>
               }
             >
-              <Menu.Label>My cart</Menu.Label>
-              {profile.cart.map((cart) => (
-                <Menu.Item key={cart.id} component={Link} to={`/course/${cart.course.slug}`}>
-                  <Text size="sm" lineClamp={2}>
-                    {cart.course.title}
-                  </Text>
-                </Menu.Item>
-              ))}
-              <Divider />
-              <Menu.Item component={Link} to="/cart" color="blue">
-                Go to cart
-              </Menu.Item>
+              {profile.cart.length > 0 ? (
+                <>
+                  <Menu.Label>My cart</Menu.Label>
+                  <Divider />
+                  {profile.cart.map((cart) => (
+                    <Menu.Item key={cart.id} component={Link} to={`/course/${cart.course.slug}`}>
+                      <Text className="grow" size="sm" lineClamp={2}>
+                        {cart.course.title}
+                      </Text>
+                    </Menu.Item>
+                  ))}
+                  <Divider />
+                  <Menu.Item component={Link} to="/cart" color="blue">
+                    Go to cart
+                  </Menu.Item>
+                </>
+              ) : (
+                <Menu.Label>My cart is empty</Menu.Label>
+              )}
             </Menu>
             <Menu
               trigger="hover"

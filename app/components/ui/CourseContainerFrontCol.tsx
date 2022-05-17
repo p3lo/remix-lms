@@ -1,4 +1,4 @@
-import { ActionIcon, Badge, Image, List, Paper, Popover, Text, UnstyledButton } from '@mantine/core';
+import { ActionIcon, Badge, Divider, Image, List, Paper, Popover, Text, UnstyledButton } from '@mantine/core';
 import { Link } from '@remix-run/react';
 import { useState } from 'react';
 import { RiCheckLine, RiEditBoxLine } from 'react-icons/ri';
@@ -25,6 +25,7 @@ function CourseItem({ course, owner }: { course: Course; owner?: boolean }) {
               fit="contain"
               className="group-hover:opacity-50"
             />
+            <Divider />
             <div className="flex flex-col p-2 space-y-1">
               <Text weight={700} lineClamp={2}>
                 {course.title}
