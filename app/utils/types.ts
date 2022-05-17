@@ -8,6 +8,14 @@ export interface User {
   bio: string;
   website: string;
   authored: Course[];
+  enrolled: Course[];
+  cart: Cart[];
+}
+
+export interface Cart {
+  id: number;
+  userId: number;
+  course: Course;
 }
 
 export interface Category {
@@ -29,6 +37,8 @@ export interface Course {
   slug: string;
   language: string;
   author: User;
+  enrolled: User[];
+  inCart: Cart[];
   isDraft: boolean;
   brief: string;
   description: string;
