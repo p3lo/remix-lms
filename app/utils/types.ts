@@ -8,13 +8,23 @@ export interface User {
   bio: string;
   website: string;
   authored: Course[];
-  enrolled: Course[];
+  enrolled: Enrolled[];
   cart: Cart[];
 }
 
 export interface Cart {
   id: number;
   userId: number;
+  courseId: number;
+  user: User;
+  course: Course;
+}
+
+export interface Enrolled {
+  id: number;
+  userId: number;
+  courseId: number;
+  user: User;
   course: Course;
 }
 

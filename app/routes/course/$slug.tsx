@@ -53,7 +53,11 @@ export const loader: LoaderFunction = async ({ request }) => {
           picture: true,
           headline: true,
           bio: true,
-
+          enrolled: {
+            select: {
+              courseId: true,
+            },
+          },
           _count: {
             select: {
               authored: true,
@@ -91,6 +95,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       },
     },
   });
+  console.log(course?.author.enrolled);
   if (!course) {
     return redirect('/');
   }
@@ -169,6 +174,9 @@ function CourseItem() {
     const d = new Date(date);
     // @ts-ignore
     return d.toLocaleDateString('en-UK', options);
+  }
+  function isFound(id: number) {
+    return course.author.enrolled.some((e) => e.courseId === id);
   }
   return (
     <div className="grid max-w-6xl grid-cols-3 gap-10 mx-auto">
@@ -386,7 +394,7 @@ function CourseItem() {
               className={`flex flex-col p-4 space-y-3 border-t-[0.5px] ${dark ? 'border-gray-700' : 'border-gray-300'}`}
             >
               <Text size="xl" weight={700} color="gray">
-                {`$ ${course.price}.00`}
+                {course.price > 0 ? `$ ${course.price}.00` : 'Free'}
               </Text>
               <div className="flex flex-col space-y-1">
                 <Text size="md" weight={500}>
@@ -427,15 +435,28 @@ function CourseItem() {
                 <Form method="post" className="flex pt-5">
                   <input hidden readOnly value={course.id} name="courseId" />
                   <input hidden readOnly value={profile.id} name="profileId" />
-                  <Button
-                    type="submit"
-                    className="grow"
-                    size="lg"
-                    leftIcon={<MdOutlineShoppingCart size={24} />}
-                    loading={loader}
-                  >
-                    Add to cart
-                  </Button>
+                  {isFound(course.id) ? (
+                    <Button
+                      component={Link}
+                      to={`/learn/${course.slug}`}
+                      className="grow"
+                      size="lg"
+                      leftIcon={<VscMortarBoard size={24} />}
+                      loading={loader}
+                    >
+                      Go to course
+                    </Button>
+                  ) : (
+                    <Button
+                      type="submit"
+                      className="grow"
+                      size="lg"
+                      leftIcon={<MdOutlineShoppingCart size={24} />}
+                      loading={loader}
+                    >
+                      Add to cart
+                    </Button>
+                  )}
                 </Form>
               ) : (
                 <Button className="grow" component={Link} to="/login" size="lg" leftIcon={<CgProfile size={24} />}>

@@ -1,7 +1,7 @@
 import { ActionIcon, Button, Image, Paper, Text, Title } from '@mantine/core';
 
 import type { ActionFunction, LoaderFunction } from '@remix-run/node';
-import { Form, Link, useMatches } from '@remix-run/react';
+import { Form, Link, Outlet, useMatches } from '@remix-run/react';
 import { RiDeleteBin6Line } from 'react-icons/ri';
 import invariant from 'tiny-invariant';
 import MainLayout from '~/components/layouts/main-layout/MainLayout';
@@ -38,6 +38,7 @@ function Cart() {
   const profile = useMatches()[0].data.profile as User;
   return (
     <MainLayout>
+      <Outlet />
       <div className="max-w-6xl mx-auto mt-10">
         <Title order={1}>Shopping Cart</Title>
         <div className="grid grid-cols-5 gap-10 mt-10">
@@ -87,7 +88,9 @@ function Cart() {
               <Text size="xl" weight={700}>
                 ${profile.cart.reduce((acc, course) => acc + course.course.price, 0)}
               </Text>
-              <Button>Checkout</Button>
+              <Button component={Link} to="/cart/checkout">
+                Checkout
+              </Button>
             </div>
           )}
         </div>

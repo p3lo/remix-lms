@@ -36,7 +36,7 @@ function Header() {
               trigger="hover"
               size={350}
               control={
-                <Indicator inline label={profile.cart.length} size={10}>
+                <Indicator inline label={profile.cart.length} size={15}>
                   <ActionIcon component={Link} to="/cart" variant="transparent">
                     <MdOutlineShoppingCart className="cursor-pointer" size={18} />
                   </ActionIcon>

@@ -26,17 +26,17 @@ model user {
 
 model cart {
   id       Int    @id @default(autoincrement())
-  user     user   @relation(fields: [userId], references: [id])
+  user     user   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   Int
-  course   course @relation(fields: [courseId], references: [id])
+  course   course @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId Int
 }
 
 model enrolled_course {
   id       Int    @id @default(autoincrement())
-  user     user   @relation(fields: [userId], references: [id])
+  user     user   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId   Int
-  course   course @relation(fields: [courseId], references: [id])
+  course   course @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseId Int
 }
 
