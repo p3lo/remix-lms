@@ -27,7 +27,23 @@ export const loader: LoaderFunction = async ({ request }) => {
     profile = await prisma.user.findUnique({
       where: { email: session.user?.email },
       include: {
-        cart: { include: { course: { select: { id: true, image: true, title: true, slug: true, price: true } } } },
+        cart: {
+          include: {
+            course: {
+              select: {
+                id: true,
+                title: true,
+                price: true,
+                image: true,
+                author: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
   }

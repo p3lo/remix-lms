@@ -38,7 +38,7 @@ function MyCourses() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 p-3 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid max-w-5xl grid-cols-1 gap-5 p-3 mx-auto md:grid-cols-2 xl:grid-cols-4">
         {courses.map((course) => (
           <CourseContainerFrontCol key={course.id} course={course} owner />
         ))}

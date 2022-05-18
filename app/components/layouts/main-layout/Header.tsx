@@ -6,12 +6,10 @@ import { AiOutlineLogout } from 'react-icons/ai';
 import { CgProfile } from 'react-icons/cg';
 import type { User } from '~/utils/types';
 import { MdOutlineShoppingCart } from 'react-icons/md';
-import { RiDeleteBin6Line } from 'react-icons/ri';
 
 function Header() {
   const profile = useMatches()[0].data.profile as User;
   const logout = useFetcher();
-  const fetcher = useFetcher();
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const dark = colorScheme === 'dark';
   return (
@@ -31,16 +29,16 @@ function Header() {
         </Text>
       </div>
       <div></div>
-      <div className="flex items-center pr-3 space-x-3">
+      <div className="flex items-center pr-3 space-x-5">
         {profile ? (
           <>
             <Menu
               trigger="hover"
               size={350}
               control={
-                <Indicator inline label={profile.cart.length} size={12}>
-                  <ActionIcon variant="transparent">
-                    <MdOutlineShoppingCart className="cursor-pointer" size={24} />
+                <Indicator inline label={profile.cart.length} size={10}>
+                  <ActionIcon component={Link} to="/cart" variant="transparent">
+                    <MdOutlineShoppingCart className="cursor-pointer" size={18} />
                   </ActionIcon>
                 </Indicator>
               }
@@ -49,11 +47,16 @@ function Header() {
                 <>
                   <Menu.Label>My cart</Menu.Label>
                   <Divider />
-                  {profile.cart.map((cart) => (
+                  {profile.cart.map((cart, index) => (
                     <Menu.Item key={cart.id} component={Link} to={`/course/${cart.course.slug}`}>
-                      <Text className="grow" size="sm" lineClamp={2}>
-                        {cart.course.title}
-                      </Text>
+                      <div className="flex flex-col">
+                        <Text className="grow" size="sm" weight={500} lineClamp={2}>
+                          {index + 1}. {cart.course.title}
+                        </Text>
+                        <Text size="xs" className="opacity-50">
+                          {cart.course.author.name}
+                        </Text>
+                      </div>
                     </Menu.Item>
                   ))}
                   <Divider />

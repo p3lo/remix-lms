@@ -50,7 +50,7 @@ function CourseItem({ course, owner }: { course: Course; owner?: boolean }) {
           component={Link}
           to={`/course-builder/${course.slug}/details`}
         >
-          <RiEditBoxLine color="blue" size={15} />
+          <RiEditBoxLine color="cyan" size={15} />
         </ActionIcon>
       )}
     </Paper>
