@@ -1,4 +1,4 @@
-import { Button } from '@mantine/core';
+import { Button, Text } from '@mantine/core';
 import type { LoaderFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { Link, Outlet, useLoaderData } from '@remix-run/react';
@@ -32,6 +32,9 @@ function MyCourses() {
   return (
     <>
       <Outlet />
+      <Text className="flex justify-center p-3" size="xl" weight={700}>
+        My Courses
+      </Text>
       <div className="p-3">
         <Button component={Link} to="/user/my-courses/new">
           New course

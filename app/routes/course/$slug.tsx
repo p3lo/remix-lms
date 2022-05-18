@@ -31,7 +31,7 @@ import { IoInfiniteOutline } from 'react-icons/io5';
 import ReactPlayer from 'react-player';
 import CourseLessonList from '~/components/CourseLessonList';
 import { prisma } from '~/utils/db.server';
-import { secondsToTime, sumTime } from '~/utils/helpers';
+import { getNiceDate, secondsToTime, sumTime } from '~/utils/helpers';
 import type { Course, User } from '~/utils/types';
 import invariant from 'tiny-invariant';
 import { CgProfile } from 'react-icons/cg';
@@ -169,12 +169,6 @@ function CourseItem() {
   const transition = useTransition();
   const loader = transition.state === 'submitting' || transition.state === 'loading' ? true : false;
 
-  function getDate(date: string) {
-    var options = { year: 'numeric', month: 'long', day: 'numeric' };
-    const d = new Date(date);
-    // @ts-ignore
-    return d.toLocaleDateString('en-UK', options);
-  }
   function isFound(id: number) {
     return course.author.enrolled.some((e) => e.courseId === id);
   }
@@ -247,7 +241,7 @@ function CourseItem() {
             <Text size="sm" color="gray" className="opacity-50">
               Last Update
             </Text>
-            <Text size="sm">{getDate(course.updatedAt)}</Text>
+            <Text size="sm">{getNiceDate(course.updatedAt)}</Text>
           </div>
         </div>
         <Divider />

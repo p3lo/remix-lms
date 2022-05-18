@@ -67,7 +67,7 @@ function ProfilePicture() {
   return (
     <div className="flex flex-col space-y-3">
       <Text className="flex justify-center p-3" size="xl" weight={700}>
-        Profile picture
+        Profile Picture
       </Text>
       <Paper
         sx={(theme) => ({

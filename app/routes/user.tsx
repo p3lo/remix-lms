@@ -1,5 +1,5 @@
-import { Avatar, Divider, Navbar, Text } from '@mantine/core';
-import { Outlet, useMatches } from '@remix-run/react';
+import { Avatar, Divider, Navbar, Paper, Tabs, Text } from '@mantine/core';
+import { Link, Outlet, useMatches } from '@remix-run/react';
 import MainLayout from '~/components/layouts/main-layout/MainLayout';
 import type { User } from '~/utils/types';
 import { CgProfile, CgImage } from 'react-icons/cg';
@@ -12,14 +12,14 @@ function ProfileLayout() {
   return (
     <MainLayout>
       <div className="flex">
-        <Navbar className="h-[85vh] shadow-xl w-[250px]">
-          <Divider />
+        <Navbar className="h-[85vh] shadow-xl w-[250px] my-2">
+          {/* <Divider className="opacity-50" /> */}
           <Navbar.Section>
             <Text className="flex justify-center py-3" size="md" weight={600}>
               Profile menu
             </Text>
           </Navbar.Section>
-          <Divider />
+          <Divider className="opacity-50" />
           <Navbar.Section grow mt="md">
             <div className="flex flex-col">
               <MainLink link="/user/profile-edit" icon={<CgProfile size={16} />} color="blue" label="Profile" />
@@ -31,17 +31,17 @@ function ProfileLayout() {
               />
               <MainLink link="/user/my-courses" icon={<GiTeacher size={16} />} color="blue" label="My courses" />
               <MainLink
-                link="/user/owned-courses"
+                link="/user/enrolled-courses"
                 icon={<GiTabletopPlayers size={16} />}
                 color="blue"
-                label="Owned courses"
+                label="Enrolled courses"
               />
             </div>
           </Navbar.Section>
-          <Divider />
+          <Divider className="opacity-50" />
           <Navbar.Section>
             <div className="flex flex-col items-center justify-center p-3">
-              <Avatar className="mb-3" size="xl" radius="xl" src={profile.picture} alt={profile.name} />
+              <Avatar className="mb-3" size="lg" radius="xl" src={profile.picture} alt={profile.name} />
               <Text size="sm" weight={500}>
                 {profile.name}
               </Text>
@@ -50,7 +50,7 @@ function ProfileLayout() {
               </Text>
             </div>
           </Navbar.Section>
-          <Divider />
+          {/* <Divider className="opacity-50" /> */}
         </Navbar>
         <div className="p-3 grow w-[80%]">
           <Outlet />

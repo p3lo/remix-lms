@@ -20,8 +20,8 @@ function CourseBuilderLayout() {
   return (
     <MainLayout>
       <div className="flex h-full ">
-        <Navbar className="h-[85vh] shadow-xl w-[250px]">
-          <Divider size={0.5} />
+        <Navbar className="h-[85vh] shadow-xl w-[250px] my-2">
+          {/* <Divider size={0.5} /> */}
           <Navbar.Section>
             <Text className="flex justify-center py-3" size="md" weight={600}>
               Course builder menu
@@ -65,7 +65,7 @@ function CourseBuilderLayout() {
               Submit for review
             </Button>
           </Navbar.Section>
-          <Divider size={0.5} />
+          {/* <Divider size={0.5} /> */}
         </Navbar>
         <div className="p-3 grow">
           <Outlet />

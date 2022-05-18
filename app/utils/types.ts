@@ -22,6 +22,7 @@ export interface Cart {
 
 export interface Enrolled {
   id: number;
+  enrolledAt: string;
   userId: number;
   courseId: number;
   user: User;

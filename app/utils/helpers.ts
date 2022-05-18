@@ -18,6 +18,13 @@ export function getDate(date: Date) {
   return month + 1 + '/' + day + '/' + year;
 }
 
+export function getNiceDate(date: string) {
+  var options = { year: 'numeric', month: 'long', day: 'numeric' };
+  const d = new Date(date);
+  // @ts-ignore
+  return d.toLocaleDateString('en-UK', options);
+}
+
 export function sumTime(section: CourseSections, detials: boolean = false) {
   let sum = 0;
   section.lessons.forEach((lesson) => {
