@@ -16,14 +16,14 @@ function Header() {
     <div className="flex items-center h-[70px] justify-between">
       <div className="">
         <Text
-          className="px-3"
+          className="px-3 text-2xl"
           weight={800}
           component={Link}
           to="/"
           size="xl"
           variant="gradient"
           gradient={{ from: 'indigo', to: 'cyan', deg: 45 }}
-          style={{ fontFamily: 'cursive, sans-serif' }}
+          style={{ fontFamily: ' sans-serif' }}
         >
           Remix LMS
         </Text>
