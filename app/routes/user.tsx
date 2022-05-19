@@ -1,5 +1,5 @@
-import { Avatar, Divider, Navbar, Paper, Tabs, Text } from '@mantine/core';
-import { Link, Outlet, useMatches } from '@remix-run/react';
+import { Avatar, Divider, Navbar, Text } from '@mantine/core';
+import { Outlet, useMatches } from '@remix-run/react';
 import MainLayout from '~/components/layouts/main-layout/MainLayout';
 import type { User } from '~/utils/types';
 import { CgProfile, CgImage } from 'react-icons/cg';
