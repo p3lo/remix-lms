@@ -1,4 +1,5 @@
-import { Checkbox, Text } from '@mantine/core';
+import { Checkbox, Text, UnstyledButton } from '@mantine/core';
+import { Link } from '@remix-run/react';
 import { RiFileTextLine, RiQuestionnaireLine, RiVideoLine } from 'react-icons/ri';
 import { secondsToTime } from '~/utils/helpers';
 import type { CourseLessons } from '~/utils/types';
@@ -15,7 +16,9 @@ function CourseLessonLearn({
   isMarked: boolean;
 }) {
   return (
-    <div
+    <UnstyledButton
+      component={Link}
+      to={`lesson?id=${lesson.id}`}
       className={`px-2 cursor-pointer py-1 flex items-center space-x-4 hover:bg-gray-500 ${
         isMarked ? 'bg-gray-500' : ''
       }`}
@@ -25,7 +28,7 @@ function CourseLessonLearn({
         <Text>
           {numbered}. {lesson.lessonTitle}
         </Text>
-        <div className="flex space-x-1 opacity-50 items-center">
+        <div className="flex items-center space-x-1 opacity-50">
           {lesson.type === 'video' && <RiVideoLine size={17} />}
           {lesson.type === 'text' && <RiFileTextLine size={17} />}
           {lesson.type === 'quiz' && <RiQuestionnaireLine size={17} />}
@@ -34,7 +37,7 @@ function CourseLessonLearn({
           </Text>
         </div>
       </div>
-    </div>
+    </UnstyledButton>
   );
 }
 

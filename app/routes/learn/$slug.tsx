@@ -1,15 +1,15 @@
 import { Accordion, AccordionItem, Paper, ScrollArea, Text, useMantineColorScheme } from '@mantine/core';
 import type { LoaderFunction } from '@remix-run/node';
 import { redirect, json } from '@remix-run/node';
-import { useLoaderData } from '@remix-run/react';
-import CourseLessonLearn from '~/components/CourseLessonLearn';
+import { Outlet, useLoaderData } from '@remix-run/react';
+import CourseLessonLearn from '~/components/learn/CourseLessonLearn';
 
 import LearningLayout from '~/components/layouts/learning-layout/LearningLayout';
 import { prisma } from '~/utils/db.server';
 import { sumTime } from '~/utils/helpers';
 import type { Course } from '~/utils/types';
 
-export const loader: LoaderFunction = async ({ params }) => {
+export const loader: LoaderFunction = async ({ params, request }) => {
   const course = await prisma.course.findUnique({
     where: {
       slug: params.slug,
@@ -119,14 +119,25 @@ export const loader: LoaderFunction = async ({ params }) => {
   }
   const statistics = { totalLessons, completedLessons, percent: Math.round((completedLessons / totalLessons) * 100) };
   let course_progress;
+  const url = new URL(request.url);
+  const lessonId = url.searchParams.get('id');
+
   if (!progress) {
     course_progress = { section: 0, lesson: 0 };
+    if (!lessonId) {
+      return redirect(`/learn/${params.slug}/lesson?id=${course?.content[0].lessons[0].id}`);
+    }
   } else {
     const findSectionIndex = course.content.findIndex((section) => section.id === progress.lesson.sectionId);
     const findLessonIndex = course.content[findSectionIndex].lessons.findIndex(
       (lesson) => lesson.id === progress.lessonId
     );
     course_progress = { section: findSectionIndex, lesson: findLessonIndex };
+    if (!lessonId) {
+      return redirect(
+        `/learn/${params.slug}/lesson?id=${course?.content[findSectionIndex].lessons[findLessonIndex].id}`
+      );
+    }
   }
   return json({ course, course_progress, statistics });
 };
@@ -141,7 +152,14 @@ function LearningSlug() {
   return (
     <LearningLayout>
       <div className="grid grid-cols-4">
-        <div className="col-span-3">Video&about</div>
+        <div className="col-span-3">
+          <div className="flex flex-col items-center">
+            <div className="w-full h-[80vh]">
+              <Outlet />
+            </div>
+            <div>Info</div>
+          </div>
+        </div>
         <ScrollArea style={{ height: '92vh' }}>
           <Paper withBorder className="flex flex-col">
             <Text p={10} size="md" weight={500}>

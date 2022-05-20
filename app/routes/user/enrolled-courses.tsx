@@ -8,6 +8,10 @@ import { prisma } from '~/utils/db.server';
 import { getNiceDate } from '~/utils/helpers';
 import type { Enrolled } from '~/utils/types';
 
+interface EnrolledWTotal extends Enrolled {
+  percentTotal: number;
+}
+
 export const loader: LoaderFunction = async ({ request }) => {
   const session = await supabaseStrategy.checkSession(request);
   const courses = await prisma.enrolled_course.findMany({
@@ -19,6 +23,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     include: {
       course: {
         select: {
+          id: true,
           title: true,
           image: true,
           slug: true,
@@ -36,11 +41,37 @@ export const loader: LoaderFunction = async ({ request }) => {
     },
   });
 
+  for await (const course of courses) {
+    const getLessonsTotal = await prisma.course_content_lessons.count({
+      where: {
+        section: {
+          course: {
+            id: course.course.id,
+          },
+        },
+      },
+    });
+    const getLessonsCompleted = await prisma.course_progress.count({
+      where: {
+        lesson: {
+          section: {
+            course: {
+              id: course.course.id,
+            },
+          },
+        },
+      },
+    });
+    const percentTotal = Math.round((getLessonsCompleted / getLessonsTotal) * 100);
+    const getIndex = courses.findIndex((item) => item.course.id === course.course.id);
+    Object.assign(courses[getIndex], { percentTotal });
+  }
+
   return json({ courses });
 };
 
 function OwnedCourses() {
-  const { courses } = useLoaderData() as { courses: Enrolled[] };
+  const { courses } = useLoaderData() as { courses: EnrolledWTotal[] };
   return (
     <div className="max-w-4xl mx-auto">
       <Text className="flex justify-center p-3" size="xl" weight={700}>
@@ -75,10 +106,10 @@ function OwnedCourses() {
                   size={70}
                   thickness={7}
                   roundCaps
-                  sections={[{ value: 40, color: 'blue' }]}
+                  sections={[{ value: course.percentTotal, color: 'blue' }]}
                   label={
                     <Text color="blue" weight={700} align="center" size="sm">
-                      40%
+                      {course.percentTotal}%
                     </Text>
                   }
                 />
