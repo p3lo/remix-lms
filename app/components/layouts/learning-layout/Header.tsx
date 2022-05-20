@@ -3,17 +3,27 @@ import { useMatches } from '@remix-run/react';
 import { Link } from '@remix-run/react';
 import { useState } from 'react';
 import { BsSun, BsMoon } from 'react-icons/bs';
+import { RiArrowGoBackLine } from 'react-icons/ri';
 import { VscChevronDown } from 'react-icons/vsc';
 import type { Course } from '~/utils/types';
 
 function Header() {
   const course = useMatches()[2].data.course as Course;
+  const statistics = useMatches()[2].data.statistics as {
+    totalLessons: number;
+    completedLessons: number;
+    percent: number;
+  };
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const dark = colorScheme === 'dark';
   const [opened, setOpened] = useState(false);
   return (
     <div className="flex items-center h-[70px] justify-between">
       <div className=" flex items-center space-x-4">
+        <ActionIcon variant="transparent" ml={10} component={Link} to="/user/enrolled-courses">
+          <RiArrowGoBackLine className="hover:text-blue-500" size={20} />
+        </ActionIcon>
+        <div className="border-l opacity-50 h-[30px]" />
         <Text
           className="px-3"
           weight={800}
@@ -54,10 +64,10 @@ function Header() {
                 size={50}
                 thickness={3}
                 roundCaps
-                sections={[{ value: 40, color: 'blue' }]}
+                sections={[{ value: statistics.percent, color: 'blue' }]}
                 label={
                   <Text color="blue" weight={500} align="center" size="xs">
-                    40%
+                    {statistics.percent}%
                   </Text>
                 }
               />
@@ -66,8 +76,11 @@ function Header() {
             </div>
           }
         >
-          <div style={{ display: 'flex' }}>
-            <Text size="sm">Thanks for stopping by and checking Mantine, you are awesome!</Text>
+          <div className="flex flex-col space-y-2">
+            <Text weight={600} size="md">
+              {statistics.completedLessons} of {statistics.totalLessons} completed.
+            </Text>
+            <Text size="sm">Finish course to get your certificate</Text>
           </div>
         </Popover>
         <ActionIcon

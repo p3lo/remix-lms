@@ -31,6 +31,9 @@ export const loader: LoaderFunction = async ({ request }) => {
         },
       },
     },
+    orderBy: {
+      enrolledAt: 'desc',
+    },
   });
 
   return json({ courses });

@@ -10,6 +10,7 @@ export interface User {
   authored: Course[];
   enrolled: Enrolled[];
   cart: Cart[];
+  course_progress: CourseProgress[];
 }
 
 export interface Cart {
@@ -85,6 +86,7 @@ export interface CourseLessons {
   type: string;
   textContent: string;
   quiz: Quiz;
+  course_progress: CourseProgress;
 }
 
 export interface Quiz {
@@ -107,4 +109,16 @@ export interface QuizAnswer {
   questionId?: number;
   answer: string;
   isCorrect: boolean;
+}
+
+export interface CourseProgress {
+  id: number;
+  userId: number;
+  user: User;
+  lessonId: number;
+  lesson: CourseLessons;
+  videoProgress: number;
+  quizProgress: JSON;
+  endedHere: boolean;
+  isCompleted: boolean;
 }

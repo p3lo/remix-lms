@@ -95,7 +95,6 @@ export const loader: LoaderFunction = async ({ request }) => {
       },
     },
   });
-  console.log(course?.author.enrolled);
   if (!course) {
     return redirect('/');
   }
@@ -295,7 +294,9 @@ function CourseItem() {
                   className={`${dark ? 'bg-zinc-800' : 'bg-zinc-100'}`}
                   label={
                     <div className="flex items-center justify-between ">
-                      <Text size="lg">{section.sectionTitle}</Text>
+                      <Text size="lg" lineClamp={2}>
+                        {section.sectionTitle}
+                      </Text>
                       <div className="flex items-center space-x-5">
                         {/* @ts-ignore */}
                         <Text>{section._count.lessons} Lessons</Text>
