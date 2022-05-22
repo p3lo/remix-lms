@@ -1,6 +1,6 @@
 import type { LinksFunction, LoaderFunction, MetaFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
-import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration, useLoaderData } from '@remix-run/react';
+import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration, useCatch, useLoaderData } from '@remix-run/react';
 import type { ColorScheme } from '@mantine/core';
 import { MantineProvider, ColorSchemeProvider } from '@mantine/core';
 import styles from './tailwind.css';
@@ -8,6 +8,8 @@ import customStyle from './custom.css';
 import { supabaseStrategy } from './utils/auth.server';
 import { useLocalStorage } from '@mantine/hooks';
 import { prisma } from './utils/db.server';
+import ErrorUI from './components/layouts/ErrorUI';
+import CatchUI from './components/layouts/CatchUI';
 
 export const links: LinksFunction = () => [
   { rel: 'stylesheet', href: styles },
@@ -107,4 +109,13 @@ function MantineTheme({ children }: { children: React.ReactNode }) {
       </MantineProvider>
     </ColorSchemeProvider>
   );
+}
+
+export function ErrorBoundary({ error }: { error: Error }) {
+  return <ErrorUI error={error} />;
+}
+
+export function CatchBoundary() {
+  const caught = useCatch();
+  return <CatchUI caught={caught} />;
 }
