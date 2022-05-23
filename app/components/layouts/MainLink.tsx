@@ -27,7 +27,6 @@ export default function MainLink({ icon, color, label, link }: MainLinkProps) {
         <ThemeIcon color={color} variant="light">
           {icon}
         </ThemeIcon>
-
         <Text size="sm">{label}</Text>
       </Group>
     </UnstyledButton>

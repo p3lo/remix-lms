@@ -112,10 +112,18 @@ function MantineTheme({ children }: { children: React.ReactNode }) {
 }
 
 export function ErrorBoundary({ error }: { error: Error }) {
-  return <ErrorUI error={error} />;
+  return (
+    <MantineTheme>
+      <ErrorUI error={error} />
+    </MantineTheme>
+  );
 }
 
 export function CatchBoundary() {
   const caught = useCatch();
-  return <CatchUI caught={caught} />;
+  return (
+    <MantineTheme>
+      <CatchUI caught={caught} />
+    </MantineTheme>
+  );
 }

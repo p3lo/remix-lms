@@ -1,4 +1,4 @@
-import type { LoaderFunction } from '@remix-run/node';
+import type { ActionFunction, LoaderFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { redirect } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
@@ -46,6 +46,90 @@ export const loader: LoaderFunction = async ({ request }) => {
     return redirect('/user/enrolled-courses');
   }
   return json({ lesson });
+};
+
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData();
+  const action = formData.get('action');
+  invariant(action, 'action is required');
+  const lessonId = formData.get('lessonId');
+  const userId = formData.get('userId');
+  invariant(lessonId, 'lessonId is required');
+  invariant(userId, 'userId is required');
+  const getProgressId = await prisma.course_progress.findFirst({
+    where: {
+      AND: [
+        {
+          lessonId: +lessonId,
+        },
+        {
+          userId: +userId,
+        },
+      ],
+    },
+    select: {
+      id: true,
+    },
+  });
+  if (action === 'updateComplete') {
+    const completed = formData.get('completed');
+    invariant(completed, 'completed is required');
+    await prisma.course_progress.upsert({
+      where: {
+        id: getProgressId?.id || 0,
+      },
+      update: {
+        isCompleted: completed === 'false',
+      },
+      create: {
+        isCompleted: completed === 'false',
+        lessonId: +lessonId,
+        userId: +userId,
+      },
+    });
+  }
+  if (action === 'updateMarked') {
+    const courseId = formData.get('courseId');
+    invariant(courseId, 'courseId is required');
+    await prisma.course_progress.updateMany({
+      where: {
+        AND: [
+          {
+            lesson: {
+              section: {
+                course: {
+                  id: +courseId,
+                },
+              },
+            },
+          },
+          {
+            userId: +userId,
+          },
+          {
+            endedHere: true,
+          },
+        ],
+      },
+      data: {
+        endedHere: false,
+      },
+    });
+    await prisma.course_progress.upsert({
+      where: {
+        id: getProgressId?.id || 0,
+      },
+      update: {
+        endedHere: true,
+      },
+      create: {
+        endedHere: true,
+        lessonId: +lessonId,
+        userId: +userId,
+      },
+    });
+  }
+  return null;
 };
 
 function LearnLesson() {

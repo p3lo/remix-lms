@@ -19,7 +19,7 @@ function Header() {
   const [opened, setOpened] = useState(false);
   return (
     <div className="flex items-center h-[70px] justify-between">
-      <div className=" flex items-center space-x-4">
+      <div className="flex items-center space-x-4 ">
         <ActionIcon variant="transparent" ml={10} component={Link} to="/user/enrolled-courses">
           <RiArrowGoBackLine className="hover:text-blue-500" size={20} />
         </ActionIcon>
@@ -32,7 +32,7 @@ function Header() {
           size="xl"
           variant="gradient"
           gradient={{ from: 'indigo', to: 'cyan', deg: 45 }}
-          style={{ fontFamily: 'cursive, sans-serif' }}
+          style={{ fontFamily: 'sans-serif' }}
         >
           Remix LMS
         </Text>

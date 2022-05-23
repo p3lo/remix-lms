@@ -1,18 +1,53 @@
-import { Accordion, AccordionItem, Paper, ScrollArea, Text, useMantineColorScheme } from '@mantine/core';
-import type { ActionFunction, LoaderFunction } from '@remix-run/node';
+import {
+  Accordion,
+  AccordionItem,
+  Loader,
+  LoadingOverlay,
+  Paper,
+  ScrollArea,
+  Text,
+  useMantineColorScheme,
+} from '@mantine/core';
+import type { LoaderFunction } from '@remix-run/node';
 import { redirect, json } from '@remix-run/node';
-import { Outlet, useLoaderData } from '@remix-run/react';
+import { Outlet, useLoaderData, useTransition } from '@remix-run/react';
 import CourseLessonLearn from '~/components/learn/CourseLessonLearn';
 
 import LearningLayout from '~/components/layouts/learning-layout/LearningLayout';
 import { prisma } from '~/utils/db.server';
 import { sumTime } from '~/utils/helpers';
 import type { Course } from '~/utils/types';
-import invariant from 'tiny-invariant';
 import { supabaseStrategy } from '~/utils/auth.server';
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   const session = await supabaseStrategy.checkSession(request);
+  const progress = await prisma.course_progress.findMany({
+    where: {
+      AND: [
+        {
+          lesson: {
+            section: {
+              course: {
+                slug: params.slug,
+              },
+            },
+          },
+        },
+        {
+          user: {
+            email: session?.user?.email,
+          },
+        },
+      ],
+    },
+    include: {
+      lesson: {
+        select: {
+          sectionId: true,
+        },
+      },
+    },
+  });
   const course = await prisma.course.findUnique({
     where: {
       slug: params.slug,
@@ -72,33 +107,6 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     },
   });
 
-  const progress = await prisma.course_progress.findMany({
-    where: {
-      AND: [
-        {
-          lesson: {
-            section: {
-              course: {
-                slug: params.slug,
-              },
-            },
-          },
-        },
-        {
-          user: {
-            email: session?.user?.email,
-          },
-        },
-      ],
-    },
-    include: {
-      lesson: {
-        select: {
-          sectionId: true,
-        },
-      },
-    },
-  });
   const totalLessons = await prisma.course_content_lessons.count({
     where: {
       section: {
@@ -151,56 +159,19 @@ export const loader: LoaderFunction = async ({ params, request }) => {
       );
     }
   }
-  return json({ course, course_progress, statistics });
-};
-
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
-  const lessonId = formData.get('lessonId');
-  const completed = formData.get('completed');
-  const userId = formData.get('userId');
-  invariant(lessonId, 'lessonId is required');
-  invariant(completed, 'completed is required');
-  invariant(userId, 'userId is required');
-  const getProgressId = await prisma.course_progress.findFirst({
-    where: {
-      AND: [
-        {
-          lessonId: +lessonId,
-        },
-        {
-          userId: +userId,
-        },
-      ],
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  await prisma.course_progress.upsert({
-    where: {
-      id: getProgressId?.id || 0,
-    },
-    update: {
-      isCompleted: completed === 'false',
-    },
-    create: {
-      isCompleted: completed === 'false',
-      lessonId: +lessonId,
-      userId: +userId,
-    },
-  });
-  return null;
+  return json({ course, course_progress, statistics, lessonId });
 };
 
 function LearningSlug() {
-  const { course, course_progress } = useLoaderData() as {
+  const { course, course_progress, lessonId } = useLoaderData() as {
     course: Course;
     course_progress: { section: number; lesson: number };
+    lessonId: string;
   };
   const { colorScheme } = useMantineColorScheme();
   const dark = colorScheme === 'dark';
+  const transition = useTransition();
+  const loader = transition.state === 'submitting' || transition.state === 'loading' ? true : false;
   return (
     <LearningLayout>
       <div className="grid grid-cols-4">
@@ -221,7 +192,7 @@ function LearningSlug() {
               <Accordion
                 key={section.id}
                 initialItem={course_progress.section}
-                className="grow"
+                className="relative grow"
                 multiple
                 offsetIcon={false}
               >
@@ -241,14 +212,17 @@ function LearningSlug() {
                     </div>
                   }
                 >
+                  <LoadingOverlay loader={<Loader variant="dots" />} visible={loader} />
                   {section.lessons.map((lesson, index) => (
                     <CourseLessonLearn
                       key={lesson.id}
                       lesson={lesson}
                       complete={lesson.course_progress[0]?.isCompleted || false}
                       numbered={index + 1}
-                      isMarked={index === course_progress.lesson}
+                      isMarked={+lessonId === lesson.id}
                       userId={course.author.id}
+                      slug={course.slug}
+                      courseId={course.id}
                     />
                   ))}
                 </AccordionItem>
