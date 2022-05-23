@@ -39,7 +39,7 @@ function CourseLessonLearn({
         component={Link}
         to={`lesson?id=${lesson.id}`}
         className={` px-2 grow cursor-pointer py-1 flex items-center space-x-4 hover:bg-gray-500 ${
-          isMarked ? 'bg-gray-500' : ''
+          isMarked ? 'bg-gray-500 ' : ''
         }`}
       >
         <div className="flex flex-col">

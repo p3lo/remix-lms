@@ -53,13 +53,25 @@ export const loader: LoaderFunction = async ({ request }) => {
     });
     const getLessonsCompleted = await prisma.course_progress.count({
       where: {
-        lesson: {
-          section: {
-            course: {
-              id: course.course.id,
+        AND: [
+          {
+            lesson: {
+              section: {
+                course: {
+                  id: course.course.id,
+                },
+              },
             },
           },
-        },
+          {
+            user: {
+              email: session?.user?.email,
+            },
+          },
+          {
+            isCompleted: true,
+          },
+        ],
       },
     });
     const percentTotal = Math.round((getLessonsCompleted / getLessonsTotal) * 100);

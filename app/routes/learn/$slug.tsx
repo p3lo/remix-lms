@@ -198,7 +198,6 @@ function LearningSlug() {
   const { course, course_progress } = useLoaderData() as {
     course: Course;
     course_progress: { section: number; lesson: number };
-    progressId: number;
   };
   const { colorScheme } = useMantineColorScheme();
   const dark = colorScheme === 'dark';
