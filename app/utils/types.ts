@@ -86,7 +86,7 @@ export interface CourseLessons {
   type: string;
   textContent: string;
   quiz: Quiz;
-  course_progress: CourseProgress;
+  course_progress: CourseProgress[];
 }
 
 export interface Quiz {

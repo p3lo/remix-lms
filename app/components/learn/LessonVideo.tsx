@@ -1,7 +1,6 @@
 import ReactPlayer from 'react-player';
 
 function LessonVideo({ url }: { url: string }) {
-  console.log(url);
   return (
     <ReactPlayer
       config={{
