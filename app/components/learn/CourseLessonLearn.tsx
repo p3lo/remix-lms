@@ -1,5 +1,5 @@
 import { Checkbox, createStyles, Text, UnstyledButton } from '@mantine/core';
-import { Link, useSubmit } from '@remix-run/react';
+import { Link, useSearchParams, useSubmit } from '@remix-run/react';
 import { useState } from 'react';
 import { RiFileTextLine, RiQuestionnaireLine, RiVideoLine } from 'react-icons/ri';
 import { secondsToTime } from '~/utils/helpers';
@@ -43,6 +43,7 @@ function CourseLessonLearn({
   const setMarked = useSubmit();
   const [completed, setCompleted] = useState(complete);
   const { classes, cx } = useStyles();
+  const [searchParams] = useSearchParams();
   const updateCompleted = () => {
     setCompleted((prev) => !prev);
     setCompletedDb(
@@ -53,7 +54,7 @@ function CourseLessonLearn({
         completed: completed.toString(),
       },
       // WIP
-      { method: 'post', replace: true, action: `/learn/${slug}/lesson?id=${lesson.id}` }
+      { method: 'post', replace: true, action: `/learn/${slug}/lesson?id=${+searchParams.get('id')!}` }
     );
   };
   const updateMarked = () => {

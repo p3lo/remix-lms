@@ -10,7 +10,7 @@ import {
 } from '@mantine/core';
 import type { LoaderFunction } from '@remix-run/node';
 import { redirect, json } from '@remix-run/node';
-import { Outlet, useLoaderData, useTransition } from '@remix-run/react';
+import { Outlet, useLoaderData, useSearchParams, useTransition } from '@remix-run/react';
 import CourseLessonLearn from '~/components/learn/CourseLessonLearn';
 
 import LearningLayout from '~/components/layouts/learning-layout/LearningLayout';
@@ -21,34 +21,37 @@ import { supabaseStrategy } from '~/utils/auth.server';
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   const session = await supabaseStrategy.checkSession(request);
-  const progress = await prisma.course_progress.findMany({
-    where: {
-      AND: [
-        {
-          lesson: {
-            section: {
-              course: {
-                slug: params.slug,
-              },
-            },
-          },
-        },
-        {
-          user: {
-            email: session?.user?.email,
-          },
-        },
-      ],
-    },
-    include: {
-      lesson: {
-        select: {
-          sectionId: true,
-        },
-      },
-    },
-  });
-  const course = await prisma.course.findUnique({
+  if (!session) {
+    return redirect('/');
+  }
+  // const progressDb = prisma.course_progress.findMany({
+  //   where: {
+  //     AND: [
+  //       {
+  //         lesson: {
+  //           section: {
+  //             course: {
+  //               slug: params.slug,
+  //             },
+  //           },
+  //         },
+  //       },
+  //       {
+  //         user: {
+  //           email: session?.user?.email,
+  //         },
+  //       },
+  //     ],
+  //   },
+  //   include: {
+  //     lesson: {
+  //       select: {
+  //         sectionId: true,
+  //       },
+  //     },
+  //   },
+  // });
+  const courseDb = prisma.course.findUnique({
     where: {
       slug: params.slug,
     },
@@ -72,7 +75,6 @@ export const loader: LoaderFunction = async ({ params, request }) => {
           },
         },
       },
-      enrolled: true,
       whatYouLearn: true,
       subCategory: {
         select: {
@@ -90,16 +92,12 @@ export const loader: LoaderFunction = async ({ params, request }) => {
           lessons: {
             orderBy: { position: 'asc' },
             include: {
-              quiz: {
-                include: {
-                  question: {
-                    include: {
-                      answer: true,
-                    },
-                  },
+              course_progress: {
+                select: {
+                  isCompleted: true,
+                  endedHere: true,
                 },
               },
-              course_progress: true,
             },
           },
         },
@@ -107,7 +105,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     },
   });
 
-  const totalLessons = await prisma.course_content_lessons.count({
+  const totalLessonsDb = prisma.course_content_lessons.count({
     where: {
       section: {
         course: {
@@ -116,7 +114,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
       },
     },
   });
-  const completedLessons = await prisma.course_progress.count({
+  const completedLessonsDb = prisma.course_progress.count({
     where: {
       AND: [
         {
@@ -135,6 +133,12 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     },
   });
 
+  const [course, totalLessons, completedLessons] = await prisma.$transaction([
+    courseDb,
+    totalLessonsDb,
+    completedLessonsDb,
+  ]);
+
   if (!course) {
     return redirect('/');
   }
@@ -142,34 +146,31 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   let course_progress;
   const url = new URL(request.url);
   const lessonId = url.searchParams.get('id');
-  if (!progress) {
+  for (const section of course?.content) {
+    for (const lesson of section.lessons) {
+      if (lesson.course_progress[0].endedHere) {
+        course_progress = { section: section.id, lesson: lesson.id };
+        break;
+      }
+    }
+  }
+  if (!course_progress) {
     course_progress = { section: 0, lesson: 0 };
-    if (!lessonId) {
-      return redirect(`/learn/${params.slug}/lesson?id=${course?.content[0].lessons[0].id}`);
-    }
-  } else {
-    const findSectionIndex = course.content.findIndex((section) => section.id === progress[0].lesson.sectionId);
-    const findLessonIndex = course.content[findSectionIndex].lessons.findIndex(
-      (lesson) => lesson.id === progress[0].lessonId
-    );
-    course_progress = { section: findSectionIndex, lesson: findLessonIndex };
-    if (!lessonId) {
-      return redirect(
-        `/learn/${params.slug}/lesson?id=${course?.content[findSectionIndex].lessons[findLessonIndex].id}`
-      );
-    }
+  }
+  if (!lessonId) {
+    return redirect(`/learn/${params.slug}/lesson?id=${course_progress?.lesson}}`);
   }
   return json({ course, course_progress, statistics, lessonId });
 };
 
 function LearningSlug() {
-  const { course, course_progress, lessonId } = useLoaderData() as {
+  const { course, course_progress } = useLoaderData() as {
     course: Course;
     course_progress: { section: number; lesson: number };
-    lessonId: string;
   };
   const { colorScheme } = useMantineColorScheme();
   const dark = colorScheme === 'dark';
+  const [searchParams] = useSearchParams();
   const transition = useTransition();
   const loader = transition.state === 'submitting' || transition.state === 'loading' ? true : false;
   return (
@@ -191,7 +192,7 @@ function LearningSlug() {
             {course.content.map((section, index) => (
               <Accordion
                 key={section.id}
-                initialItem={course_progress.section}
+                initialItem={course_progress.section === section.id ? index : 0}
                 className="relative grow"
                 multiple
                 offsetIcon={false}
@@ -219,7 +220,7 @@ function LearningSlug() {
                       lesson={lesson}
                       complete={lesson.course_progress[0]?.isCompleted || false}
                       numbered={index + 1}
-                      isMarked={+lessonId === lesson.id}
+                      isMarked={+searchParams.get('id')! === lesson.id}
                       userId={course.author.id}
                       slug={course.slug}
                       courseId={course.id}
