@@ -155,10 +155,10 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     }
   }
   if (!course_progress) {
-    course_progress = { section: 0, lesson: 0 };
+    course_progress = { section: 0, lesson: course.content[0].lessons[0].id };
   }
   if (!lessonId) {
-    return redirect(`/learn/${params.slug}/lesson?id=${course_progress?.lesson}}`);
+    return redirect(`/learn/${params.slug}/lesson?id=${course_progress?.lesson}`);
   }
   return json({ course, course_progress, statistics, lessonId });
 };
