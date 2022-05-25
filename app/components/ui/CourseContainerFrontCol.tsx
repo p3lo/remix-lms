@@ -14,7 +14,7 @@ function CourseItem({ course, owner }: { course: Course; owner?: boolean }) {
       withBorder
       className="relative w-full h-[300px]"
     >
-      <UnstyledButton component={Link} to={`/course/${course.slug}`}>
+      <UnstyledButton component={Link} prefetch="intent" to={`/course/${course.slug}`}>
         <div className="w-full h-full cursor-pointer group">
           <div className="flex flex-col ">
             <Image
@@ -48,6 +48,7 @@ function CourseItem({ course, owner }: { course: Course; owner?: boolean }) {
           className="absolute bottom-[20%] right-0"
           mt={15}
           component={Link}
+          prefetch="intent"
           to={`/course-builder/${course.slug}/details`}
         >
           <RiEditBoxLine color="cyan" size={15} />

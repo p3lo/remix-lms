@@ -10,6 +10,7 @@ export default function MainLink({ icon, color, label, link }: MainLinkProps) {
   return (
     <UnstyledButton<typeof Link>
       component={Link}
+      prefetch="intent"
       to={link}
       sx={(theme) => ({
         display: 'block',

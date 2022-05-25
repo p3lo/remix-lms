@@ -73,6 +73,7 @@ function CourseLessonLearn({
       <Checkbox className="top-5" checked={completed} onChange={updateCompleted} />
       <UnstyledButton
         component={Link}
+        prefetch="intent"
         to={`lesson?id=${lesson.id}`}
         className={cx(classes.button, { [classes.active]: isMarked })}
         onClick={updateMarked}
