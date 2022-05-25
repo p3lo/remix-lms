@@ -64,22 +64,6 @@ export const loader: LoaderFunction = async ({ params, request }) => {
           picture: true,
           headline: true,
           bio: true,
-          enrolled: {
-            select: {
-              courseId: true,
-            },
-          },
-          _count: {
-            select: {
-              authored: true,
-            },
-          },
-        },
-      },
-      whatYouLearn: true,
-      subCategory: {
-        select: {
-          name: true,
         },
       },
       content: {
@@ -92,7 +76,11 @@ export const loader: LoaderFunction = async ({ params, request }) => {
           },
           lessons: {
             orderBy: { position: 'asc' },
-            include: {
+            select: {
+              id: true,
+              lessonTitle: true,
+              duration: true,
+              type: true,
               course_progress: {
                 select: {
                   isCompleted: true,
@@ -169,12 +157,13 @@ function LearningSlug() {
     course: Course;
     course_progress: { section: number; lesson: number };
   };
+  const [searchParams] = useSearchParams();
   const { colorScheme } = useMantineColorScheme();
   const dark = colorScheme === 'dark';
-  const [searchParams] = useSearchParams();
   const transition = useTransition();
   const loader = transition.state === 'submitting' || transition.state === 'loading' ? true : false;
   const setEndedHere = useSubmit();
+
   function nextLesson() {
     const lessonId = searchParams.get('id');
     const secIndex = course.content.findIndex((section) => section.id === course_progress.section);
@@ -188,7 +177,7 @@ function LearningSlug() {
           courseId: course.id.toString(),
         },
         {
-          method: 'get',
+          method: 'post',
           replace: true,
           action: `/learn/${course.slug}/lesson?id=${course.content[secIndex].lessons[lessonIndex + 1].id}`,
         }
@@ -259,13 +248,13 @@ function LearningSlug() {
                 className="absolute top-[50%] left-0 right-0 bottom-0 z-50 w-8 h-8 p-1 border-2 cursor-pointer opacity-20 hover:opacity-100"
                 onClick={prevLesson}
               >
-                <RiSkipBackLine className="h-5 w-5" />
+                <RiSkipBackLine className="w-5 h-5" />
               </div>
               <div
                 className="absolute top-[50%] left-[97,5%] right-0 bottom-0 z-50 w-8 h-8 p-1 border-2 cursor-pointer opacity-20 hover:opacity-100"
                 onClick={nextLesson}
               >
-                <RiSkipForwardLine className="h-5 w-5" />
+                <RiSkipForwardLine className="w-5 h-5" />
               </div>
               <Outlet />
             </div>
@@ -308,7 +297,6 @@ function LearningSlug() {
                       lesson={lesson}
                       complete={lesson.course_progress[0]?.isCompleted || false}
                       numbered={index + 1}
-                      isMarked={+searchParams.get('id')! === lesson.id}
                       userId={course.author.id}
                       slug={course.slug}
                       courseId={course.id}

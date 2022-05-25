@@ -3,6 +3,7 @@ import { json } from '@remix-run/node';
 import { redirect } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import invariant from 'tiny-invariant';
+import LessonQuiz from '~/components/learn/LessonQuiz';
 import LessonText from '~/components/learn/LessonText';
 import LessonVideo from '~/components/learn/LessonVideo';
 import { supabaseStrategy } from '~/utils/auth.server';
@@ -35,6 +36,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       quiz: {
         include: {
           question: {
+            orderBy: { position: 'asc' },
             include: {
               answer: true,
             },
@@ -57,6 +59,7 @@ export const action: ActionFunction = async ({ request }) => {
   const userId = formData.get('userId');
   invariant(lessonId, 'lessonId is required');
   invariant(userId, 'userId is required');
+  console.log(lessonId);
   const getProgressId = await prisma.course_progress.findFirst({
     where: {
       AND: [
@@ -140,6 +143,7 @@ function LearnLesson() {
     <>
       {lesson.type === 'video' && <LessonVideo url={lesson.video} />}
       {lesson.type === 'text' && <LessonText text={lesson.textContent} />}
+      {lesson.type === 'quiz' && <LessonQuiz quiz={lesson.quiz} />}
     </>
   );
 }

@@ -26,7 +26,6 @@ function CourseLessonLearn({
   lesson,
   complete,
   numbered,
-  isMarked,
   userId,
   slug,
   courseId,
@@ -34,16 +33,15 @@ function CourseLessonLearn({
   lesson: CourseLessons;
   complete: boolean;
   numbered: number;
-  isMarked: boolean;
   userId: number;
   slug: string;
   courseId: number;
 }) {
+  const [searchParams] = useSearchParams();
   const setCompletedDb = useSubmit();
   const setMarked = useSubmit();
   const [completed, setCompleted] = useState(complete);
   const { classes, cx } = useStyles();
-  const [searchParams] = useSearchParams();
   const updateCompleted = () => {
     setCompleted((prev) => !prev);
     setCompletedDb(
@@ -73,10 +71,10 @@ function CourseLessonLearn({
       <Checkbox className="top-5" checked={completed} onChange={updateCompleted} />
       <UnstyledButton
         component={Link}
-        prefetch="intent"
         to={`lesson?id=${lesson.id}`}
-        className={cx(classes.button, { [classes.active]: isMarked })}
+        className={cx(classes.button, { [classes.active]: +searchParams.get('id')! === lesson.id })}
         onClick={updateMarked}
+        // prefetch="intent"
       >
         <div className="flex flex-col">
           <Text>

@@ -4,7 +4,7 @@ function LessonText({ text }: { text: string }) {
   return (
     <ScrollArea style={{ height: '100%', width: '100%' }} scrollbarSize={6}>
       <TypographyStylesProvider>
-        <div className="p-8" dangerouslySetInnerHTML={{ __html: text }} />
+        <div className="p-10" dangerouslySetInnerHTML={{ __html: text }} />
       </TypographyStylesProvider>
     </ScrollArea>
   );
