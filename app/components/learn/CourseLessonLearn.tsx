@@ -53,7 +53,6 @@ function CourseLessonLearn({
         lessonId: lesson.id.toString(),
         completed: completed.toString(),
       },
-      // WIP
       { method: 'post', replace: true, action: `/learn/${slug}/lesson?id=${+searchParams.get('id')!}` }
     );
   };

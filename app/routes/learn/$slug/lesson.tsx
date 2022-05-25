@@ -3,6 +3,7 @@ import { json } from '@remix-run/node';
 import { redirect } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import invariant from 'tiny-invariant';
+import LessonText from '~/components/learn/LessonText';
 import LessonVideo from '~/components/learn/LessonVideo';
 import { supabaseStrategy } from '~/utils/auth.server';
 import { prisma } from '~/utils/db.server';
@@ -135,7 +136,12 @@ export const action: ActionFunction = async ({ request }) => {
 function LearnLesson() {
   // @ts-ignore
   const { lesson } = useLoaderData() as CourseLessons;
-  return <>{lesson.type === 'video' && <LessonVideo url={lesson.video} />}</>;
+  return (
+    <>
+      {lesson.type === 'video' && <LessonVideo url={lesson.video} />}
+      {lesson.type === 'text' && <LessonText text={lesson.textContent} />}
+    </>
+  );
 }
 
 export default LearnLesson;
