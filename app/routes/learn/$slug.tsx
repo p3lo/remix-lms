@@ -188,7 +188,7 @@ function LearningSlug() {
           courseId: course.id.toString(),
         },
         {
-          method: 'post',
+          method: 'get',
           replace: true,
           action: `/learn/${course.slug}/lesson?id=${course.content[secIndex].lessons[lessonIndex + 1].id}`,
         }
