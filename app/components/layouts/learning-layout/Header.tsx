@@ -9,7 +9,7 @@ import type { Course } from '~/utils/types';
 
 function Header() {
   const course = useMatches()[2].data.course as Course;
-  const statistics = useMatches()[2].data.statistics as {
+  const statistics = useMatches()[1].data.statistics as {
     totalLessons: number;
     completedLessons: number;
     percent: number;

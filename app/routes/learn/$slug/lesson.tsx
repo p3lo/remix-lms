@@ -59,7 +59,6 @@ export const action: ActionFunction = async ({ request }) => {
   const userId = formData.get('userId');
   invariant(lessonId, 'lessonId is required');
   invariant(userId, 'userId is required');
-  console.log(lessonId);
   const getProgressId = await prisma.course_progress.findFirst({
     where: {
       AND: [

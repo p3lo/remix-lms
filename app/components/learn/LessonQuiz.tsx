@@ -3,34 +3,41 @@ import { useState } from 'react';
 import type { Quiz } from '~/utils/types';
 
 function LessonQuiz({ quiz }: { quiz: Quiz }) {
-  const [currentQuestion, setCurrentQuestion] = useState(quiz.question[0]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const nextQuestion = () => {
-    const index = quiz.question.findIndex((item) => item.id === currentQuestion.id);
-    setCurrentQuestion(quiz.question[index + 1]);
+    setCurrentQuestionIndex((prev) => prev + 1);
   };
   const prevQuestion = () => {
-    const index = quiz.question.findIndex((item) => item.id === currentQuestion.id);
-    setCurrentQuestion(quiz.question[index - 1]);
+    setCurrentQuestionIndex((prev) => prev - 1);
   };
   return (
     <div className="py-10 sm:px-20 md:px-36 xl:px-48">
       <div className="flex flex-col space-y-8">
         <div className="flex flex-col space-y-2">
           <Text size="sm">Question:</Text>
-          <Title order={4}>{currentQuestion.question}</Title>
-          <Chips variant="filled" direction="column" name={currentQuestion.id?.toString()} grow>
-            {currentQuestion.answer.map((answer) => (
-              <Chip key={answer.id} size="sm" variant="filled" value={answer.id}>
-                {answer.answer}
-              </Chip>
-            ))}
-          </Chips>
+          {quiz.question.map(
+            (question, index) =>
+              index === currentQuestionIndex && (
+                <>
+                  <Title key={question.id} order={4}>
+                    {question.question}
+                  </Title>
+                  <Chips variant="filled" direction="column" name={question.id?.toString()} grow>
+                    {question.answer.map((answer) => (
+                      <Chip key={answer.id} size="sm" variant="filled" value={answer.id}>
+                        {answer.answer}
+                      </Chip>
+                    ))}
+                  </Chips>
+                </>
+              )
+          )}
         </div>
         <div className="flex justify-between">
           <Button
             variant="subtle"
             className="w-[200px]"
-            disabled={quiz.question[0].id === currentQuestion.id}
+            disabled={quiz.question[0].id === quiz.question[currentQuestionIndex].id}
             onClick={prevQuestion}
           >
             Previous
@@ -39,7 +46,7 @@ function LessonQuiz({ quiz }: { quiz: Quiz }) {
             variant="subtle"
             className="w-[200px]"
             onClick={nextQuestion}
-            disabled={quiz.question[quiz.question.length - 1].id === currentQuestion.id}
+            disabled={quiz.question[quiz.question.length - 1].id === quiz.question[currentQuestionIndex].id}
           >
             Next
           </Button>

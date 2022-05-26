@@ -52,7 +52,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   //     },
   //   },
   // });
-  const courseDb = prisma.course.findUnique({
+  const course = await prisma.course.findUnique({
     where: {
       slug: params.slug,
     },
@@ -94,44 +94,9 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     },
   });
 
-  const totalLessonsDb = prisma.course_content_lessons.count({
-    where: {
-      section: {
-        course: {
-          slug: params.slug,
-        },
-      },
-    },
-  });
-  const completedLessonsDb = prisma.course_progress.count({
-    where: {
-      AND: [
-        {
-          lesson: {
-            section: {
-              course: {
-                slug: params.slug,
-              },
-            },
-          },
-        },
-        {
-          isCompleted: true,
-        },
-      ],
-    },
-  });
-
-  const [course, totalLessons, completedLessons] = await prisma.$transaction([
-    courseDb,
-    totalLessonsDb,
-    completedLessonsDb,
-  ]);
-
   if (!course) {
     return redirect('/');
   }
-  const statistics = { totalLessons, completedLessons, percent: Math.round((completedLessons / totalLessons) * 100) };
   let course_progress;
   const url = new URL(request.url);
   const lessonId = url.searchParams.get('id');
@@ -149,7 +114,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   if (!lessonId) {
     return redirect(`/learn/${params.slug}/lesson?id=${course_progress?.lesson}`);
   }
-  return json({ course, course_progress, statistics, lessonId });
+  return json({ course, course_progress, lessonId });
 };
 
 function LearningSlug() {
@@ -313,3 +278,5 @@ function LearningSlug() {
 }
 
 export default LearningSlug;
+
+export const unstable_shouldReload = () => false;
