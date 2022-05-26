@@ -91,14 +91,7 @@ function OwnedCourses() {
       </Text>
       <div className="flex flex-col my-5 space-y-3">
         {courses.map((course) => (
-          <Paper
-            prefetch="intent"
-            component={Link}
-            to={`/learn/${course.course.slug}`}
-            p="xs"
-            key={course.id}
-            withBorder
-          >
+          <Paper component={Link} to={`/learn/${course.course.slug}`} p="xs" key={course.id} withBorder>
             <div className="flex items-start justify-between">
               <div className="flex items-start space-x-2">
                 <Image height={100} width={160} src={course.course.image} />

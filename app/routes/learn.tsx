@@ -9,7 +9,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   if (!slug) {
     redirect('/user/enrolled-courses');
   }
-  console.log(slug);
+
   const totalLessonsDb = prisma.course_content_lessons.count({
     where: {
       section: {
