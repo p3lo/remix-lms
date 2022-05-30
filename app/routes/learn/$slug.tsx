@@ -19,6 +19,7 @@ import { sumTime } from '~/utils/helpers';
 import type { Course } from '~/utils/types';
 import { supabaseStrategy } from '~/utils/auth.server';
 import { RiSkipBackLine, RiSkipForwardLine } from 'react-icons/ri';
+import TabInfoNavigation from '~/components/learn/TabInfoNavigation';
 
 export const loader: LoaderFunction = async ({ params, request }) => {
   const session = await supabaseStrategy.checkSession(request);
@@ -207,7 +208,7 @@ function LearningSlug() {
     <LearningLayout>
       <div className="grid grid-cols-4">
         <div className="col-span-3">
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center space-y-4">
             <div className="w-full h-[80vh] relative">
               <div
                 className="absolute top-[50%] left-0 right-0 bottom-0 z-50 w-8 h-8 p-1 border-2 cursor-pointer opacity-20 hover:opacity-100"
@@ -223,7 +224,9 @@ function LearningSlug() {
               </div>
               <Outlet />
             </div>
-            <div>Info</div>
+            <div className="w-full">
+              <TabInfoNavigation />
+            </div>
           </div>
         </div>
         <ScrollArea style={{ height: '92vh' }}>
