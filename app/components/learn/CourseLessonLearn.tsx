@@ -38,6 +38,7 @@ function CourseLessonLearn({
   courseId: number;
 }) {
   const [searchParams] = useSearchParams();
+  const tab = searchParams.get('tab');
   const setCompletedDb = useSubmit();
   const setMarked = useSubmit();
   const [completed, setCompleted] = useState(complete);
@@ -51,7 +52,7 @@ function CourseLessonLearn({
         lessonId: lesson.id.toString(),
         completed: completed.toString(),
       },
-      { method: 'post', replace: true, action: `/learn/${slug}/lesson?id=${+searchParams.get('id')!}` }
+      { method: 'post', replace: true, action: `/learn/${slug}/lesson?id=${+searchParams.get('id')!}&tab=${tab || 0}` }
     );
   };
   const updateMarked = () => {
@@ -62,7 +63,7 @@ function CourseLessonLearn({
         lessonId: lesson.id.toString(),
         courseId: courseId.toString(),
       },
-      { method: 'post', replace: true, action: `/learn/${slug}/lesson?id=${lesson.id}` }
+      { method: 'post', replace: true, action: `/learn/${slug}/lesson?id=${lesson.id}&tab=${tab || 0}` }
     );
   };
 
@@ -71,7 +72,7 @@ function CourseLessonLearn({
       <Checkbox className="top-5" checked={completed} onChange={updateCompleted} />
       <UnstyledButton
         component={Link}
-        to={`lesson?id=${lesson.id}`}
+        to={`lesson?id=${lesson.id}&tab=${tab || 0}`}
         className={cx(classes.button, { [classes.active]: +searchParams.get('id')! === lesson.id })}
         onClick={updateMarked}
         // prefetch="intent"

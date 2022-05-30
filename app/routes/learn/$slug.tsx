@@ -113,7 +113,7 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     course_progress = { section: 0, lesson: course.content[0].lessons[0].id };
   }
   if (!lessonId) {
-    return redirect(`/learn/${params.slug}/lesson?id=${course_progress?.lesson}`);
+    return redirect(`/learn/${params.slug}/lesson?id=${course_progress?.lesson}&tab=0`);
   }
   return json({ course, course_progress, lessonId });
 };
@@ -132,6 +132,7 @@ function LearningSlug() {
 
   function nextLesson() {
     const lessonId = searchParams.get('id');
+    const tab = searchParams.get('tab');
     const secIndex = course.content.findIndex((section) => section.id === course_progress.section);
     const lessonIndex = course.content[secIndex].lessons.findIndex((lesson) => lesson.id === +lessonId!);
     if (lessonIndex < course.content[secIndex].lessons.length - 1) {
@@ -145,7 +146,9 @@ function LearningSlug() {
         {
           method: 'post',
           replace: true,
-          action: `/learn/${course.slug}/lesson?id=${course.content[secIndex].lessons[lessonIndex + 1].id}`,
+          action: `/learn/${course.slug}/lesson?id=${course.content[secIndex].lessons[lessonIndex + 1].id}&tab=${
+            tab || 0
+          }`,
         }
       );
     } else if (course.content[secIndex + 1]) {
@@ -159,7 +162,7 @@ function LearningSlug() {
         {
           method: 'post',
           replace: true,
-          action: `/learn/${course.slug}/lesson?id=${course.content[secIndex + 1].lessons[0].id}`,
+          action: `/learn/${course.slug}/lesson?id=${course.content[secIndex + 1].lessons[0].id}&tab=${tab || 0}`,
         }
       );
     } else {
@@ -168,6 +171,7 @@ function LearningSlug() {
   }
   function prevLesson() {
     const lessonId = searchParams.get('id');
+    const tab = searchParams.get('tab');
     const secIndex = course.content.findIndex((section) => section.id === course_progress.section);
     const lessonIndex = course.content[secIndex].lessons.findIndex((lesson) => lesson.id === +lessonId!);
     if (lessonIndex > 0) {
@@ -181,7 +185,9 @@ function LearningSlug() {
         {
           method: 'post',
           replace: true,
-          action: `/learn/${course.slug}/lesson?id=${course.content[secIndex].lessons[lessonIndex - 1].id}`,
+          action: `/learn/${course.slug}/lesson?id=${course.content[secIndex].lessons[lessonIndex - 1].id}&tab=${
+            tab || 0
+          }`,
         }
       );
     } else if (course.content[secIndex - 1]) {
@@ -197,7 +203,7 @@ function LearningSlug() {
           replace: true,
           action: `/learn/${course.slug}/lesson?id=${
             course.content[secIndex - 1].lessons[course.content[secIndex - 1].lessons.length - 1].id
-          }`,
+          }&tab=${tab || 0}`,
         }
       );
     } else {
