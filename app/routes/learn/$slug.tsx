@@ -8,7 +8,7 @@ import {
   Text,
   useMantineColorScheme,
 } from '@mantine/core';
-import type { LoaderFunction } from '@remix-run/node';
+import type { ActionFunction, LoaderFunction } from '@remix-run/node';
 import { redirect, json } from '@remix-run/node';
 import { Outlet, useLoaderData, useSearchParams, useSubmit, useTransition } from '@remix-run/react';
 import CourseLessonLearn from '~/components/learn/CourseLessonLearn';
@@ -116,6 +116,12 @@ export const loader: LoaderFunction = async ({ params, request }) => {
     return redirect(`/learn/${params.slug}/lesson?id=${course_progress?.lesson}&tab=0`);
   }
   return json({ course, course_progress, lessonId });
+};
+
+export const action: ActionFunction = async ({ request }) => {
+  const formData = await request.formData();
+  console.log(formData.get('whatToGet'));
+  return formData.get('whatToGet');
 };
 
 function LearningSlug() {
@@ -231,7 +237,7 @@ function LearningSlug() {
               <Outlet />
             </div>
             <div className="w-full">
-              <TabInfoNavigation />
+              <TabInfoNavigation slug={course.slug} />
             </div>
           </div>
         </div>

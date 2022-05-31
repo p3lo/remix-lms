@@ -28,6 +28,7 @@ function Header() {
           className="px-3"
           weight={800}
           component={Link}
+          prefetch="intent"
           to="/"
           size="xl"
           variant="gradient"

@@ -55,26 +55,26 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const action = formData.get('action');
   invariant(action, 'action is required');
-  const lessonId = formData.get('lessonId');
-  const userId = formData.get('userId');
-  invariant(lessonId, 'lessonId is required');
-  invariant(userId, 'userId is required');
-  const getProgressId = await prisma.course_progress.findFirst({
-    where: {
-      AND: [
-        {
-          lessonId: +lessonId,
-        },
-        {
-          userId: +userId,
-        },
-      ],
-    },
-    select: {
-      id: true,
-    },
-  });
   if (action === 'updateComplete') {
+    const lessonId = formData.get('lessonId');
+    const userId = formData.get('userId');
+    invariant(lessonId, 'lessonId is required');
+    invariant(userId, 'userId is required');
+    const getProgressId = await prisma.course_progress.findFirst({
+      where: {
+        AND: [
+          {
+            lessonId: +lessonId,
+          },
+          {
+            userId: +userId,
+          },
+        ],
+      },
+      select: {
+        id: true,
+      },
+    });
     const completed = formData.get('completed');
     invariant(completed, 'completed is required');
     await prisma.course_progress.upsert({
@@ -92,6 +92,25 @@ export const action: ActionFunction = async ({ request }) => {
     });
   }
   if (action === 'updateMarked') {
+    const lessonId = formData.get('lessonId');
+    const userId = formData.get('userId');
+    invariant(lessonId, 'lessonId is required');
+    invariant(userId, 'userId is required');
+    const getProgressId = await prisma.course_progress.findFirst({
+      where: {
+        AND: [
+          {
+            lessonId: +lessonId,
+          },
+          {
+            userId: +userId,
+          },
+        ],
+      },
+      select: {
+        id: true,
+      },
+    });
     const courseId = formData.get('courseId');
     invariant(courseId, 'courseId is required');
     await prisma.course_progress.updateMany({
@@ -131,6 +150,10 @@ export const action: ActionFunction = async ({ request }) => {
         userId: +userId,
       },
     });
+  }
+  if (action === 'getTabInfo') {
+    console.log(formData.get('whatToGet'));
+    return formData.get('whatToGet');
   }
   return null;
 };
