@@ -8,7 +8,7 @@ import {
   Text,
   useMantineColorScheme,
 } from '@mantine/core';
-import type { ActionFunction, LoaderFunction } from '@remix-run/node';
+import type { LoaderFunction } from '@remix-run/node';
 import { redirect, json } from '@remix-run/node';
 import { Outlet, useLoaderData, useSearchParams, useSubmit, useTransition } from '@remix-run/react';
 import CourseLessonLearn from '~/components/learn/CourseLessonLearn';
@@ -118,12 +118,6 @@ export const loader: LoaderFunction = async ({ params, request }) => {
   return json({ course, course_progress, lessonId });
 };
 
-export const action: ActionFunction = async ({ request }) => {
-  const formData = await request.formData();
-  console.log(formData.get('whatToGet'));
-  return formData.get('whatToGet');
-};
-
 function LearningSlug() {
   const { course, course_progress } = useLoaderData() as {
     course: Course;
@@ -218,7 +212,7 @@ function LearningSlug() {
   }
   return (
     <LearningLayout>
-      <div className="grid grid-cols-4">
+      <div className="grid grid-cols-4 relative">
         <div className="col-span-3">
           <div className="flex flex-col items-center space-y-4">
             <div className="w-full h-[80vh] relative">
@@ -237,7 +231,7 @@ function LearningSlug() {
               <Outlet />
             </div>
             <div className="w-full">
-              <TabInfoNavigation slug={course.slug} />
+              <TabInfoNavigation course={course} />
             </div>
           </div>
         </div>
@@ -250,7 +244,7 @@ function LearningSlug() {
               <Accordion
                 key={section.id}
                 initialItem={course_progress.section === section.id ? index : 0}
-                className="relative grow"
+                className="relative grow "
                 multiple
                 offsetIcon={false}
               >

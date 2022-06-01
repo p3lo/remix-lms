@@ -152,8 +152,12 @@ export const action: ActionFunction = async ({ request }) => {
     });
   }
   if (action === 'getTabInfo') {
-    console.log(formData.get('whatToGet'));
-    return formData.get('whatToGet');
+    const whatToGet = formData.get('whatToGet');
+    if (whatToGet === 'overview') {
+      return null;
+    }
+    console.log(whatToGet);
+    // return formData.get('whatToGet');
   }
   return null;
 };
