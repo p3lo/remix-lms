@@ -235,52 +235,56 @@ function LearningSlug() {
             </div>
           </div>
         </div>
-        <ScrollArea style={{ height: '92vh' }}>
-          <Paper withBorder className="flex flex-col">
-            <Text p={10} size="md" weight={500}>
-              Course content
-            </Text>
-            {course.content.map((section, index) => (
-              <Accordion
-                key={section.id}
-                initialItem={course_progress.section === section.id ? index : 0}
-                className="relative grow "
-                multiple
-                offsetIcon={false}
-              >
-                <AccordionItem
-                  className={`${dark ? 'bg-zinc-800' : 'bg-zinc-100'}`}
-                  label={
-                    <div className="flex flex-col items-start ">
-                      <Text size="lg">
-                        Section {index + 1}: {section.sectionTitle}
-                      </Text>
-                      <div className="flex items-center space-x-1">
-                        {/* @ts-ignore */}
-                        <Text size="xs">{section._count.lessons} Lessons</Text>
-                        <div className="border-l h-[15px] opacity-50" />
-                        <Text size="xs">{sumTime(section, true)}</Text>
-                      </div>
-                    </div>
-                  }
-                >
-                  <LoadingOverlay loader={<Loader variant="dots" />} visible={loader} />
-                  {section.lessons.map((lesson, index) => (
-                    <CourseLessonLearn
-                      key={lesson.id}
-                      lesson={lesson}
-                      complete={lesson.course_progress[0]?.isCompleted || false}
-                      numbered={index + 1}
-                      userId={course.author.id}
-                      slug={course.slug}
-                      courseId={course.id}
-                    />
-                  ))}
-                </AccordionItem>
-              </Accordion>
-            ))}
-          </Paper>
-        </ScrollArea>
+        <div>
+          <div className="sticky top-0">
+            <ScrollArea style={{ height: '92vh' }}>
+              <Paper withBorder className="flex flex-col">
+                <Text p={10} size="md" weight={500}>
+                  Course content
+                </Text>
+                {course.content.map((section, index) => (
+                  <Accordion
+                    key={section.id}
+                    initialItem={course_progress.section === section.id ? index : 0}
+                    className="relative grow "
+                    multiple
+                    offsetIcon={false}
+                  >
+                    <AccordionItem
+                      className={`${dark ? 'bg-zinc-800' : 'bg-zinc-100'}`}
+                      label={
+                        <div className="flex flex-col items-start ">
+                          <Text size="lg">
+                            Section {index + 1}: {section.sectionTitle}
+                          </Text>
+                          <div className="flex items-center space-x-1">
+                            {/* @ts-ignore */}
+                            <Text size="xs">{section._count.lessons} Lessons</Text>
+                            <div className="border-l h-[15px] opacity-50" />
+                            <Text size="xs">{sumTime(section, true)}</Text>
+                          </div>
+                        </div>
+                      }
+                    >
+                      <LoadingOverlay loader={<Loader variant="dots" />} visible={loader} />
+                      {section.lessons.map((lesson, index) => (
+                        <CourseLessonLearn
+                          key={lesson.id}
+                          lesson={lesson}
+                          complete={lesson.course_progress[0]?.isCompleted || false}
+                          numbered={index + 1}
+                          userId={course.author.id}
+                          slug={course.slug}
+                          courseId={course.id}
+                        />
+                      ))}
+                    </AccordionItem>
+                  </Accordion>
+                ))}
+              </Paper>
+            </ScrollArea>
+          </div>
+        </div>
       </div>
     </LearningLayout>
   );
