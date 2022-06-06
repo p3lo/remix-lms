@@ -153,8 +153,18 @@ export const action: ActionFunction = async ({ request }) => {
   }
   if (action === 'getTabInfo') {
     const whatToGet = formData.get('whatToGet');
+    const courseId = formData.get('courseId');
+    invariant(courseId, 'courseId is required');
     if (whatToGet === 'overview') {
       return null;
+    }
+    if (whatToGet === 'reviews') {
+      const getReviews = await prisma.course_review.findMany({
+        where: {
+          courseId: +courseId,
+        },
+      });
+      return json({ reviews: getReviews });
     }
     console.log(whatToGet);
     // return formData.get('whatToGet');

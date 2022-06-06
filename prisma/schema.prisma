@@ -23,6 +23,7 @@ model user {
   enrolled        enrolled_course[]
   cart            cart[]
   course_progress course_progress[]
+  reviews         course_review[]
 }
 
 model cart {
@@ -78,6 +79,7 @@ model course {
   price         Int?
   whatYouLearn  course_what_you_learn[]
   content       course_content_sections[]
+  reviews       course_review[]
 
 }
 
@@ -148,4 +150,15 @@ model course_progress {
   quizResults   Json?
   endedHere     Boolean                @default(false)
   isCompleted   Boolean                @default(false)
+}
+
+model course_review {
+  id        Int      @id @default(autoincrement())
+  course    course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId  Int
+  user      user     @relation(fields: [userId], references: [id])
+  userId    Int
+  rating    Int
+  comment   String
+  createdAt DateTime @default(now())
 }

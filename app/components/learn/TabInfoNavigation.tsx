@@ -11,7 +11,7 @@ function TabInfoNavigation({ course }: { course: Course }) {
   const onTabsChange = (e: number) => {
     const whatToGet = e === 0 ? 'overview' : e === 1 ? 'qa' : e === 2 ? 'announcements' : 'reviews';
     fetcher.submit(
-      { whatToGet, action: 'getTabInfo' },
+      { whatToGet, courseId: course.id.toString(), action: 'getTabInfo' },
       { method: 'post', action: `/learn/${course.slug}/lesson?id=${+tab.get('id')!}&tab=${e}` }
     );
     navigate(`/learn/${course.slug}/lesson?id=${+tab.get('id')!}&tab=${e}`);
@@ -21,9 +21,9 @@ function TabInfoNavigation({ course }: { course: Course }) {
       <Tabs.Tab label="Overview">
         <Overview course={course} />
       </Tabs.Tab>
-      <Tabs.Tab label="Q&A">{fetcher.data}</Tabs.Tab>
-      <Tabs.Tab label="Announcements">{fetcher.data}</Tabs.Tab>
-      <Tabs.Tab label="Reviews">{fetcher.data}</Tabs.Tab>
+      <Tabs.Tab label="Q&A">{JSON.stringify(fetcher.data, null, 2)}</Tabs.Tab>
+      <Tabs.Tab label="Announcements">{JSON.stringify(fetcher.data, null, 2)}</Tabs.Tab>
+      <Tabs.Tab label="Reviews">{JSON.stringify(fetcher.data, null, 2)}</Tabs.Tab>
     </Tabs>
   );
 }

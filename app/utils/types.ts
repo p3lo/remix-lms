@@ -11,6 +11,7 @@ export interface User {
   enrolled: Enrolled[];
   cart: Cart[];
   course_progress: CourseProgress[];
+  reviews: CourseReviews[];
 }
 
 export interface Cart {
@@ -61,6 +62,7 @@ export interface Course {
   whatYouLearn: WhatYoullLearn[];
   subCategory: SubCategory;
   content: CourseSections[];
+  course_progress: CourseProgress[];
 }
 
 export interface WhatYoullLearn {
@@ -121,4 +123,15 @@ export interface CourseProgress {
   quizProgress: JSON;
   endedHere: boolean;
   isCompleted: boolean;
+}
+
+export interface CourseReviews {
+  id: number;
+  userId: number;
+  user: User;
+  courseId: number;
+  course: Course;
+  rating: number;
+  comment: string;
+  createdAt: string;
 }
