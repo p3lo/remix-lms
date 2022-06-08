@@ -132,6 +132,6 @@ export interface CourseReviews {
   courseId: number;
   course: Course;
   rating: number;
-  comment: string;
+  comment?: string;
   createdAt: string;
 }

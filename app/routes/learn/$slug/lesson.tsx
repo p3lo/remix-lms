@@ -55,6 +55,7 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const action = formData.get('action');
   invariant(action, 'action is required');
+  console.log(action);
   if (action === 'updateComplete') {
     const lessonId = formData.get('lessonId');
     const userId = formData.get('userId');
@@ -164,10 +165,20 @@ export const action: ActionFunction = async ({ request }) => {
           courseId: +courseId,
         },
       });
-      return json({ reviews: getReviews });
+      const getAverage = await prisma.course_review.aggregate({
+        where: {
+          courseId: +courseId,
+        },
+        _avg: {
+          rating: true,
+        },
+      });
+      return json({ reviews: getReviews, average: getAverage });
     }
-    console.log(whatToGet);
     // return formData.get('whatToGet');
+  }
+  if (action === 'submitReview') {
+    return null;
   }
   return null;
 };
