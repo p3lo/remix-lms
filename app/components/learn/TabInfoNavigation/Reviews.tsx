@@ -15,13 +15,14 @@ function Reviews({ course }: { course: Course }) {
   const [rating, setRating] = React.useState<number>(50);
   const [userReview, setUserReview] = React.useState<CourseReviews | undefined>();
   const [reviewOpened, setReviewOpened] = React.useState(false);
+  console.log(fetcher.data);
   let [params] = useSearchParams();
   React.useEffect(() => {
     fetcher.submit(
       { whatToGet: 'reviews', courseId: course.id.toString(), userId: userId.toString(), action: 'getTabInfo' },
       { method: 'post', action: `/learn/${course.slug}/lesson` }
     );
-  }, []);
+  }, [, fetcher.data?.success]);
   React.useEffect(() => {
     setReviews((prev) => [...(prev || []), ...(fetcher.data?.reviews || [])]);
   }, [fetcher.data?.reviews]);
@@ -32,13 +33,17 @@ function Reviews({ course }: { course: Course }) {
     setUserReview(fetcher.data?.userReview);
   }, [fetcher.data?.userReview]);
 
+  const getRating = (percentage: number) => {
+    return (Math.floor(percentage / 2) / 10).toFixed(1);
+  };
+
   return (
     <div className="flex flex-col p-5 space-y-4">
       <div className="flex flex-col space-y-2">
         <Title order={2}>Student feedback</Title>
         <div className="flex items-center px-5 space-x-5">
           <div className="flex flex-col items-center">
-            <Title className="text-5xl">{average ? average + '%' : '0%'}</Title>
+            <Title className="text-7xl">{average ? getRating(average) : '0.0'}</Title>
             <Rating ratingValue={average ? average : 0} size={20} readonly />
             <Text>Course Rating</Text>
           </div>

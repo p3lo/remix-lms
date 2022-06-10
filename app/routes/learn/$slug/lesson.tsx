@@ -221,7 +221,7 @@ export const action: ActionFunction = async ({ request }) => {
         userId: +userId,
       },
     });
-    return null;
+    return json({ success: true });
   }
   return null;
 };
