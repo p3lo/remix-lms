@@ -55,7 +55,6 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const action = formData.get('action');
   invariant(action, 'action is required');
-  console.log(action);
   if (action === 'updateComplete') {
     const lessonId = formData.get('lessonId');
     const userId = formData.get('userId');
@@ -155,6 +154,8 @@ export const action: ActionFunction = async ({ request }) => {
   if (action === 'getTabInfo') {
     const whatToGet = formData.get('whatToGet');
     const courseId = formData.get('courseId');
+    const userId = formData.get('userId');
+    invariant(userId, 'userId is required');
     invariant(courseId, 'courseId is required');
     if (whatToGet === 'overview') {
       return null;
@@ -163,6 +164,14 @@ export const action: ActionFunction = async ({ request }) => {
       const getReviews = await prisma.course_review.findMany({
         where: {
           courseId: +courseId,
+        },
+        include: {
+          user: {
+            select: {
+              name: true,
+              picture: true,
+            },
+          },
         },
       });
       const getAverage = await prisma.course_review.aggregate({
@@ -173,11 +182,45 @@ export const action: ActionFunction = async ({ request }) => {
           rating: true,
         },
       });
-      return json({ reviews: getReviews, average: getAverage });
+      const getUserReview = await prisma.course_review.findFirst({
+        where: {
+          AND: [
+            {
+              courseId: +courseId,
+            },
+            {
+              userId: +userId,
+            },
+          ],
+        },
+      });
+      return json({ reviews: getReviews, average: getAverage, userReview: getUserReview });
     }
-    // return formData.get('whatToGet');
   }
   if (action === 'submitReview') {
+    const rating = formData.get('rating');
+    const comment = formData.get('comment');
+    const courseId = formData.get('courseId');
+    const userId = formData.get('userId');
+    const userReviewId = formData.get('userReviewId') || 0;
+    invariant(userId, 'userId is required');
+    invariant(courseId, 'courseId is required');
+    invariant(rating, 'rating is required');
+    await prisma.course_review.upsert({
+      where: {
+        id: +userReviewId,
+      },
+      update: {
+        rating: +rating,
+        comment: comment?.toString() || '',
+      },
+      create: {
+        rating: +rating,
+        comment: comment?.toString() || '',
+        courseId: +courseId,
+        userId: +userId,
+      },
+    });
     return null;
   }
   return null;

@@ -12,22 +12,12 @@ function TabInfoNavigation({ course }: { course: Course }) {
   const tabIndex = tab.get('tab');
   const { scrollIntoView, targetRef } = useScrollIntoView<HTMLDivElement>({ offset: 60 });
   const onTabsChange = (e: number) => {
-    // const whatToGet = e === 0 ? 'overview' : e === 1 ? 'qa' : e === 2 ? 'announcements' : 'reviews';
-    // fetcher.submit(
-    //   { whatToGet, courseId: course.id.toString(), action: 'getTabInfo' },
-    //   { method: 'post', action: `/learn/${course.slug}/lesson?id=${+tab.get('id')!}&tab=${e}` }
-    // );
+    scrollIntoView({ alignment: 'center' });
     navigate(`/learn/${course.slug}/lesson?id=${+tab.get('id')!}&tab=${e}`);
   };
   return (
     <div ref={targetRef}>
-      <Tabs
-        onClick={() => scrollIntoView({ alignment: 'center' })}
-        tabPadding="lg"
-        onTabChange={onTabsChange}
-        initialTab={+tabIndex!}
-        grow
-      >
+      <Tabs tabPadding="lg" onTabChange={onTabsChange} initialTab={+tabIndex!} grow>
         <Tabs.Tab label="Overview">
           <Overview course={course} />
         </Tabs.Tab>
