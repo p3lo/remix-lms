@@ -15,14 +15,14 @@ function Reviews({ course }: { course: Course }) {
   const [rating, setRating] = React.useState<number>(50);
   const [userReview, setUserReview] = React.useState<CourseReviews | undefined>();
   const [reviewOpened, setReviewOpened] = React.useState(false);
-  console.log(fetcher.data);
+
   let [params] = useSearchParams();
   React.useEffect(() => {
     fetcher.submit(
       { whatToGet: 'reviews', courseId: course.id.toString(), userId: userId.toString(), action: 'getTabInfo' },
       { method: 'post', action: `/learn/${course.slug}/lesson` }
     );
-  }, [, fetcher.data?.success]);
+  }, []);
   React.useEffect(() => {
     setReviews((prev) => [...(prev || []), ...(fetcher.data?.reviews || [])]);
   }, [fetcher.data?.reviews]);
