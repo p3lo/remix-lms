@@ -96,7 +96,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 function OwnedCourses() {
   const { courses } = useLoaderData() as { courses: EnrolledWTotal[] };
   const getRating = (percentage: number) => {
-    console.log(percentage);
     return (Math.floor(percentage / 2) / 10).toFixed(1);
   };
   return (
