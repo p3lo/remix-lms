@@ -8,6 +8,7 @@ import LessonText from '~/components/learn/LessonText';
 import LessonVideo from '~/components/learn/LessonVideo';
 import { supabaseStrategy } from '~/utils/auth.server';
 import { prisma } from '~/utils/db.server';
+import { generateUUID } from '~/utils/helpers';
 import type { CourseLessons } from '~/utils/types';
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -194,7 +195,117 @@ export const action: ActionFunction = async ({ request }) => {
           ],
         },
       });
-      return json({ reviews: getReviews, average: getAverage, userReview: getUserReview });
+      const getAllFiveStars = await prisma.course_review.count({
+        where: {
+          AND: [
+            {
+              courseId: +courseId,
+            },
+            {
+              rating: {
+                gte: 81,
+              },
+            },
+            {
+              rating: {
+                lte: 100,
+              },
+            },
+          ],
+        },
+      });
+      const getAllFourStars = await prisma.course_review.count({
+        where: {
+          AND: [
+            {
+              courseId: +courseId,
+            },
+            {
+              rating: {
+                gte: 61,
+              },
+            },
+            {
+              rating: {
+                lte: 80,
+              },
+            },
+          ],
+        },
+      });
+      const getAllThreeStars = await prisma.course_review.count({
+        where: {
+          AND: [
+            {
+              courseId: +courseId,
+            },
+            {
+              rating: {
+                gte: 41,
+              },
+            },
+            {
+              rating: {
+                lte: 60,
+              },
+            },
+          ],
+        },
+      });
+      const getAllTwoStars = await prisma.course_review.count({
+        where: {
+          AND: [
+            {
+              courseId: +courseId,
+            },
+            {
+              rating: {
+                gte: 21,
+              },
+            },
+            {
+              rating: {
+                lte: 40,
+              },
+            },
+          ],
+        },
+      });
+      const getAllOneStars = await prisma.course_review.count({
+        where: {
+          AND: [
+            {
+              courseId: +courseId,
+            },
+            {
+              rating: {
+                gte: 0,
+              },
+            },
+            {
+              rating: {
+                lte: 20,
+              },
+            },
+          ],
+        },
+      });
+      const getAllStars = await prisma.course_review.count({
+        where: {
+          courseId: +courseId,
+        },
+      });
+      return json({
+        reviews: getReviews,
+        average: getAverage,
+        userReview: getUserReview,
+        fiveStars: getAllFiveStars,
+        fourStars: getAllFourStars,
+        threeStars: getAllThreeStars,
+        twoStars: getAllTwoStars,
+        oneStars: getAllOneStars,
+        allStars: getAllStars,
+      });
     }
   }
   if (action === 'submitReview') {
@@ -221,7 +332,7 @@ export const action: ActionFunction = async ({ request }) => {
         userId: +userId,
       },
     });
-    return json({ success: true });
+    return json({ success: generateUUID(5) });
   }
   return null;
 };

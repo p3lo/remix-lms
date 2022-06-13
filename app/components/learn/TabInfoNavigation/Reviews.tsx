@@ -1,4 +1,15 @@
-import { Avatar, Button, Collapse, Divider, Progress, Text, Textarea, Title } from '@mantine/core';
+import {
+  Avatar,
+  Button,
+  Collapse,
+  Divider,
+  Loader,
+  LoadingOverlay,
+  Progress,
+  Text,
+  Textarea,
+  Title,
+} from '@mantine/core';
 import { Form, useFetcher, useMatches, useSearchParams } from '@remix-run/react';
 import * as React from 'react';
 import { RiStarLine } from 'react-icons/ri';
@@ -8,6 +19,7 @@ import TimeAgo from 'react-timeago';
 
 function Reviews({ course }: { course: Course }) {
   const fetcher = useFetcher();
+  const reviewFetcher = useFetcher();
   const getData = useMatches()[0];
   const userId = getData?.data.profile.id;
   const [reviews, setReviews] = React.useState<CourseReviews[]>([]);
@@ -15,6 +27,13 @@ function Reviews({ course }: { course: Course }) {
   const [rating, setRating] = React.useState<number>(50);
   const [userReview, setUserReview] = React.useState<CourseReviews | undefined>();
   const [reviewOpened, setReviewOpened] = React.useState(false);
+  const [fiveStar, setFiveStar] = React.useState<number>(0);
+  const [fourStar, setFourStar] = React.useState<number>(0);
+  const [threeStar, setThreeStar] = React.useState<number>(0);
+  const [twoStar, setTwoStar] = React.useState<number>(0);
+  const [oneStar, setOneStar] = React.useState<number>(0);
+  const [reviewCount, setReviewCount] = React.useState<number>(0);
+  const loader = fetcher.state === 'submitting' || fetcher.state === 'loading' ? true : false;
 
   let [params] = useSearchParams();
   React.useEffect(() => {
@@ -22,12 +41,22 @@ function Reviews({ course }: { course: Course }) {
       { whatToGet: 'reviews', courseId: course.id.toString(), userId: userId.toString(), action: 'getTabInfo' },
       { method: 'post', action: `/learn/${course.slug}/lesson` }
     );
-  }, []);
+  }, [, reviewFetcher?.data]);
   React.useEffect(() => {
+    if (reviewFetcher?.data) {
+      setReviews(reviews.filter((r) => r.userId !== userId));
+    }
+
     setReviews((prev) => [...(prev || []), ...(fetcher.data?.reviews || [])]);
   }, [fetcher.data?.reviews]);
   React.useEffect(() => {
     setAverage(fetcher.data?.average._avg.rating);
+    setFiveStar(fetcher.data?.fiveStars);
+    setFourStar(fetcher.data?.fourStars);
+    setThreeStar(fetcher.data?.threeStars);
+    setTwoStar(fetcher.data?.twoStars);
+    setOneStar(fetcher.data?.oneStars);
+    setReviewCount(fetcher.data?.allStars);
   }, [fetcher.data?.average]);
   React.useEffect(() => {
     setUserReview(fetcher.data?.userReview);
@@ -37,35 +66,44 @@ function Reviews({ course }: { course: Course }) {
     return (Math.floor(percentage / 2) / 10).toFixed(1);
   };
 
+  const getPercentage = (starsNo: number) => {
+    if (reviewCount === 0) {
+      return 0;
+    } else {
+      return (starsNo / reviewCount) * 100;
+    }
+  };
+
   return (
-    <div className="flex flex-col p-5 space-y-4">
+    <div className="flex flex-col p-5 space-y-4 relative">
+      <LoadingOverlay loader={<Loader variant="dots" />} visible={loader} />
       <div className="flex flex-col space-y-2">
         <Title order={2}>Student feedback</Title>
         <div className="flex items-center px-5 space-x-5">
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center ">
             <Title className="text-7xl">{average ? getRating(average) : '0.0'}</Title>
             <Rating ratingValue={average ? average : 0} size={20} readonly />
             <Text>Course Rating</Text>
           </div>
           <div className="flex flex-col grow">
             <div className="flex items-center space-x-5">
-              <Progress className="grow" size="sm" radius="xs" value={50} />
+              <Progress className="grow" size="sm" radius="xs" value={getPercentage(fiveStar)} />
               <Rating ratingValue={100} size={15} readonly />
             </div>
             <div className="flex items-center space-x-5">
-              <Progress className="grow" size="sm" radius="xs" value={50} />
+              <Progress className="grow" size="sm" radius="xs" value={getPercentage(fourStar)} />
               <Rating ratingValue={80} size={15} readonly />
             </div>
             <div className="flex items-center space-x-5">
-              <Progress className="grow" size="sm" radius="xs" value={50} />
+              <Progress className="grow" size="sm" radius="xs" value={getPercentage(threeStar)} />
               <Rating ratingValue={60} size={15} readonly />
             </div>
             <div className="flex items-center space-x-5">
-              <Progress className="grow" size="sm" radius="xs" value={50} />
+              <Progress className="grow" size="sm" radius="xs" value={getPercentage(twoStar)} />
               <Rating ratingValue={40} size={15} readonly />
             </div>
             <div className="flex items-center space-x-5">
-              <Progress className="grow" size="sm" radius="xs" value={50} />
+              <Progress className="grow" size="sm" radius="xs" value={getPercentage(oneStar)} />
               <Rating ratingValue={20} size={15} readonly />
             </div>
           </div>
@@ -81,7 +119,7 @@ function Reviews({ course }: { course: Course }) {
           Leave a rating
         </Button>
         <Collapse in={reviewOpened}>
-          <Form
+          <reviewFetcher.Form
             method="post"
             action={`/learn/${course.slug}/lesson?id=${+params.get('id')!}&tab=${+params.get('tab')!}`}
           >
@@ -100,7 +138,7 @@ function Reviews({ course }: { course: Course }) {
             <Button type="submit" mt={15}>
               {userReview ? 'Update' : 'Submit'}
             </Button>
-          </Form>
+          </reviewFetcher.Form>
         </Collapse>
       </div>
       <div className="flex flex-col space-y-5">
