@@ -2,6 +2,7 @@ import { Image, Paper, RingProgress, Text } from '@mantine/core';
 import type { LoaderFunction } from '@remix-run/node';
 import { json } from '@remix-run/node';
 import { Link, useLoaderData } from '@remix-run/react';
+import { Rating } from 'react-simple-star-rating';
 
 import { supabaseStrategy } from '~/utils/auth.server';
 import { prisma } from '~/utils/db.server';
@@ -10,6 +11,7 @@ import type { Enrolled } from '~/utils/types';
 
 interface EnrolledWTotal extends Enrolled {
   percentTotal: number;
+  average: number;
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -36,6 +38,7 @@ export const loader: LoaderFunction = async ({ request }) => {
         },
       },
     },
+
     orderBy: {
       enrolledAt: 'desc',
     },
@@ -74,9 +77,17 @@ export const loader: LoaderFunction = async ({ request }) => {
         ],
       },
     });
+    const getAverage = await prisma.course_review.aggregate({
+      where: {
+        courseId: course.course.id,
+      },
+      _avg: {
+        rating: true,
+      },
+    });
     const percentTotal = Math.round((getLessonsCompleted / getLessonsTotal) * 100);
     const getIndex = courses.findIndex((item) => item.course.id === course.course.id);
-    Object.assign(courses[getIndex], { percentTotal });
+    Object.assign(courses[getIndex], { percentTotal, average: getAverage._avg.rating });
   }
 
   return json({ courses });
@@ -84,6 +95,10 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 function OwnedCourses() {
   const { courses } = useLoaderData() as { courses: EnrolledWTotal[] };
+  const getRating = (percentage: number) => {
+    console.log(percentage);
+    return (Math.floor(percentage / 2) / 10).toFixed(1);
+  };
   return (
     <div className="max-w-4xl mx-auto">
       <Text className="flex justify-center p-3" size="xl" weight={700}>
@@ -108,6 +123,12 @@ function OwnedCourses() {
                   <Text size="xs" className="opacity-50">
                     Updated: {getNiceDate(course.course.updatedAt)}
                   </Text>
+                  <div className="flex space-x-1 items-center">
+                    <Text weight={600} size="xs">
+                      {getRating(course.average)}
+                    </Text>
+                    <Rating ratingValue={course.average || 0} size={15} readonly />
+                  </div>
                 </div>
               </div>
               <div className="flex flex-col space-y-1 w-[100px] items-center">
@@ -121,7 +142,7 @@ function OwnedCourses() {
                   sections={[{ value: course.percentTotal, color: 'blue' }]}
                   label={
                     <Text color="blue" weight={700} align="center" size="sm">
-                      {course.percentTotal}%
+                      {course.percentTotal || 0}%
                     </Text>
                   }
                 />
