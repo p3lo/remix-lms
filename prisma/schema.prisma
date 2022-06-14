@@ -11,19 +11,20 @@ datasource db {
 }
 
 model user {
-  id              Int               @id @default(autoincrement())
-  name            String
-  email           String            @unique
-  picture         String?
-  role            String            @default("student")
-  headline        String?
-  bio             String?
-  website         String?
-  authored        course[]          @relation("AUTHORED_BY")
-  enrolled        enrolled_course[]
-  cart            cart[]
-  course_progress course_progress[]
-  reviews         course_review[]
+  id                   Int                    @id @default(autoincrement())
+  name                 String
+  email                String                 @unique
+  picture              String?
+  role                 String                 @default("student")
+  headline             String?
+  bio                  String?
+  website              String?
+  authored             course[]               @relation("AUTHORED_BY")
+  enrolled             enrolled_course[]
+  cart                 cart[]
+  course_progress      course_progress[]
+  reviews              course_review[]
+  course_announcements course_announcements[]
 }
 
 model cart {
@@ -58,29 +59,29 @@ model sub_category {
 }
 
 model course {
-  id            Int                       @id @default(autoincrement())
-  createdAt     DateTime                  @default(now())
-  updatedAt     DateTime                  @default(now())
-  title         String
-  slug          String                    @unique
-  language      String                    @default("en")
-  author        user                      @relation("AUTHORED_BY", fields: [authorId], references: [id])
-  authorId      Int
-  enrolled      enrolled_course[]
-  subCategory   sub_category              @relation(fields: [subCategoryId], references: [id])
-  subCategoryId Int
-  inCart        cart[]
-  isDraft       Boolean                   @default(true)
-  brief         String?
-  description   String?
-  image         String?
-  preview       String?
-  requirements  String?
-  price         Int?
-  whatYouLearn  course_what_you_learn[]
-  content       course_content_sections[]
-  reviews       course_review[]
-
+  id                   Int                       @id @default(autoincrement())
+  createdAt            DateTime                  @default(now())
+  updatedAt            DateTime                  @default(now())
+  title                String
+  slug                 String                    @unique
+  language             String                    @default("en")
+  author               user                      @relation("AUTHORED_BY", fields: [authorId], references: [id])
+  authorId             Int
+  enrolled             enrolled_course[]
+  subCategory          sub_category              @relation(fields: [subCategoryId], references: [id])
+  subCategoryId        Int
+  inCart               cart[]
+  isDraft              Boolean                   @default(true)
+  brief                String?
+  description          String?
+  image                String?
+  preview              String?
+  requirements         String?
+  price                Int?
+  whatYouLearn         course_what_you_learn[]
+  content              course_content_sections[]
+  reviews              course_review[]
+  course_announcements course_announcements[]
 }
 
 model course_what_you_learn {
@@ -161,4 +162,14 @@ model course_review {
   rating    Int
   comment   String?
   createdAt DateTime @default(now())
+}
+
+model course_announcements {
+  id           Int      @id @default(autoincrement())
+  course       course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId     Int
+  user         user     @relation(fields: [userId], references: [id])
+  userId       Int
+  announcement String
+  createdAt    DateTime @default(now())
 }

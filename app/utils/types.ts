@@ -12,6 +12,7 @@ export interface User {
   cart: Cart[];
   course_progress: CourseProgress[];
   reviews: CourseReviews[];
+  course_announcements: CourseAnnouncements[];
 }
 
 export interface Cart {
@@ -63,6 +64,7 @@ export interface Course {
   subCategory: SubCategory;
   content: CourseSections[];
   course_progress: CourseProgress[];
+  course_announcements: CourseAnnouncements[];
 }
 
 export interface WhatYoullLearn {
@@ -133,5 +135,15 @@ export interface CourseReviews {
   course: Course;
   rating: number;
   comment?: string;
+  createdAt: string;
+}
+
+export interface CourseAnnouncements {
+  id: number;
+  courseId: number;
+  course: Course;
+  userId: number;
+  user: User;
+  announcement: string;
   createdAt: string;
 }

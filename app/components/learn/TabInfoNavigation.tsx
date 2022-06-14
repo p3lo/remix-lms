@@ -2,6 +2,7 @@ import { Tabs } from '@mantine/core';
 import { useScrollIntoView } from '@mantine/hooks';
 import { useFetcher, useNavigate, useSearchParams } from '@remix-run/react';
 import type { Course } from '~/utils/types';
+import Announcements from './TabInfoNavigation/Announcements';
 import Overview from './TabInfoNavigation/Overview';
 import Reviews from './TabInfoNavigation/Reviews';
 
@@ -22,7 +23,9 @@ function TabInfoNavigation({ course }: { course: Course }) {
           <Overview course={course} />
         </Tabs.Tab>
         <Tabs.Tab label="Q&A">{JSON.stringify(fetcher.data, null, 2)}</Tabs.Tab>
-        <Tabs.Tab label="Announcements">{JSON.stringify(fetcher.data, null, 2)}</Tabs.Tab>
+        <Tabs.Tab label="Announcements">
+          <Announcements />
+        </Tabs.Tab>
         <Tabs.Tab label="Reviews">
           <Reviews course={course} />
         </Tabs.Tab>
