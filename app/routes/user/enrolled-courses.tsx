@@ -12,6 +12,7 @@ import type { Enrolled } from '~/utils/types';
 interface EnrolledWTotal extends Enrolled {
   percentTotal: number;
   average: number;
+  reviewsCount: number;
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -84,10 +85,17 @@ export const loader: LoaderFunction = async ({ request }) => {
       _avg: {
         rating: true,
       },
+      _count: {
+        rating: true,
+      },
     });
     const percentTotal = Math.round((getLessonsCompleted / getLessonsTotal) * 100);
     const getIndex = courses.findIndex((item) => item.course.id === course.course.id);
-    Object.assign(courses[getIndex], { percentTotal, average: getAverage._avg.rating });
+    Object.assign(courses[getIndex], {
+      percentTotal,
+      average: getAverage._avg.rating,
+      reviewsCount: getAverage._count.rating,
+    });
   }
 
   return json({ courses });
@@ -127,6 +135,9 @@ function OwnedCourses() {
                       {getRating(course.average)}
                     </Text>
                     <Rating ratingValue={course.average || 0} size={15} readonly />
+                    <Text size="xs" className="opacity-50">
+                      ({course.reviewsCount})
+                    </Text>
                   </div>
                 </div>
               </div>
