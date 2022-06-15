@@ -144,6 +144,7 @@ export interface CourseAnnouncements {
   course: Course;
   userId: number;
   user: User;
+  title: string;
   announcement: string;
   createdAt: string;
 }

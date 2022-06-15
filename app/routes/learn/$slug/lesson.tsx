@@ -307,6 +307,19 @@ export const action: ActionFunction = async ({ request }) => {
         allStars: getAllStars,
       });
     }
+    if (whatToGet === 'announcements') {
+      const getAnnouncements = await prisma.course_announcements.findMany({
+        where: {
+          courseId: +courseId,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+      return json({
+        announcements: getAnnouncements,
+      });
+    }
   }
   if (action === 'submitReview') {
     const rating = formData.get('rating');
@@ -333,6 +346,25 @@ export const action: ActionFunction = async ({ request }) => {
       },
     });
     return json({ success: generateUUID(5) });
+  }
+  if (action === 'submitAnnouncement') {
+    const announcement = formData.get('rte');
+    const courseId = formData.get('courseId');
+    const userId = formData.get('userId');
+    const title = formData.get('title');
+    invariant(title, 'title is required');
+    invariant(userId, 'userId is required');
+    invariant(courseId, 'courseId is required');
+    invariant(announcement, 'announcement is required');
+    const announ = await prisma.course_announcements.create({
+      data: {
+        title: title?.toString() || '',
+        announcement: announcement?.toString() || '',
+        courseId: +courseId,
+        userId: +userId,
+      },
+    });
+    return json({ announ });
   }
   return null;
 };

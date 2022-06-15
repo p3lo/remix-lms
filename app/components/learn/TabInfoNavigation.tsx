@@ -24,7 +24,7 @@ function TabInfoNavigation({ course }: { course: Course }) {
         </Tabs.Tab>
         <Tabs.Tab label="Q&A">{JSON.stringify(fetcher.data, null, 2)}</Tabs.Tab>
         <Tabs.Tab label="Announcements">
-          <Announcements />
+          <Announcements courseId={course.id} slug={course.slug} owner={course.author} />
         </Tabs.Tab>
         <Tabs.Tab label="Reviews">
           <Reviews course={course} />
