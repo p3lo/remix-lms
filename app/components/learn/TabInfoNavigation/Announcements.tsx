@@ -20,15 +20,10 @@ function Announcements({ courseId, slug, owner }: { courseId: number; slug: stri
       { whatToGet: 'announcements', courseId: courseId.toString(), userId: userId.toString(), action: 'getTabInfo' },
       { method: 'post', action: `/learn/${slug}/lesson` }
     );
-  }, []);
+  }, [, announcementsFetcher?.data]);
   React.useEffect(() => {
-    // setAnnouncements((prev) => [...(prev || []), ...(fetcher.data?.announcements || [])]);
     setAnnouncements(fetcher.data?.announcements || []);
   }, [fetcher.data?.announcements]);
-  React.useEffect(() => {
-    setAnnouncements((prev) => [...(announcementsFetcher.data?.announ || []), ...(prev || [])]);
-    // setAnnouncements((prev) => [...(prev || []), ...(fetcher.data?.announcements || [])]);
-  }, [announcementsFetcher?.data]);
 
   return (
     <div className="relative flex flex-col p-5 space-y-4">
@@ -58,7 +53,7 @@ function Announcements({ courseId, slug, owner }: { courseId: number; slug: stri
                   spellCheck={false}
                 />
               </InputWrapper>
-              <Button type="submit" mt={15}>
+              <Button type="submit" mt={15} onClick={() => setAddAnnouncementOpened((o) => !o)}>
                 Submit
               </Button>
             </announcementsFetcher.Form>
@@ -66,7 +61,7 @@ function Announcements({ courseId, slug, owner }: { courseId: number; slug: stri
         </>
       )}
       {announcements.map((announcement) => (
-        <AnnouncementPost key={announcement.id} announcement={announcement} owner={owner} />
+        <AnnouncementPost key={announcement.id} announcement={announcement} owner={owner} slug={slug} />
       ))}
     </div>
   );

@@ -366,6 +366,35 @@ export const action: ActionFunction = async ({ request }) => {
     });
     return json({ announ });
   }
+  if (action === 'deleteAnnouncement') {
+    const announcementId = formData.get('announcementId');
+    invariant(announcementId, 'announcementId is required');
+    await prisma.course_announcements.delete({
+      where: {
+        id: +announcementId,
+      },
+    });
+    return json({ success: true });
+  }
+  if (action === 'updateAnnouncement') {
+    const announcementId = formData.get('announcementId');
+    const title = formData.get('title');
+    const announcement = formData.get('rte');
+    invariant(announcement, 'announcement is required');
+    invariant(title, 'title is required');
+    invariant(announcementId, 'announcementId is required');
+    await prisma.course_announcements.update({
+      where: {
+        id: +announcementId,
+      },
+      data: {
+        title: title?.toString() || '',
+        announcement: announcement?.toString() || '',
+      },
+    });
+    return json({ update: true });
+  }
+
   return null;
 };
 
