@@ -4,6 +4,7 @@ import { useFetcher, useNavigate, useSearchParams } from '@remix-run/react';
 import type { Course } from '~/utils/types';
 import Announcements from './TabInfoNavigation/Announcements';
 import Overview from './TabInfoNavigation/Overview';
+import QA from './TabInfoNavigation/QA';
 import Reviews from './TabInfoNavigation/Reviews';
 
 function TabInfoNavigation({ course }: { course: Course }) {
@@ -22,7 +23,9 @@ function TabInfoNavigation({ course }: { course: Course }) {
         <Tabs.Tab label="Overview">
           <Overview course={course} />
         </Tabs.Tab>
-        <Tabs.Tab label="Q&A">{JSON.stringify(fetcher.data, null, 2)}</Tabs.Tab>
+        <Tabs.Tab label="Q&A">
+          <QA courseId={course.id} slug={course.slug} owner={course.author} />
+        </Tabs.Tab>
         <Tabs.Tab label="Announcements">
           <Announcements courseId={course.id} slug={course.slug} owner={course.author} />
         </Tabs.Tab>

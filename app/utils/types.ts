@@ -148,3 +148,23 @@ export interface CourseAnnouncements {
   announcement: string;
   createdAt: string;
 }
+
+export interface CourseQAQuestions {
+  id: number;
+  courseId: number;
+  course: Course;
+  userId: number;
+  user: User;
+  question: string;
+  createdAt: string;
+}
+
+export interface CourseQAAnswers {
+  id: number;
+  questionId: number;
+  question: CourseQAQuestions;
+  userId: number;
+  user: User;
+  answer: string;
+  createdAt: string;
+}
